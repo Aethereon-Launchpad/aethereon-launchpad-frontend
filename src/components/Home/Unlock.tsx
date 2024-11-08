@@ -2,7 +2,7 @@
 
 function Unlock() {
   return (
-    <div className="h-[1900px] mt-[40px] lg:h-[700px]  relative flex items-center justify-center">
+    <div className="h-[1600px] mt-[40px] lg:h-[800px]  relative flex items-center justify-center">
       <img src="/unlock-gra.svg" className="h-full w-full" alt="" />
       <div className="absolute w-full lg:w-[90%] top-0 min-h-full  flex flex-col lg:flex-row items-center p-[40px_20px] lg:p-[40px_80px]">
         <div className="w-full lg:w-[40%]  flex-col flex items-start">
