@@ -1,8 +1,12 @@
-import React from 'react'
+// import React from 'react'
+import ExploreComp from '../components/Explore'
+import Layout from '../layout'
 
 function Explore() {
   return (
-    <div>Explore</div>
+    <Layout>
+        <ExploreComp/>
+    </Layout>
   )
 }
 
