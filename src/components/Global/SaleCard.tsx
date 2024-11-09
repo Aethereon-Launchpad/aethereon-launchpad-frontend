@@ -1,6 +1,9 @@
 // import React from 'react'
 
+import { useNavigate } from "react-router-dom";
+
 function SaleCard() {
+  const navigation = useNavigate();
   return (
     <div className=" rounded-[10px] overflow-hidden relative bg-[#27272A]">
       <div className="h-[150px] w-full border-b">
@@ -61,7 +64,7 @@ function SaleCard() {
             </div>
           </div>
         </div>
-        <div className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center">
+        <div onClick={()=> navigation('/join-whitelist')} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center">
           Join Whitelist
         </div>
       </div>
