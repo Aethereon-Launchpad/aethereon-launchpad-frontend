@@ -64,7 +64,7 @@ function SaleCard() {
             </div>
           </div>
         </div>
-        <div onClick={()=> navigation('/join-whitelist')} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center">
+        <div onClick={()=> navigation('/join-whitelist')} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
           Join Whitelist
         </div>
       </div>
