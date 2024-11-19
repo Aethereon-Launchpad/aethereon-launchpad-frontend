@@ -14,9 +14,9 @@ function Powering() {
           <img src="/brave.svg" alt="" />
         </div>
       </div>
-      <div className="w-full lg:w-[80%] grid lg:grid-cols-2 text-white gap-[20px] lg:gap-0 mt-[50px]">
+      <div className="w-full lg:w-[80%] grid lg:grid-cols-2 text-white gap-[20px] lg:gap-0 mt-[50px] rounded-[10px] overflow-hidden">
         <div className="w-full ">
-          <img src="/eye.svg" className="rounded-[10px] lg:rounded-none" alt="" />
+          <img src="/eye.svg" className="rounded-[10px] lg:rounded-none min-h-full h-full object-cover  " alt="" />
         </div>
         <div className="bg-[#17043B] rounded-[10px] lg:rounded-r-[10px] p-[20px] lg:p-[40px]">
           <img src="/derhex-logo-sm.svg" className="h-[50px]" alt="" />

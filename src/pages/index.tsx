@@ -1,5 +1,6 @@
 // import React from 'react'
 
+import Community from "../components/Global/Community"
 import Subscribe from "../components/Global/Subscribe"
 import FeaturedIdo from "../components/Home/FeaturedIdo"
 import HomeHero from "../components/Home/HomeHero"
@@ -14,6 +15,7 @@ function Home() {
         <Powering/>
         <Unlock/>
         <FeaturedIdo/>
+        <Community/>
         <Subscribe/>
     </Layout>
   )
