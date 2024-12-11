@@ -24,7 +24,7 @@ function Navbar() {
     },
   ];
   return (
-    <div className="flex items-center justify-between p-[20px] lg:p-[20px_40px] text-white">
+    <div className="flex items-center font-space justify-between p-[20px] lg:p-[20px_40px] text-white">
       <div>
         <Link to="/">
           <img src="/derhex-logo-sm.svg" alt="" />
@@ -40,9 +40,9 @@ function Navbar() {
             <img src="/ido.svg" alt="" />
           <p>Join IDO</p>
         </button>
-        <button className="bg-primary flex items-center space-x-[5px] p-[10px_20px] rounded-[8px] font-[500]">
-          <IoWalletSharp className="text-[20px]" />
-          <p>Connect Wallet</p>
+        <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]">
+          <IoWalletSharp className="text-[14px] lg:text-[16px]" />
+          <p className="text-[14px] lg:text-[16px]">Connect Wallet</p>
         </button>
       </div>
     </div>
