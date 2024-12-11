@@ -8,7 +8,7 @@ function LaunchHero() {
         <div className="h-[500px] w-[500px] top-0 absolute rounded-full right-[-10%] blur-[40px] bg-[#8949FF33]"></div>
         <div className=" text-white min-w-full  items-center grid lg:grid-cols-2 p-[40px_20px] lg:p-[40px]">
             <div>
-                <p className="text-[40px] lg:text-[70px] font-[700] leading-[45px] lg:leading-[75px]">Power Your Project with <br className="hidden lg:block" /> <span className="text-primary">DerHex </span> Launchpad </p>
+                <p className="text-[40px] lg:text-[70px] font-[700] leading-[45px] lg:leading-[75px]">Power Your Project with <span className="text-primary">DerHex </span> Launchpad </p>
                 <p className="text-[18px] lg:text-[22px] leading-[20px] lg:leading-[27px] mt-[5px] lg:mt-[10px]">Participate in the most promising blockchain projects <br className="hidden lg:block" />  launching exclusively on DerHex</p>
                 
             </div>

@@ -31,8 +31,8 @@ function Navbar() {
         </Link>
       </div>
       <div className="hidden lg:flex items-center text-[#848895] space-x-[20px]">
-        {links.map((link) => (
-          <Link to={link.link}>{link.title}</Link>
+        {links.map((link, index) => (
+          <Link to={link.link} key={index}>{link.title}</Link>
         ))}
       </div>
       <div className="flex items-center space-x-[20px]">
