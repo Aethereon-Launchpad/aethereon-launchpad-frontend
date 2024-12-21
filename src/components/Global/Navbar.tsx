@@ -58,7 +58,7 @@ function Navbar() {
         </div>
       <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895] ">
         {links.map((link, index) => (
-          <Link to={link.link} key={index}>{link.title}</Link>
+          <Link onClick={()=> setShow(!show)} className='text-[20px] text-primary font-[500]' to={link.link} key={index}>{link.title}</Link>
         ))}
       </div>
         

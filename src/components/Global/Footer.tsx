@@ -37,32 +37,32 @@ function Footer() {
             expedita sequi ducimus?
           </p>
         </div>
-        <div className="grid grid-cols-3">
+        <div className="grid gap-[30px] lg:gap-0 lg:grid-cols-3">
           <div>
-            <p className="text-[16px] lg:text-[20px]">Products</p>
-            <div className="flex flex-col items-start mt-[20px] space-y-[10px]">
+            <p className="text-[16px] font-[600] lg:text-[20px]">Products</p>
+            <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
               {footerLinks.slice(0, 5).map((link, index) => (
-                <Link className="text-[12px] lg:text-[16px]" to={link.link} key={index}>
+                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
                   {link.name}
                 </Link>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-[16px] lg:text-[20px]">Help</p>
-            <div className="flex flex-col items-start mt-[20px] space-y-[10px]">
+            <p className="text-[16px] font-[600] lg:text-[20px]">Help</p>
+            <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
               {footerLinks.slice(0, 5).map((link, index) => (
-                <Link className="text-[12px] lg:text-[16px]" to={link.link} key={index}>
+                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
                   {link.name}
                 </Link>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-[16px] lg:text-[20px]">Community</p>
-            <div className="flex flex-col items-start mt-[20px] space-y-[10px]">
+            <p className="text-[16px] font-[600] lg:text-[20px]">Community</p>
+            <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
               {footerLinks.slice(0, 5).map((link, index) => (
-                <Link className="text-[12px] lg:text-[16px]" to={link.link} key={index}>
+                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
                   {link.name}
                 </Link>
               ))}
