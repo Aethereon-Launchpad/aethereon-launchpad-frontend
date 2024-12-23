@@ -5,6 +5,7 @@ import Launchpad from './pages/launchpad'
 import Explore from './pages/explore'
 import Whitelist from './pages/whitelist'
 import Staking from './pages/staking'
+import NewPool from './pages/staking/new'
 
 function App() {
 
@@ -12,9 +13,10 @@ function App() {
     <Routes>
      <Route path='/' element={<Home/>}/>
      <Route path='/launchpad' element={<Launchpad/>}/>
+     <Route path='/launchpad/:id' element={<Whitelist/>}/>
      <Route path='/explore' element={<Explore/>}/>
-     <Route path='/join-whitelist' element={<Whitelist/>}/>
      <Route path='/stake-farm' element={<Staking/>}/>
+     <Route path='/stake-farm/new' element={<NewPool/>}/>
     </Routes>
   )
 }
