@@ -6,11 +6,11 @@ function Footer() {
   const footerLinks = [
     {
       name: "Lunchpad",
-      link: "/lunchpad",
+      link: "/launchpad",
     },
     {
       name: "Staking & Farming",
-      link: "/lunchpad",
+      link: "/stake-farm",
     },
     {
       name: "Governance",

@@ -1,18 +1,72 @@
 // import React from 'react'
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { FaCheck } from "react-icons/fa6";
 
 function PoolForm() {
   const [tab, setTab] = useState(0);
 
+
+  const [poolData, setPoolData] = useState({
+    stakingTokenSymbol: "",
+    rewardTokenAddress: "",
+    stakeFee: "",
+    withdrawalFee:"",
+    rewardBasis: "",
+    numberOfDays:"",
+    apyRate:""
+  })
+
+  const {stakingTokenSymbol, rewardTokenAddress, stakeFee, withdrawalFee, rewardBasis, numberOfDays, apyRate} = poolData;
+
+  
   const handleNextMove = () => {
-    if (tab === 2) {
-      console.log("submit");
-    } else {
+    if (tab === 0) {
+      // Validate for the first step
+      if (!stakingTokenSymbol.trim()) {
+        toast.error("Staking Token Symbol is required!");
+        return;
+      }
+      if (!rewardTokenAddress.trim()) {
+        toast.error("Reward Token Address is required!");
+        return;
+      }
+      // If valid, proceed to the next tab
       setTab(tab + 1);
+    } else if (tab === 1) {
+      // Validate for the second step
+  
+      if (!stakeFee.trim()) {
+        toast.error("Stake Fee is required!");
+        return;
+      }
+      if (!withdrawalFee.trim()) {
+        toast.error("Withdrawal Fee is required!");
+        return;
+      }
+      if (!rewardBasis.trim()) {
+        toast.error("Reward Basis is required!");
+        return;
+      }
+      if (!numberOfDays.trim()) {
+        toast.error("Number of Days is required!");
+        return;
+      }
+      if (!apyRate.trim()) {
+        toast.error("APY Rate is required!");
+        return;
+      }
+      // If valid, proceed to the next tab
+      setTab(tab + 1);
+    } else if (tab === 2) {
+      // Submit the data
+      console.log("Submitting data: ", poolData);
+      toast.error("Staking Pool created successfully!");
     }
   };
+  
+
 
   const renderButton = () => {
     return (
@@ -79,33 +133,7 @@ function PoolForm() {
               ></div>
             </div>
             
-            {/* <div className="">
-              <div className="w-full flex flex-col lg:flex-row items-center space-x-[5px]">
-                <div
-                  className={`${
-                    tab > 1 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                  } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                >
-                  {tab > 1 ? (
-                    <FaCheck className="text-white text-[20px]" />
-                  ) : (
-                    <p className="text-white text-[20px] font-[600]">2</p>
-                  )}
-                </div>
-                <p className="font-[500] text-[#848895] text-[12px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                  Staking Information
-                </p>
-              </div>
-              <div className="w-[40px] flex justify-center items-center">
-                <div className="w-full lg:w-[40px] min-h-full flex justify-center items-center">
-                  <div
-                    className={` ${
-                      tab > 1 ? "border-[#28C76B]" : "border-[#5325A9] "
-                    } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                  ></div>
-                </div>{" "}
-              </div>
-            </div> */}
+         
             <div className="flex  flex-col lg:mt-[20px] items-center">
               <div className="flex flex-col lg:flex-row items-center space-x-[5px]">
                 <div
@@ -211,6 +239,10 @@ function PoolForm() {
               <div className="w-full">
                 <p>Staking Token (CA) / Symbol</p>
                 <input
+                value={stakingTokenSymbol}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, stakingTokenSymbol: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
@@ -218,6 +250,10 @@ function PoolForm() {
               <div className="w-full">
                 <p>Reward Token Address</p>
                 <input
+                value={rewardTokenAddress}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, rewardTokenAddress: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
@@ -229,6 +265,10 @@ function PoolForm() {
               <div className="w-full">
                 <p>Stake Fee (%)</p>
                 <input
+                value={stakeFee}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, stakeFee: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
@@ -236,6 +276,10 @@ function PoolForm() {
               <div className="w-full">
                 <p>Withdrawal Fee (%)</p>
                 <input
+                value={withdrawalFee}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, withdrawalFee: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
@@ -243,6 +287,10 @@ function PoolForm() {
               <div className="w-full">
                 <p>Reward Basis</p>
                 <input
+                value={rewardBasis}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, rewardBasis: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
@@ -251,12 +299,20 @@ function PoolForm() {
                 <p>Number Of Days</p>
                 <input
                   type="text"
+                  value={numberOfDays}
+                  onChange={(e) =>
+                    setPoolData({ ...poolData, numberOfDays: e.target.value })
+                  }
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
               </div>
               <div className="w-full">
                 <p>APY Rate (%)</p>
                 <input
+                value={apyRate}
+                onChange={(e) =>
+                  setPoolData({ ...poolData, apyRate: e.target.value })
+                }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
