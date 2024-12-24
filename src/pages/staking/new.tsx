@@ -1,8 +1,13 @@
 // import React from 'react'
 
+import PoolForm from "../../components/CreatePool/PoolForm"
+import Layout from "../../layout"
+
 function NewPool() {
   return (
-    <div>NewPool</div>
+    <Layout>
+      <PoolForm/>
+    </Layout>
   )
 }
 

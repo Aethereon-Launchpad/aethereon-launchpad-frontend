@@ -1,7 +1,10 @@
 // import React from 'react'
 // import { FaArrowCircleRight } from "react-icons/fa";
 
+import { useNavigate } from "react-router-dom";
+
 function StakeHero() {
+  const navigate = useNavigate()
   return (
     <div className="relative overflow-hidden hero-bg font-space">
       {/* <img src="/der-rows.svg" className=" w-full h-[400px]" alt="" /> */}
@@ -18,7 +21,7 @@ function StakeHero() {
             <br className="hidden lg:block" /> exclusive platform benefits and
             passive income.
           </p>
-          <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[16px] lg:text-[20px] text-white rounded-full flex items-center space-x-[5px]">
+          <button onClick={()=> navigate("/stake-farm/new")} className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[16px] lg:text-[20px] text-white rounded-full flex items-center space-x-[5px]">
             <span>Create New Stake Pool</span>
 
             {/* <FaArrowCircleRight className="text-white" /> */}
