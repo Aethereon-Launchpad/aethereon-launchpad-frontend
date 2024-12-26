@@ -1,8 +1,10 @@
 // import React from 'react'
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Pools() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState(0);
   const items = Array.from({ length: 5 }, (_, index) => ({
     id: index + 1,
@@ -68,9 +70,10 @@ function Pools() {
             <tbody className="mt-[20px]">
               {items.map((item, index) => (
                 <tr
+                onClick={()=> navigate("/stake-farm/dvbtnyu")}
                   className={`${
                     index % 2 === 0 ? "bg-[#190E3080]" : "bg-transparent"
-                  }`}
+                  } cursor-pointer`}
                   key={item.id}
                 >
                   <th
