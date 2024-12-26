@@ -3,7 +3,7 @@
 function Subscribe() {
   return (
     <div className="flex items-center justify-center p-[20px]">
-        <div className="w-full lg:w-[60%] bg-[#17043B] p-[20px] grid lg:grid-cols-2 gap-[40px] rounded-[16px]">
+        <div className="w-full lg:w-[70%] bg-[#17043B] p-[20px] grid lg:grid-cols-2 gap-[40px] rounded-[16px]">
            <div>
            <img src="/sub.svg" alt="" />
            </div>

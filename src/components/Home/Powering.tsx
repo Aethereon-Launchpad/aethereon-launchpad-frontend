@@ -2,7 +2,7 @@
 
 function Powering() {
   return (
-    <div className="p-[40px_20px] flex flex-col items-center justify-center lg:p-[40px]">
+    <div className="p-[40px_20px] font-space flex flex-col items-center justify-center lg:p-[40px]">
       <div className="flex flex-col items-center justify-center py-[40px]">
         <p className="uppercase text-primary text-center">
           Powering tools and integrations from companies all around the world

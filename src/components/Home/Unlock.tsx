@@ -2,14 +2,14 @@
 
 function Unlock() {
   return (
-    <div className="h-[1600px] mt-[40px] lg:h-[800px]  relative flex items-center justify-center">
+    <div className="h-[1600px] font-space mt-[40px] lg:h-[800px]  relative flex items-center justify-center">
       <img src="/unlock-gra.svg" className="h-full w-full" alt="" />
-      <div className="absolute w-full lg:w-[90%] top-0 min-h-full  flex flex-col lg:flex-row items-center p-[40px_20px] lg:p-[40px_80px]">
-        <div className="w-full lg:w-[40%]  flex-col flex items-start">
+      <div className="absolute w-full top-0 min-h-full  flex flex-col lg:flex-row items-center p-[40px_20px] lg:p-[40px_80px]">
+        <div className="w-full lg:w-[40%]  flex-col flex items-center lg:items-start">
           <p className="text-white text-[25px] lg:text-[40px] leading-[30px] lg:leading-[45px]">
             Unlock the Power of Blockchain Innovation
           </p>
-          <img src="/der-block.svg" alt="" />
+          <img className="mt-[40px]" src="/der-block.svg" alt="" />
         </div>
         <div className="mt-[10px] lg:mt-0 w-full text-white h-full lg:w-[60%]  grid lg:grid-cols-2">
           <div className="p-[20px] bg-[#00000047] h-fit rounded-[10px]">

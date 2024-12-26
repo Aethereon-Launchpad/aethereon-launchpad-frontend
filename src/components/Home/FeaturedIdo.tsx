@@ -6,7 +6,7 @@ import SaleCard from "../Global/SaleCard";
 function FeaturedIdo() {
   const navigation = useNavigate()
   return (
-    <div className="p-[40px_20px] lg:p-[40px] mx-auto flex flex-col items-center">
+    <div className="p-[40px_20px] font-space lg:p-[40px] mx-auto flex flex-col items-center">
       <div className="flex flex-col items-center">
         <p className="text-[25px] lg:text-[32px] text-[#FAFAFA]">
           Featured Upcoming IDO Sales
