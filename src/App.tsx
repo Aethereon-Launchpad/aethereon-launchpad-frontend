@@ -7,6 +7,7 @@ import Whitelist from './pages/whitelist'
 import Staking from './pages/staking'
 import NewPool from './pages/staking/new'
 import Single from './pages/staking/single'
+import Dashboard from './pages/dashboard'
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
      <Route path='/stake-farm' element={<Staking/>}/>
      <Route path='/stake-farm/:id' element={<Single/>}/>
      <Route path='/stake-farm/new' element={<NewPool/>}/>
+     <Route path='/dashboard' element={<Dashboard/>}/>
     </Routes>
   )
 }
