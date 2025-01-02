@@ -4,7 +4,7 @@ import SaleCard from "../Global/SaleCard"
 
 function ExploreComp() {
   return (
-    <div className="p-[40px_20px] lg:p-[40px] mx-auto flex flex-col items-start">
+    <div className="p-[40px_20px] font-space lg:p-[40px] mx-auto flex flex-col items-start">
       <div className="flex flex-col items-start w-full">
         <p className="text-start w-full text-[25px] lg:text-[32px] text-[#FAFAFA]">
         Upcoming IDO Sales

@@ -8,6 +8,7 @@ import Staking from './pages/staking'
 import NewPool from './pages/staking/new'
 import Single from './pages/staking/single'
 import Dashboard from './pages/dashboard'
+import Governance from './pages/governance'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
      <Route path='/stake-farm/:id' element={<Single/>}/>
      <Route path='/stake-farm/new' element={<NewPool/>}/>
      <Route path='/dashboard' element={<Dashboard/>}/>
+     <Route path='/governance' element={<Governance/>}/>
     </Routes>
   )
 }
