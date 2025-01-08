@@ -22,7 +22,7 @@ function SaleCard() {
             Refundable ido
           </p>
         </div>
-        <div className="p-[10px_20px] mt-[20px]">
+        <div className="p-[10px_20px] mt-[10px]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[28px] font-[500] text-[#FAFAFA]">
@@ -34,31 +34,31 @@ function SaleCard() {
               <img src="/chain.svg" alt="" />
             </div>
           </div>
-          <div className="mt-[20px] flex flex-col w-full space-y-[10px]">
+          <div className="mt-[10px] flex flex-col w-full space-y-[5px]">
             <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] flex-1 text-start text-[17px]">
+              <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">
                 Token Sale Date
               </p>
               <div className="bg-primary w-[64px]  h-[2px]" />
-              <p className="text-[17px] flex-1 text-end text-[#FAFAFA]">
+              <p className="text-[14px] flex-1 text-end text-[#FAFAFA]">
                 Oct 20, 2024
               </p>
             </div>
             <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] text-start flex-1 text-[17px]">
+              <p className="text-[#ACBBCC] text-start flex-1 text-[14px]">
                 Sale Starts In
               </p>
               <div className="bg-primary w-[64px] h-[2px]" />
-              <p className="text-[17px] flex-1 text-end text-[#FAFAFA]">
+              <p className="text-[14px] flex-1 text-end text-[#FAFAFA]">
                 3D 4H 21M
               </p>
             </div>
             <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] flex-1 text-start text-[17px]">
+              <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">
                 Whitelist Status
               </p>
               <div className="bg-primary w-[64px]  h-[2px]" />
-              <p className="text-[17px] flex-1 text-end text-[#FAFAFA]">
+              <p className="text-[14px] flex-1 text-end text-[#FAFAFA]">
                 Whitelist Open
               </p>
             </div>
