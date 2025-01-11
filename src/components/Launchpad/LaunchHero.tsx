@@ -2,7 +2,7 @@
 
 function LaunchHero() {
   return (
-    <div className="relative overflow-hidden hero-bg">
+    <div className="relative font-space overflow-hidden hero-bg">
         {/* <img src="/der-rows.svg" className=" w-full h-[400px]" alt="" /> */}
         <div className="h-[400px] w-[400px] top-0 absolute rounded-full left-[-10%] blur-[40px] bg-[#8949FF33]"></div>
         <div className="h-[500px] w-[500px] top-0 absolute rounded-full right-[-10%] blur-[40px] bg-[#8949FF33]"></div>
