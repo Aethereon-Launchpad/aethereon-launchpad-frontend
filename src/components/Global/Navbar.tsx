@@ -3,7 +3,7 @@ import React from 'react'
 import { Link } from "react-router-dom";
 import { IoWalletSharp } from "react-icons/io5";
 import { HiMenuAlt3 } from "react-icons/hi";
-
+import { LuPlus } from "react-icons/lu";
 function Navbar() {
   const [show, setShow] = React.useState(false);
   const links = [
@@ -54,7 +54,9 @@ function Navbar() {
       </div>
       <div className={`${show ? "left-0" : "left-[-100%]"} fixed top-0 min-h-screen h-screen z-30 bg-black text-primary w-full p-[20px] transition-all duration-300`}>
         <div className='flex items-center justify-end'>
-          <button className='h-[40px] w-[40px] border' onClick={()=> setShow(!show)}></button>
+          <button className='h-[40px] w-[40px] flex items-center justify-center' onClick={()=> setShow(!show)}>
+          <LuPlus className='text-[30px] rotate-45' />
+          </button>
         </div>
       <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895] ">
         {links.map((link, index) => (
