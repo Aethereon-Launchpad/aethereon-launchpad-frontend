@@ -2,14 +2,14 @@
 
 function VotingRewards() {
   return (
-    <div className="font-space justify-center items-center mb-[40px] flex flex-col text-white">
+    <div className="font-space justify-center items-center mb-[40px] p-[20px] flex flex-col text-white">
       <p className="uppercase text-white font-[700] text-[18px]">
         Voting Rewards
       </p>
-      <p className="text-[24px] lg:text-[48px] font-[700]">
+      <p className="text-[24px] lg:text-[48px] text-center font-[700]">
         Earn Rewards for Active Participation
       </p>
-      <p className="text-[#CDCDCD] text-center">
+      <p className="text-[#CDCDCD] text-center mt-[10px]">
         Unlock exclusive rewards for making your voice heard in the DerHex
         community. $HEX holders who vote <br className="hidden lg:block" />{" "}
         consistently gain monthly bonuses and other perks!
