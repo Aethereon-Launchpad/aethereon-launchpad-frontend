@@ -24,6 +24,38 @@ function Footer() {
       name: "Community",
       link: "/lunchpad",
     },
+    {
+      name: "Customer Support",
+      link: "/support",
+    },
+    {
+      name: "Terms and Condition",
+      link: "/terms",
+    },
+    {
+      name: "Privacy Policy",
+      link: "/privacy",
+    },
+    {
+      name: "Contact",
+      link: "/contact",
+    },
+    {
+      name: "Telegram",
+      link: "https://t.me/derhex",
+    },
+    {
+      name: "Twitter",
+      link: "https://twitter.com/derhex",
+    },
+    {
+      name: "Facebook",
+      link: "https://facebook.com/derhex",
+    },
+    {
+      name: "LinkedIn",
+      link: "https://linkedin.com/in/derhex",
+    },
   ];
   return (
     <div className="flex flex-col w-full font-space p-[20px] lg:p-[40px]">
@@ -51,7 +83,7 @@ function Footer() {
           <div>
             <p className="text-[16px] font-[600] lg:text-[20px]">Help</p>
             <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
-              {footerLinks.slice(0, 5).map((link, index) => (
+              {footerLinks.slice(5, 9).map((link, index) => (
                 <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
                   {link.name}
                 </Link>
@@ -61,10 +93,10 @@ function Footer() {
           <div>
             <p className="text-[16px] font-[600] lg:text-[20px]">Community</p>
             <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
-              {footerLinks.slice(0, 5).map((link, index) => (
-                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
+              {footerLinks.slice(9, footerLinks.length).map((link, index) => (
+                <a className="text-[14px] lg:text-[16px]" target="_blank" href={link.link} key={index}>
                   {link.name}
-                </Link>
+                </a>
               ))}
             </div>
           </div>
