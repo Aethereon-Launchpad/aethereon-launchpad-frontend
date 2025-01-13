@@ -9,6 +9,8 @@ import NewPool from './pages/staking/new'
 import Single from './pages/staking/single'
 import Dashboard from './pages/dashboard'
 import Governance from './pages/governance'
+import DynamicRewards from './pages/dynamic'
+import Leaderboard from './pages/leaderboard'
 
 function App() {
 
@@ -23,6 +25,8 @@ function App() {
      <Route path='/stake-farm/new' element={<NewPool/>}/>
      <Route path='/dashboard' element={<Dashboard/>}/>
      <Route path='/governance' element={<Governance/>}/>
+     <Route path='/leaderboard' element={<Leaderboard/>}/>
+     <Route path='/dynamic-rewards' element={<DynamicRewards/>}/>
     </Routes>
   )
 }
