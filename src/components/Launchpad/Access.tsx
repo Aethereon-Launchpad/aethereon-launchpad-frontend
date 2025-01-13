@@ -67,7 +67,7 @@ function Access() {
           </div>
 
           <button
-            onClick={() => navigation("/staking-challenge")}
+            onClick={() => navigation("/seasonal-staking")}
             className="bg-primary w-[222px] h-[45px] mt-[10px] text-white flex items-center justify-center space-x-[5px]"
           >
             <span>Join Now</span>

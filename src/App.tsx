@@ -11,6 +11,7 @@ import Dashboard from './pages/dashboard'
 import Governance from './pages/governance'
 import DynamicRewards from './pages/dynamic'
 import Leaderboard from './pages/leaderboard'
+import SeasonalStaking from './pages/seasonal-staking'
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
      <Route path='/governance' element={<Governance/>}/>
      <Route path='/leaderboard' element={<Leaderboard/>}/>
      <Route path='/dynamic-rewards' element={<DynamicRewards/>}/>
+     <Route path='/seasonal-staking' element={<SeasonalStaking/>}/>
     </Routes>
   )
 }
