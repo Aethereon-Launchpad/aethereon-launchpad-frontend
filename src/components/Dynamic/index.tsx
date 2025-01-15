@@ -16,7 +16,7 @@ function Dynamic() {
 
       <img src="./unlock.svg" className="mt-[5px]" alt="" />
 
-      <div className="mt-[20px] w-full lg:w-[50%] grid lg:grid-cols-3 gap-[20px]">
+      <div className="mt-[40px] lg:mt-[20px] w-full lg:w-[50%] grid lg:grid-cols-3 gap-[20px]">
         <div className="lg:col-span-2 relative">
           <p>Lock Period</p>
 
