@@ -6,7 +6,8 @@ export default {
   ],  theme: {
     extend: {
       fontFamily: {
-        space : ["Space Grotesk", "sans-serif"]
+        space : ["Space Grotesk", "sans-serif"],
+        splash : ["Splash", "sans-serif"]
       },
       colors:{
         primary: "#5325A9"
