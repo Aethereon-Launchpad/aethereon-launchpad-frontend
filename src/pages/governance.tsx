@@ -1,5 +1,6 @@
 // import React from 'react'
 import Subscribe from '../components/Global/Subscribe'
+import ActiveProposal from '../components/Governance/ActiveProposal'
 import GovHero from '../components/Governance/GovHero'
 import GovModel from '../components/Governance/GovModel'
 import VotingRewards from '../components/Governance/VotingRewards'
@@ -10,6 +11,7 @@ function Governance() {
     <Layout>
         <GovHero/>
         <GovModel/>
+        <ActiveProposal/>
         <VotingRewards/>
         <Subscribe/>
     </Layout>
