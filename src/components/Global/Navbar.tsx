@@ -26,20 +26,20 @@ function Navbar() {
     },
   ];
   return (
-    <div className="flex items-center font-space relative justify-between p-0  lg:p-[20px_40px] text-white">
-      <div className="pl-[20px] py-[15px] lg:p-0">
+    <div className="flex items-center font-space relative justify-between p-0  xl:p-[20px_40px] text-white">
+      <div className="pl-[20px] py-[15px] xl:p-0">
         <Link to="/">
           <img src="/derhex-logo-sm.svg" className="hidden lg:block" alt="" />
           <img src="/der-mob.svg" className="block lg:hidden" alt="" />
         </Link>
       </div>
-      <div className="hidden lg:flex items-center text-[#848895] space-x-[20px]">
+      <div className="hidden xl:flex items-center text-[#848895] space-x-[20px]">
         {links.map((link, index) => (
           <Link to={link.link} key={index}>{link.title}</Link>
         ))}
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
-        <button className="hidden lg:flex items-center space-x-[5px]">
+        <button className="hidden xl:flex items-center space-x-[5px]">
             <img src="/ido.svg" alt="" />
           <p>Join IDO</p>
         </button>
@@ -48,7 +48,7 @@ function Navbar() {
           <IoWalletSharp className="text-[12px] lg:text-[16px]" />
           <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
         </button>
-        <button onClick={()=> setShow(!show)} className="lg:hidden">
+        <button onClick={()=> setShow(!show)} className="xl:hidden">
         <HiMenuAlt3 className="text-[30px]" />
         </button>
       </div>

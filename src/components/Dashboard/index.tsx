@@ -14,10 +14,10 @@ function DashComp() {
         <FaArrowCircleRight className="text-white" />
       </button>
 
-      <div className="border border-primary p-[40px] w-full lg:w-[70%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
+      <div className="border border-primary p-[20px] lg:p-[40px] w-full  xl:w-[50%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
         <p className="text-[63px] leading-[60px] text-primary">0.00</p>
         <p className="text-[14px]">Total IDo Power</p>
-        <div className="bg-[#291254] text-white p-[20px_40px] mt-[20px] rounded-[10px]">
+        <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
           <p className="text-center">
             You do not have any registered wallets yet{" "}
             <br className="hidden lg:block" /> Connect one or multiple wallets
