@@ -1,0 +1,116 @@
+{
+  "97": {
+    "rpcUrl": "https://bsc-testnet.publicnode.com",
+    "name": "Binance Smartchain Testnet",
+    "logoURI": "/images/binance.webp",
+    "symbol": "TBNB",
+    "explorer": "https://testnet.bscscan.com",
+    "chain_id": {
+      "hex": "0x61",
+      "decimal": "97"
+    }
+  },
+  "32520": {
+    "rpcUrl": "https://rpc.icecreamswap.com",
+    "name": "Bitgert Mainnet",
+    "logoURI": "/images/bitgert.webp",
+    "symbol": "BRISE",
+    "explorer": "https://brisescan.com",
+    "chain_id": {
+      "hex": "0x7f08",
+      "decimal": "32520"
+    }
+  },
+  "311": {
+    "rpcUrl": "https://mainapi.omaxray.com",
+    "name": "Omax Chain Mainnet",
+    "symbol": "OMAX",
+    "logoURI": "/images/omax.webp",
+    "explorer": "https://omaxray.com"
+  },
+  "56": {
+    "rpcUrl": "https://binance.llamarpc.com",
+    "name": "Binance Smartchain",
+    "logoURI": "/images/binance.webp",
+    "explorer": "https://bscscan.com",
+    "symbol": "BNB",
+    "chain_id": {
+      "hex": "0x38",
+      "decimal": "56"
+    },
+    "wrapped_native_token": {
+      "address": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      "symbol": "WBNB",
+      "decimals": 18
+    }
+  },
+  "8453": {
+    "rpcUrl": "https://base.llamarpc.com",
+    "name": "Base Layer 2",
+    "logoURI": "/images/base.webp",
+    "explorer": "https://explorer.base.org",
+    "symbol": "BASE",
+    "chain_id": {
+      "hex": "0x2105",
+      "decimal": "8453"
+    },
+    "wrapped_native_token": {
+      "address": "0x4200000000000000000000000000000000000006",
+      "symbol": "WETH",
+      "decimals": 18
+    },
+    "executor": "0x87Ac0F4560EaF199331a0c9d4fa151EEd319a02b",
+    "router": "0xEeCB0aEaa5Aa694fB65467948a4dA848d2477778"
+  },
+  "86": {
+    "name": "Gatechain",
+    "rpcUrl": "https://evm.gatenode.cc",
+    "explorer": "https://gatescan.org",
+    "logoURI": "/images/gatechain.webp",
+    "symbol": "GT"
+  },
+  "888": {
+    "name": "Wanchain",
+    "rpcUrl": "https://gwan-ssl.wandevs.org:56891",
+    "explorer": "https://wanscan.org",
+    "logoURI": "/images/wanchain.webp",
+    "symbol": "WAN"
+  },
+  "66": {
+    "name": "OKX Chain Mainnet",
+    "rpcUrl": "https://exchainrpc.okex.org",
+    "explorer": "https://oklink.com/en/okc",
+    "logoURI": "/images/okx.webp",
+    "symbol": "OKX"
+  },
+  "1": {
+    "name": "Ethereum",
+    "rpcUrl": "https://eth.llamarpc.com",
+    "explorer": "https://etherscan.io",
+    "logoURI": "/images/ethereum.webp",
+    "symbol": "ETH",
+    "chain_id": {
+      "hex": "0x1",
+      "decimal": "1"
+    },
+    "wrapped_native_token": {
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "decimals": 18
+    }
+  },
+  "137": {
+    "name": "Polygon",
+    "rpcUrl": "https://polygon-rpc.com",
+    "explorer": "https://polygonscan.com",
+    "logoURI": "/images/polygon.webp",
+    "symbol": "MATIC"
+  },
+  "40": {
+    "name": "Telos EVM",
+    "rpcUrl": "https://rpc1.eu.telos.net/evm",
+    "explorer": "https://telos.blocksscan.io",
+    "logoURI": "/images/telos.webp",
+    "symbol": "TLOS"
+  }
+}
