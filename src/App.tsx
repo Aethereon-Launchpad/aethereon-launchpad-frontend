@@ -13,6 +13,13 @@ import DynamicRewards from './pages/dynamic'
 import Leaderboard from './pages/leaderboard'
 import SeasonalStaking from './pages/seasonal-staking'
 
+
+
+
+
+
+
+
 function App() {
 
   return (

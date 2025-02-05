@@ -8,11 +8,16 @@ function DashComp() {
       <p className="text-[16px] text-center lg:text-[22px]">
         Everything you need to know to get started on the derhex
       </p>
-      <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]">
+
+      <div className="mt-[20px]">
+      <w3m-button />
+      </div>
+
+      {/* <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]">
         <span>Connect Wallet</span>
 
         <FaArrowCircleRight className="text-white" />
-      </button>
+      </button> */}
 
       <div className="border border-primary p-[20px] lg:p-[40px] w-full  xl:w-[50%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
         <p className="text-[63px] leading-[60px] text-primary">0.00</p>
