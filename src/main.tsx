@@ -5,20 +5,18 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from "react-hot-toast"
 
-import AppProvider from './context'
-
-const cookies = new Headers().get('cookie')
 
 
+
+import { ThirdwebProvider } from 'thirdweb/react';
 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AppProvider cookies={cookies}>
-
+      <ThirdwebProvider >
         <App />
-      </AppProvider>
+      </ThirdwebProvider>
       <Toaster
         containerClassName="font-space"
       />
