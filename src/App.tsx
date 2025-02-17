@@ -12,6 +12,16 @@ import Governance from './pages/governance'
 import DynamicRewards from './pages/dynamic'
 import Leaderboard from './pages/leaderboard'
 import SeasonalStaking from './pages/seasonal-staking'
+import { createThirdwebClient } from 'thirdweb'
+
+
+
+
+
+export const client = createThirdwebClient({
+  clientId: import.meta.env.VITE_APP_CLIENT_ID,
+});
+
 
 function App() {
 

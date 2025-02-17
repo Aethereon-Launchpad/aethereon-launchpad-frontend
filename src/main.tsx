@@ -7,13 +7,19 @@ import { Toaster } from "react-hot-toast"
 
 
 
+
+import { ThirdwebProvider } from 'thirdweb/react';
+
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-   <BrowserRouter>
-   <App />
-   <Toaster
-      containerClassName="font-space"
-    />
-   </BrowserRouter>
+    <BrowserRouter>
+      <ThirdwebProvider >
+        <App />
+      </ThirdwebProvider>
+      <Toaster
+        containerClassName="font-space"
+      />
+    </BrowserRouter>
   </StrictMode>,
 )
