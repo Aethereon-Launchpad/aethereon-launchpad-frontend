@@ -1,16 +1,16 @@
 import React from 'react'
 
 import { Link } from "react-router-dom";
-// import { IoWalletSharp } from "react-icons/io5";
+import { IoWalletSharp } from "react-icons/io5";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { LuPlus } from "react-icons/lu";
-import { ConnectButton } from 'thirdweb/react';
-import { client } from '../../App';
-// import { useConnect } from "thirdweb/react";
+import { usePrivy } from '@privy-io/react-auth';
+import toast from 'react-hot-toast';
 
 
 function Navbar() {
   const [show, setShow] = React.useState(false);
+  const { login, authenticated, logout, user, ready } = usePrivy();
   // const { connect, isConnecting, error } = useConnect();
   const links = [
     { title: "Launchpad", link: "/launchpad" },
@@ -31,6 +31,17 @@ function Navbar() {
       link: "/community",
     },
   ];
+
+  function handleWalletConnect() {
+    if (authenticated) {
+      logout();
+      toast("Successfully logged out wallet")
+      return;
+    }
+
+    login();
+  }
+
   return (
     <div className="flex items-center font-space relative justify-between p-0  xl:p-[20px_40px] text-white">
       <div className="pl-[20px] py-[15px] xl:p-0">
@@ -50,36 +61,12 @@ function Navbar() {
           <p>Join IDO</p>
         </button>
 
-       
 
-        <ConnectButton connectButton={
-          {
-            
-            style:{
-              padding:"10px 20px",
-              borderRadius:"8px",
-              fontWeight:"500",
-              fontSize:"20px",
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              backgroundColor:"#291254",
-              color:"#fff",
-              cursor:"pointer",
-            },
-            // className:"bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]",
-          }
-        } 
-        
-        client={client} />
-        
-        {/* <button  className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]">
+        <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]" onClick={handleWalletConnect}>
           <IoWalletSharp className="text-[12px] lg:text-[16px]" />
-          <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
-        </button>  */}
-        {/* */}
+          {authenticated ? <span className='truncate max-w-[100px]'>{user?.wallet?.address}</span> : <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>}
+        </button>
 
-        
         <button onClick={() => setShow(!show)} className="xl:hidden">
           <HiMenuAlt3 className="text-[30px]" />
         </button>
