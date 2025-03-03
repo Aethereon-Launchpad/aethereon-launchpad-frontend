@@ -6,19 +6,24 @@ import { FaRegCopy } from "react-icons/fa";
 import { useQuery } from "@apollo/client";
 import { GET_STAKING_POOLS } from "../../graphql/queries";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import { format, differenceInDays } from 'date-fns';
-
+import toast from 'react-hot-toast';
+import { noOfDays } from "../../utils/tools";
 
 function Pools() {
   const navigate = useNavigate()
   const [tab, setTab] = useState(0);
-  const items = Array.from({ length: 5 }, (_, index) => ({
-    id: index + 1,
-    name: `Item ${index + 1}`,
-  }));
 
-  const { loading, error, data, refetch } = useQuery(GET_STAKING_POOLS);
+  const { loading, error, data } = useQuery(GET_STAKING_POOLS);
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        toast.success('Copied staking pool address!');
+      })
+      .catch(() => {
+        toast.error('Failed to copy address');
+      });
+  };
 
   if (loading) {
     return (
@@ -40,15 +45,8 @@ function Pools() {
 
   const stakingPools = data?.stakingPools || []
 
-  function noOfDays(nextRewardDate: number, creationDate: number) {
-    const futureDate = new Date(Number(nextRewardDate) * 1000)
-    const blockTimestampDate = new Date(Number(creationDate) * 1000)
-
-    return Math.round(differenceInDays(futureDate, blockTimestampDate))
-  }
-
   return (
-    <div className="font-space p-[40px_20px] lg:p-[40px] ">
+    <div className="font-space p-[40px_20px] lg:p-[40px]">
       <p className="text-[25px] lg:text-[40px] font-[700] text-white">
         {" "}
         Staking Pools
@@ -79,7 +77,7 @@ function Pools() {
         </button> */}
       </div>
       <div className="w-full mt-[30px]">
-        <div className="relative overflow-x-hidden">
+        <div className="relative overflow-x-auto">
           <table className="w-full text-sm text-left rtl:text-right text-white">
             <thead className="text-[12px] lg:text-[16px] text-white   bg-transparent">
               <tr>
@@ -106,16 +104,26 @@ function Pools() {
             <tbody className="mt-[20px]">
               {stakingPools.map((item: any, index: number) => (
                 <tr
-                  onClick={() => navigate(`/stake-farm/${item.id}`)}
                   className={`${index % 2 === 0 ? "bg-[#190E3080]" : "bg-transparent"
                     } cursor-pointer`}
                   key={item.id}
+                  onClick={() => navigate(`/stake-farm/${item.id}`)}
                 >
                   <th
                     scope="row"
                     className="px-6 py-4 font-[700] text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {item.id}
+                    <span className="flex items-center gap-x-3">
+                      <span className="truncate max-w-[100px]">{item.id}</span>
+                      <FaRegCopy
+                        color="#fff"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(item.id);
+                        }}
+                        className="cursor-pointer hover:opacity-80"
+                      />
+                    </span>
                   </th>
                   <td className="px-6 py-4 min-w-[210px]">{item.apyRate}% APY</td>
                   <td className="px-6 py-4 min-w-[210px]">{noOfDays(item.withdrawalIntervals, item.blockTimestamp) + 1} Days</td>

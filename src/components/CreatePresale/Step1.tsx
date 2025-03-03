@@ -1,5 +1,3 @@
-import React from "react";
-
 interface Presale {
   metadataURI: `https://${string}`;
   funder: `0x${string}`;
