@@ -13,7 +13,11 @@ function SaleCard() {
           alt=""
         />
       </div>
-      <div className="h-[88px] w-[88px] border rounded-full absolute top-[100px] left-[20px] z-20">
+
+      <div className="absolute bottom-0 w-[80px] left-0 h-[25px] bg-[#291254]">
+
+      </div>
+      <div className="h-[88px] w-[88px] rounded-full absolute top-[100px] left-[20px] z-20  border-[#291254] border-[7px]">
         <img src="/chain.svg" className="h-full w-full" alt="" />
       </div>
       <div className="w-full">
@@ -64,7 +68,7 @@ function SaleCard() {
             </div>
           </div>
         </div>
-        <div onClick={()=> navigation('/launchpad/dbb2ef')} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
+        <div onClick={() => navigation('/launchpad/dbb2ef')} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
           Join Whitelist
         </div>
       </div>

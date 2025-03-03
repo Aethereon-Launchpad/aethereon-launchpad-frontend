@@ -2,9 +2,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_implementation",
-        "type": "address"
+        "internalType": "uint16",
+        "name": "_salePercentageForEcosystem",
+        "type": "uint16"
       },
       {
         "internalType": "address",
@@ -12,13 +12,8 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
-        "name": "_newOwner",
+        "name": "_implementation",
         "type": "address"
       }
     ],
@@ -27,12 +22,12 @@
   },
   {
     "inputs": [],
-    "name": "Fee",
+    "name": "FeeReceiverIsZeroAddress",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FeeReceiverIsZeroAddress",
+    "name": "FeeRequired",
     "type": "error"
   },
   {
@@ -58,13 +53,85 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "presaleId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "metadataURI",
+        "type": "string"
+      },
+      {
         "indexed": false,
         "internalType": "address",
-        "name": "poolAddress",
+        "name": "funder",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "salePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "paymentToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "saleToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "softCap",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "hardCap",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "minTotalPayment",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxTotalPayment",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "withdrawDelay",
+        "type": "uint256"
       }
     ],
-    "name": "PoolCreated",
+    "name": "PresaleCreated",
     "type": "event"
   },
   {
@@ -144,7 +211,33 @@
   },
   {
     "inputs": [],
+    "name": "ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "EXCLUDED_FROM_FEE_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -163,7 +256,7 @@
         "type": "uint256"
       }
     ],
-    "name": "allPools",
+    "name": "allPresales",
     "outputs": [
       {
         "internalType": "address",
@@ -178,54 +271,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_newOwner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_token0",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_token1",
-        "type": "address"
-      },
-      {
-        "internalType": "uint24",
-        "name": "_apyRate",
-        "type": "uint24"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_stakeFeePercentage",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_withdrawalFeePerecentage",
-        "type": "uint16"
-      },
-      {
-        "internalType": "address",
-        "name": "_feeReceiver",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_intervals",
-        "type": "uint256"
-      }
-    ],
-    "name": "createStakingPool",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_pool",
+        "name": "account",
         "type": "address"
       }
     ],
-    "stateMutability": "payable",
+    "name": "excludeFromFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -271,6 +323,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantAdminRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -332,6 +397,93 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "includeInFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "metadataURI",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "funder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "salePrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "paymentToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "saleToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "softCap",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "hardCap",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minTotalPayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxTotalPayment",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "withdrawDelay",
+        "type": "uint256"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_presale",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_account",
         "type": "address"
       }
@@ -358,47 +510,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "redeemERC20",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "redeemEther",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -429,6 +540,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeAdminRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -442,6 +566,19 @@
     "name": "revokeRole",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "salePercentageForEcosystem",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -473,6 +610,19 @@
   {
     "inputs": [
       {
+        "internalType": "uint16",
+        "name": "_salePercentage",
+        "type": "uint16"
+      }
+    ],
+    "name": "setSalePercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -493,11 +643,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_account",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "name": "switchFeeRequirement",
+    "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -506,11 +656,34 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newOwner",
+        "name": "to",
         "type": "address"
       }
     ],
-    "name": "transferOwnership",
+    "name": "withdrawEther",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
