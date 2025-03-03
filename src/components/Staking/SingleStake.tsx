@@ -57,7 +57,7 @@ function SingleStake() {
         throw new Error("Staking pool data not available");
       }
 
-      const tokenData = await getTokenData("0xddf26b42c1d903de8962d3f79a74a501420d5f19");
+      const tokenData = await getTokenData(data.stakingPool.stakeToken.id);
 
       if (!user?.wallet?.address) {
         throw new Error("User wallet not connected");
