@@ -12,13 +12,13 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { noOfDays } from "../../utils/tools";
-import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals } from "../../utils/web3/actions";
+import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import { sonic } from "viem/chains";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolABI from "../../abis/StakingPool.json";
-import { erc20Abi } from "viem";
+import erc20Abi from "../../abis/ERC20.json";
 import { ethers } from "ethers";
 import TxReceipt from "../Modal/TxReceipt";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
@@ -80,6 +80,17 @@ function SingleStake() {
     }
   }
 
+  async function reloadLockedAmount() {
+    try {
+      if (user?.wallet?.address) {
+        const alreadyStaked = await getAmountStaked(data.stakingPool.id, user.wallet.address as `0x${string}`)
+        setStaked(Number(alreadyStaked));
+      }
+    } catch (error: any) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (!loadingStakingPool && data?.stakingPool) {
       getCoinGeckoTokenData();
@@ -106,21 +117,35 @@ function SingleStake() {
       return;
     }
 
-    try {
-      //Allow Contract to Spend
+    async function approveTokenSpending() {
       if (user?.wallet?.address) {
-        const { request } = await publicClient.simulateContract({
-          address: data.stakingPool.stakeToken.id,
-          account,
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [user.wallet.address as `0x${string}`, data.stakingPool.id]
-        })
+        let allowance = await getTokenAllowance(
+          data.stakingPool.stakeToken.id,
+          data.stakingPool.id,
+          user.wallet.address as `0x${string}`
+        )
 
+        console.log(allowance);
+        // Check if allowance is less than stake amount
+        if (Number(allowance) < stakeAmount) {
+          // Allow Contract to Spend
+          const { request } = await publicClient.simulateContract({
+            address: data.stakingPool.stakeToken.id,
+            account,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [data.stakingPool.id, stakeAmountArg]  // Changed to approve staking pool contract
+          })
 
-        // Run Approval
-        await walletClient.writeContract(request);
+          // Run Approval
+          await walletClient.writeContract(request);
+        }
       }
+    }
+
+    try {
+      // Approve Token Spending
+      await approveTokenSpending();
 
 
       // Stake Transaction
@@ -138,6 +163,7 @@ function SingleStake() {
       toast("Successfully staked")
       setShowModal(false);
 
+      await reloadLockedAmount();
       setTxHash(hash)
 
       setTimeout(() => {
@@ -210,7 +236,7 @@ function SingleStake() {
       <div className="w-full lg:w-[60%] border border-primary p-[20px] lg:p-[40px] rounded-lg">
         <div className="flex items-center justify-center relative">
           <div className="items-center flex justify-center space-x-[10px]">
-            {coinGeckoData ? (<img src={coinGeckoData.image.thumb} className="h-[50px] w-[50px] rounded-full border" alt="" />) :
+            {coinGeckoData?.image?.thumb ? (<img src={coinGeckoData.image.thumb} className="h-[50px] w-[50px] rounded-full border" alt="" />) :
               <div className="h-[50px] w-[50px] rounded-full border flex items-center justify-center">?</div>}
             <p className="text-[24px] font-[700]">{data.stakingPool.stakeToken.name}</p>
           </div>
@@ -237,19 +263,19 @@ function SingleStake() {
           </div>
           <div className="bg-[#291254] mt-[20px] rounded-[8px] space-x-[10px] text-white p-[8px] flex items-center hover:cursor-pointer">
             <GoAlert className="text-[25px] lg:text-[20px]" />
-            <p className="text-[12px] lg:text-[14px] leading-[16px] truncate" title={coinGeckoData ? coinGeckoData.description.en : "..."}>
+            <p className="text-[12px] lg:text-[14px] leading-[16px] truncate" title={coinGeckoData?.description?.en || "..."}>
               {/* <span>$HEX is the native token of DerHex, designed to facilitate
                 staking, governance, and access to exclusive token sales.</span> */}
-              {coinGeckoData ? coinGeckoData.description.en : "..."}
+              {coinGeckoData?.description?.en || "..."}
             </p>
           </div>
           <div className="mt-[40px]">
             <p className="uppercase text-[14px] text-[#A1A1AA]">Staking Summary</p>
             <div className="mt-[20px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
               <p>Current Price</p>
-              <p>Currently priced at {coinGeckoData ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$0**"}.</p>
+              <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$0**"}.</p>
               <p>Market Cap</p>
-              <p>Market Cap {coinGeckoData ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$0"} </p>
+              <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$0"} </p>
               <p>Total Supply</p>
               <p>{totalSupply ? new Intl.NumberFormat('en-US').format(Number(totalSupply)) : 0} (${data.stakingPool.stakeToken.symbol})</p>
             </div>

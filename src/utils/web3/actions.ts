@@ -78,6 +78,32 @@ export const getTokenBalance = async (tokenAddress: `0x${string}`, userAddress: 
     }
 }
 
+export const getTokenAllowance = async (tokenAddress: `0x${string}`, spenderAddress: `0x${string}`, userWallet: `0x${string}`) => {
+    try {
+        const allowance = await client.readContract({
+            address: tokenAddress,
+            abi: ERC20ABI,
+            functionName: "allowance",
+            args: [
+                userWallet,
+                spenderAddress
+            ]
+        })
+
+        const decimals = await client.readContract({
+            address: tokenAddress,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+
+        return ethers.formatUnits(allowance as string, decimals as number);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to retreive allowance")
+    }
+}
+
 export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
     try {
         const totalSupply = await client.readContract({
