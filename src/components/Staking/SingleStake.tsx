@@ -22,7 +22,6 @@ import stakingPoolABI from "../../abis/StakingPool.json";
 import erc20Abi from "../../abis/ERC20.json";
 import { ethers } from "ethers";
 import TxReceipt from "../Modal/TxReceipt";
-import { BaseError, ContractFunctionRevertedError } from 'viem';
 
 
 
