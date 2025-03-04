@@ -25,11 +25,7 @@ function Navbar() {
     {
       title: "Dashboard",
       link: "/dashboard",
-    },
-    {
-      title: "Community",
-      link: "/community",
-    },
+    }
   ];
 
   function handleWalletConnect() {

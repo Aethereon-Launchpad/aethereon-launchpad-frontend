@@ -16,7 +16,7 @@ function FeaturedIdo() {
         </p>
       </div>
       <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 1 }).map((_, i) => (
           <SaleCard key={i} />
         ))}
       </div>
