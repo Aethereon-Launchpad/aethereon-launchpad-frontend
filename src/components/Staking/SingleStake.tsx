@@ -54,7 +54,7 @@ function SingleStake() {
 
   const [showUnstakeModal, setShowUnstakeModal] = useState<boolean>(false)
   const [nextRewardTime, setNextRewardTime] = useState<number>(0);
-  const [rewardAmount, setRewardAmount] = useState<string | number>(0);
+  const [rewardAmount, setRewardAmount] = useState<number>(0);
   const [lastStakeTime, setLastStakeTime] = useState(0);
 
   async function getCoinGeckoTokenData() {
@@ -90,7 +90,7 @@ function SingleStake() {
       setTotalSupply(supply);
       setStaked(Number(alreadyStaked));
       setNextRewardTime(nextRewardTime);
-      setRewardAmount(rewardsAmount);
+      setRewardAmount(Number(rewardsAmount));
       setLastStakeTime(lastStakeTime);
     } catch (error) {
       console.error(error);
@@ -382,10 +382,10 @@ function SingleStake() {
             </button>
           ) : (
             <div className="space-y-5">
-              <button className="bg-transparent border-primary border-2 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={unstakeConfirm}>
+              {(staked > 0 || rewardAmount > 0) && <button className="bg-transparent border-primary border-2 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={unstakeConfirm}>
                 <p className="text-[14px] lg:text-[16px]">Withdraw</p>
-              </button>
-              <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500]" onClick={confirmStake}>
+              </button>}
+              <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500] mt-10" onClick={confirmStake}>
                 <p className="text-[14px] lg:text-[16px]">Confirm Stake</p>
               </button>
             </div>
