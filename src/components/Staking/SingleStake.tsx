@@ -132,6 +132,7 @@ function SingleStake() {
       return;
     }
 
+    // Approve Token Spending
     async function approveTokenSpending() {
       if (user?.wallet?.address) {
         let allowance = await getTokenAllowance(
@@ -153,47 +154,54 @@ function SingleStake() {
           })
 
           // Run Approval
-          await walletClient.writeContract(request);
+          const txHash = await walletClient.writeContract(request);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const receipt = await publicClient.getTransactionReceipt({
+            hash: txHash
+          })
+          return receipt
+        }
+
+        return {
+          status: "success"
         }
       }
     }
 
-    try {
-      // Approve Token Spending
-      await approveTokenSpending();
+    const receipt = await approveTokenSpending();
+    if (receipt && receipt.status === "success") {
+      try {
+        // Stake Transaction
+        const { request } = await publicClient.simulateContract({
+          address: data.stakingPool.id,
+          abi: stakingPoolABI,
+          account,
+          functionName: "stake",
+          args: [
+            stakeAmountArg
+          ]
+        })
 
+        const hash = await walletClient.writeContract(request)
+        toast("Successfully staked")
+        setShowModal(false);
 
-      // Stake Transaction
-      const { request } = await publicClient.simulateContract({
-        address: data.stakingPool.id,
-        abi: stakingPoolABI,
-        account,
-        functionName: "stake",
-        args: [
-          stakeAmountArg
-        ]
-      })
-
-      const hash = await walletClient.writeContract(request)
-      toast("Successfully staked")
-      setShowModal(false);
-
-      await reloadLockedAmount();
-      setTxHash(hash)
-
-      setTimeout(() => {
-        setShowTxModal(true)
-      }, 2000)
-    } catch (error: any) {
-      console.error(error.message)
-      if (error.message.includes("User rejected the request")) {
-        toast("User Rejected the Request")
-        return;
+        await reloadLockedAmount();
+        setTxHash(hash)
+        setTimeout(() => {
+          setShowTxModal(true)
+        }, 2000)
+      } catch (error: any) {
+        console.error(error.message)
+        if (error.message.includes("User rejected the request")) {
+          toast("User Rejected the Request")
+          return;
+        }
+        toast.error("Stake Failure, Please Try Again later")
+        setIsStaking(false)
+      } finally {
+        setIsStaking(false)
       }
-      toast.error("Stake Failure, Please Try Again later")
-      setIsStaking(false)
-    } finally {
-      setIsStaking(false)
     }
   }
 
@@ -255,7 +263,7 @@ function SingleStake() {
       const hash = await walletClient.writeContract(request);
       setTxReceiptTitle(unstake ? "Successfully Unstaked" : "Successfully Withdrawal and Unstaking")
       setTxHash(hash)
-      await reloadLockedAmount()
+      setStaked(0)
       setShowUnstakeModal(false)
 
       toast(unstake ? "Successfully Unstaked tokens" : "Successful Withdrawal of Reward Tokens & Unstake")
