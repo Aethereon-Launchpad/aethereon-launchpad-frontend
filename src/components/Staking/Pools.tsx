@@ -13,7 +13,11 @@ function Pools() {
   const navigate = useNavigate()
   const [tab, setTab] = useState(0);
 
-  const { loading, error, data } = useQuery(GET_STAKING_POOLS);
+  const { loading, error, data } = useQuery(GET_STAKING_POOLS, {
+    context: {
+      clientName: "staking"
+    }
+  });
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
