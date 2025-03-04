@@ -12,8 +12,9 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { noOfDays } from "../../utils/tools";
-import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance } from "../../utils/web3/actions";
+import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
+import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
 import { sonic } from "viem/chains";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
@@ -49,9 +50,21 @@ function SingleStake() {
   const [isStaking, setIsStaking] = useState<boolean>(false);
   const [staked, setStaked] = useState<number>(0);
   const [showTxModal, setShowTxModal] = useState<boolean>(false);
+  const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Staking Successful");
   const [txHash, setTxHash] = useState<string>("");
 
+  const [showUnstakeModal, setShowUnstakeModal] = useState<boolean>(false)
+  const [nextRewardTime, setNextRewardTime] = useState<number>(0);
+  const [rewardAmount, setRewardAmount] = useState<string | number>(0);
+  const [lastStakeTime, setLastStakeTime] = useState(0);
+
   async function getCoinGeckoTokenData() {
+    if (!authenticated) {
+      login();
+      toast("Connect Wallet")
+      return;
+    }
+
     try {
       if (!data?.stakingPool?.stakeToken?.id) {
         throw new Error("Staking pool data not available");
@@ -67,6 +80,9 @@ function SingleStake() {
       const pauseStatus = await getStakingPoolPauseStatus(data.stakingPool.id);
       const supply = await getTotalSupply(data.stakingPool.stakeToken.id);
       const alreadyStaked = await getAmountStaked(data.stakingPool.id, user.wallet.address as `0x${string}`)
+      const nextRewardTime = await getNextRewardWithdrawTime(data.stakingPool.id, user.wallet.address as `0x${string}`)
+      const rewardsAmount = await getStakingPoolRewardsAmount(data.stakingPool.id, user.wallet.address as `0x${string}`)
+      const lastStakeTime = await getLastStakeTime(data.stakingPool.id, user.wallet.address as `0x${string}`)
 
 
       setCoinGeckoData(tokenData);
@@ -74,6 +90,9 @@ function SingleStake() {
       setPaused(pauseStatus);
       setTotalSupply(supply);
       setStaked(Number(alreadyStaked));
+      setNextRewardTime(nextRewardTime);
+      setRewardAmount(rewardsAmount);
+      setLastStakeTime(lastStakeTime);
     } catch (error) {
       console.error(error);
       toast.error("Failed to retrieve token data");
@@ -95,10 +114,7 @@ function SingleStake() {
     if (!loadingStakingPool && data?.stakingPool) {
       getCoinGeckoTokenData();
     }
-  }, [data?.stakingPool]);
-
-  // You can now use the id in your component
-  console.log('Stake ID:', id);
+  }, [data?.stakingPool, authenticated]);
 
   async function handleStake() {
     setIsStaking(true);
@@ -211,13 +227,63 @@ function SingleStake() {
     return
   }
 
+  async function unstakeConfirm() {
+    setShowUnstakeModal(true)
+    return;
+  }
+
+  async function handleWithdraw(unstake: boolean = false) {
+    const walletClient = createViemWalletClient();
+    const [account] = await walletClient.getAddresses();
+
+    if (unstake === false) {
+      if (Number(rewardAmount) === 0) {
+        toast("No Rewards Available")
+        return;
+      }
+    }
+
+    try {
+      setIsStaking(true);
+      const { request } = await publicClient.simulateContract({
+        address: data.stakingPool.id,
+        abi: stakingPoolABI,
+        account,
+        functionName: "withdraw",
+        args: [unstake]
+      })
+
+      const hash = await walletClient.writeContract(request);
+      setTxReceiptTitle(unstake ? "Successfully Unstaked" : "Successfully Withdrawal and Unstaking")
+      setTxHash(hash)
+      await reloadLockedAmount()
+      setShowUnstakeModal(false)
+
+      toast(unstake ? "Successfully Unstaked tokens" : "Successful Withdrawal of Reward Tokens & Unstake")
+
+
+      setTimeout(() => {
+        setShowTxModal(false)
+      }, 2000)
+    } catch (error: any) {
+      console.error(error)
+      if (error.message.includes("User rejected the request")) {
+        toast("User Rejected the Request")
+        return;
+      }
+      toast.error(unstake ? "Failed to Unstake Tokens" : "Failed to Withdraw Rewards")
+    } finally {
+      setIsStaking(false)
+    }
+  }
+
 
   return (
     <div className="text-white font-space flex items-center justify-center p-[40px_20px] lg:py-[80px]">
       <TxReceipt
         visible={showTxModal}
         onClose={() => setShowTxModal(false)}
-        title="Staking Successful"
+        title={txReceiptTitle}
         txHash={txHash}
       />
       {showModal && (
@@ -233,6 +299,25 @@ function SingleStake() {
           APY={data.stakingPool.apyRate}
         />
       )}
+      {
+        showUnstakeModal && (
+          <ConfirmUnstaking
+            tokenSymbol={data.stakingPool.stakeToken.symbol}
+            onConfirm={handleWithdraw}
+            onClose={() => {
+              setShowUnstakeModal(false)
+              setIsStaking(false)
+            }}
+            loading={isStaking}
+            APY={data.stakingPool.apyRate}
+            rewardsTokenSymbol={data.stakingPool.rewardToken.symbol}
+            lockAmount={staked}
+            nextRewardTime={nextRewardTime}
+            rewardAmount={rewardAmount}
+            lastStakeTime={lastStakeTime}
+          />
+        )
+      }
       <div className="w-full lg:w-[60%] border border-primary p-[20px] lg:p-[40px] rounded-lg">
         <div className="flex items-center justify-center relative">
           <div className="items-center flex justify-center space-x-[10px]">
@@ -297,9 +382,14 @@ function SingleStake() {
               <p className="text-[14px] lg:text-[16px]">Connect Wallet to Join</p>
             </button>
           ) : (
-            <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={confirmStake}>
-              <p className="text-[14px] lg:text-[16px]">Confirm Stake</p>
-            </button>
+            <div className="space-y-5">
+              <button className="bg-transparent border-primary border-2 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={unstakeConfirm}>
+                <p className="text-[14px] lg:text-[16px]">Withdraw</p>
+              </button>
+              <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500]" onClick={confirmStake}>
+                <p className="text-[14px] lg:text-[16px]">Confirm Stake</p>
+              </button>
+            </div>
           )
         }
       </div>
