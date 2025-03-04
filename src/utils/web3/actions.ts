@@ -175,6 +175,69 @@ export const getAmountStaked = async (CA: `0x${string}`, userAddress: `0x${strin
     }
 }
 
+export const getStakingPoolRewardsAmount = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
+    try {
+        const rewards = await client.readContract({
+            address: stakingPoolAddress,
+            abi: stakingPoolABI,
+            functionName: "calculateReward",
+            args: [userAddress]
+        })
+
+        const token1 = await client.readContract({
+            address: stakingPoolAddress,
+            abi: stakingPoolABI,
+            functionName: "token1"
+        })
+
+        // Get Token Decimals
+        const decimals = await client.readContract({
+            address: token1 as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+        return ethers.formatUnits(rewards as string, decimals as number);
+    } catch (error) {
+        console.error(error);
+        throw new Error("failed to retrieve rewards amount")
+    }
+}
+
+
+
+export const getNextRewardWithdrawTime = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
+    try {
+        const nextRewardTime = await client.readContract({
+            address: stakingPoolAddress,
+            abi: stakingPoolABI,
+            functionName: "getNextWithdrawalTime",
+            args: [userAddress]
+        })
+
+        return nextRewardTime as number
+    } catch (error: any) {
+        console.error(error);
+        throw new Error("Failed to retrieve next reward time")
+    }
+}
+
+export const getLastStakeTime = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
+    try {
+        const lastStakeTime = await client.readContract({
+            address: stakingPoolAddress,
+            abi: stakingPoolABI,
+            functionName: "lastStakeTime",
+            args: [userAddress]
+        })
+
+        return lastStakeTime as number
+    } catch (error: any) {
+        console.error(error);
+        throw new Error("Failed to retrieve next reward time")
+    }
+}
+
 export const getStakingPoolPauseStatus = async (CA: `0x${string}`) => {
     try {
         const pauseStatus = await client.readContract({
@@ -202,15 +265,5 @@ export const getStakingPoolOwner = async (CA: `0x${string}`) => {
     } catch (error: any) {
         console.error(error);
         throw new Error("Failed to get staking pool paused state")
-    }
-}
-
-
-
-export const getNextRewardTime = async (CA: `0x${string}`, userAddress: `0x${string}`) => {
-    try {
-
-    } catch (error: any) {
-
     }
 }
