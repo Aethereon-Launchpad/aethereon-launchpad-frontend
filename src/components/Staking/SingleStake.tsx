@@ -40,6 +40,9 @@ function SingleStake() {
   const { data, loading: loadingStakingPool, error: stakingPoolError } = useQuery(GET_STAKING_POOL_BY_ID, {
     variables: { id }
   })
+
+  const [startUpLoading, setStartUpLoading] = useState<boolean>(true);
+
   const { authenticated, login, user } = usePrivy();
   const [stakeAmount, setStakeAmount] = useState<number>(0.00)
   const [balance, setTokenBalance] = useState<string | 0>(0);
@@ -94,7 +97,9 @@ function SingleStake() {
       setLastStakeTime(lastStakeTime);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to retrieve token data");
+      // toast.error("Failed to retrieve token data");
+    } finally {
+      setStartUpLoading(false)
     }
   }
 
@@ -205,7 +210,7 @@ function SingleStake() {
     }
   }
 
-  if (loadingStakingPool) {
+  if (loadingStakingPool || startUpLoading) {
     return (
       <div className="flex justify-center items-center h-[200px]">
         <Preloader
