@@ -22,7 +22,7 @@ function Launchpad() {
         <HowTo/>
         <StakingBadge/>
         <Access/>
-        <Multichain/>
+        {/* <Multichain/> */}
         <Subscribe/>
     </Layout>
   )
