@@ -121,7 +121,7 @@ function PoolForm() {
       const StakingPoolFactoryCA = "0x0D8206c67D60bDE91093bB254E4Fc15f39B9dd3e"
       // Ensure all values are correctly formatted
       const formatPercentage = (value: number) => Math.round((value / 100) * 1e4);
-      const formatRewardBasis = (value: number) => Math.floor(Date.now() / 1000) + (value * 86400);
+      const formatRewardBasis = (value: number) => value * 24 * 60 * 60; // No of Days
       const formatAPYRate = (value: number) => Math.round(value * 1e4);
 
       // Format the values

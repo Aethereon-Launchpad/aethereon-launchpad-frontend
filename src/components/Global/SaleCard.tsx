@@ -2,6 +2,14 @@
 
 import { useNavigate } from "react-router-dom";
 
+interface SaleCardProps {
+  img: string;
+  projectName: string;
+  projectDescription: string;
+  saleStartTime: number;
+  whitelistStatus: boolean;
+}
+
 function SaleCard() {
   const navigation = useNavigate();
   return (
@@ -14,11 +22,11 @@ function SaleCard() {
         />
       </div>
 
-      <div className="absolute bottom-0 w-[80px] left-0 h-[25px] bg-[#291254]">
+      <div className="absolute top-[8.8rem] w-[80px] left-0 h-[25px] bg-[#291254] z-0">
 
       </div>
       <div className="h-[88px] w-[88px] rounded-full absolute top-[100px] left-[20px] z-20  border-[#291254] border-[7px]">
-        <img src="/chain.svg" className="h-full w-full" alt="" />
+        <img src="https://sonicscan.org/assets/sonic/images/svg/logos/token-light.svg" className="h-full w-full" alt="" />
       </div>
       <div className="w-full">
         <div className=" text-white w-full items-center flex justify-end">
@@ -35,7 +43,7 @@ function SaleCard() {
               <p className="text-[#A1A1AA]">A DeFi protocol for lending</p>
             </div>
             <div className="h-[49px] w-[49px]  rounded-full">
-              <img src="/chain.svg" alt="" />
+              <img src="https://sonicscan.org/assets/sonic/images/svg/logos/token-light.svg" alt="" />
             </div>
           </div>
           <div className="mt-[10px] flex flex-col w-full space-y-[5px]">

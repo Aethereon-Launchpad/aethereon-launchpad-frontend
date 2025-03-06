@@ -9,7 +9,7 @@ import { Toaster } from "react-hot-toast"
 
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { votingClient, stakingClient } from './graphql/client.ts';
+import { apolloClient } from './graphql/client.ts';
 import { ApolloProvider } from '@apollo/client'
 import { privyConfig, sonicOveride, config as wagmiConfig } from './config/index.ts'
 import { PrivyProvider } from '@privy-io/react-auth';
@@ -21,21 +21,19 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ApolloProvider client={votingClient}>
-      <ApolloProvider client={stakingClient}>
-        <BrowserRouter>
-          <PrivyProvider appId={APP_ID} config={{ ...privyConfig, supportedChains: [sonicOveride] }}>
-            <QueryClientProvider client={queryClient}>
-              <WagmiProvider config={wagmiConfig}>
-                <App />
-              </WagmiProvider>
-            </QueryClientProvider>
-          </PrivyProvider>
-          <Toaster
-            containerClassName="font-space"
-          />
-        </BrowserRouter>
-      </ApolloProvider>
+    <ApolloProvider client={apolloClient}>
+      <BrowserRouter>
+        <PrivyProvider appId={APP_ID} config={{ ...privyConfig, supportedChains: [sonicOveride] }}>
+          <QueryClientProvider client={queryClient}>
+            <WagmiProvider config={wagmiConfig}>
+              <App />
+            </WagmiProvider>
+          </QueryClientProvider>
+        </PrivyProvider>
+        <Toaster
+          containerClassName="font-space"
+        />
+      </BrowserRouter>
     </ApolloProvider>
   </StrictMode>,
 )

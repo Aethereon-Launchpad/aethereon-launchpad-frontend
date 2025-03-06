@@ -78,3 +78,55 @@ export const GET_STAKING_POOL_BY_ID = gql`
         }
     }
 `
+
+export const GET_ALL_PRESALES = gql`
+    query GetAllPresales {
+        tokenSales {
+            blockNumber
+            blockTimestamp
+            cliffPeriod {
+                claimTime
+                id
+                percentage
+            }
+            endTime
+            funder
+            contributions {
+                amount
+                id
+                user
+            }
+            hardCap
+            id
+            maxTotalPayment
+            linearVesting {
+                endTime
+                id
+            }
+            metadataURI
+            minTotalPayment
+            paymentToken {
+                id
+                decimals
+                name
+                symbol
+                totalSupply
+            }
+            presaleId
+            salePrice
+            saleToken {
+                decimals
+                id
+                name
+                symbol
+                totalSupply
+            }
+            startTime
+            softCap
+            totalPaymentMade
+            transactionHash
+            vestingType
+            withdrawDelay
+        }
+    }
+`

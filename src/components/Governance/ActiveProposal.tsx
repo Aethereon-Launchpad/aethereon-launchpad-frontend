@@ -6,7 +6,9 @@ import { GET_VOTES } from "../../graphql/queries";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 
 function ActiveProposal() {
-  const { loading, error, data, refetch } = useQuery(GET_VOTES);
+  const { loading, error, data, refetch } = useQuery(GET_VOTES, {
+    context: { clientName: 'voting' }
+  });
 
   if (loading) {
     return (

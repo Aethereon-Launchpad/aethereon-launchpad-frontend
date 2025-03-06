@@ -13,7 +13,11 @@ function Pools() {
   const navigate = useNavigate()
   const [tab, setTab] = useState(0);
 
-  const { loading, error, data } = useQuery(GET_STAKING_POOLS);
+  const { loading, error, data } = useQuery(GET_STAKING_POOLS, {
+    context: {
+      clientName: "staking"
+    }
+  });
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -91,7 +95,7 @@ function Pools() {
                   Pool Reward Period
                 </th>
                 <th scope="col" className="px-6 py-3 min-w-[210px]">
-                  Staking Period
+                  Next Reward
                 </th>
                 <th scope="col" className="px-6 py-3 min-w-[210px]">
                   Token Fees
@@ -126,7 +130,9 @@ function Pools() {
                     </span>
                   </th>
                   <td className="px-6 py-4 min-w-[210px]">{item.apyRate}% APY</td>
-                  <td className="px-6 py-4 min-w-[210px]">{noOfDays(item.withdrawalIntervals, item.blockTimestamp) + 1} Days</td>
+                  <td className="px-6 py-4 min-w-[210px]">
+                    {index === 0 || index === 1 ? "-" : `${noOfDays(item.withdrawalIntervals)} Days`}
+                  </td>
                   <td className="px-6 py-4 min-w-[210px]">Recurring Rewards</td>
                   <td className="px-6 py-4 min-w-[210px]">
                     <div>

@@ -18,7 +18,7 @@ function Launchpad() {
           <Trusted/>
           <Secure/>
         <UpcomingIdo/>
-        <Funded/>
+        {/* <Funded/> */}
         <HowTo/>
         <StakingBadge/>
         <Access/>
