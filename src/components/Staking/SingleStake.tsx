@@ -370,9 +370,9 @@ function SingleStake() {
             <p className="uppercase text-[14px] text-[#A1A1AA]">Staking Summary</p>
             <div className="mt-[20px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
               <p>Current Price</p>
-              <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$0**"}.</p>
+              <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$???**"}.</p>
               <p>Market Cap</p>
-              <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$0"} </p>
+              <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$???"} </p>
               <p>Total Supply</p>
               <p>{totalSupply ? new Intl.NumberFormat('en-US').format(Number(totalSupply)) : 0} (${data.stakingPool.stakeToken.symbol})</p>
             </div>
@@ -384,7 +384,7 @@ function SingleStake() {
             <p>APY Rates</p>
             <p>{data.stakingPool.apyRate}%**</p>
             <p>Vesting Period </p>
-            <p> {noOfDays(data.stakingPool.withdrawalIntervals, data.stakingPool.blockTimestamp) + 1} days</p>
+            <p> {noOfDays(data.stakingPool.withdrawalIntervals)} days</p>
           </div>
         </div>
         {
