@@ -3,15 +3,25 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaCheck } from "react-icons/fa6";
-import stakingPoolActions from '../../abis/StakingPoolActions.json';
-import { ethers } from "ethers";
+import { actionsAbi } from "../../abis/stakingpool";
+// import { ethers } from "ethers";
+
+import { getContract, prepareContractCall } from "thirdweb";
+import {  baseSepolia } from "thirdweb/chains";
+import { client } from "../../App";
+import { TransactionButton } from "thirdweb/react";
 
 
 function PoolForm() {
-  // const abi = [ /* Your Contract ABI Here */ ];
-  const contractAddress = "0x6cE168E73C64a502d4850CCE952bb2b75a3F4711";
-  const provider = new ethers.JsonRpcProvider("https://your-rpc-url");
-  const contract = new ethers.Contract(contractAddress, stakingPoolActions.abi, provider);
+  const contractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS as string;
+
+
+  const contract = getContract({
+    client : client,
+    address: contractAddress,
+    chain: baseSepolia,
+    abi: actionsAbi ,
+  });
 
 
   const [tab, setTab] = useState(0);
@@ -71,15 +81,15 @@ function PoolForm() {
     } else if (tab === 2) {
       // Submit the data
       try {
-        await contract.createStakingPool(
-          stakingTokenSymbol,
-          rewardTokenAddress,
-          stakeFee,
-          withdrawalFee,
-          rewardBasis,
-          numberOfDays,
-          apyRate
-        )
+        // await contract.(
+        //   stakingTokenSymbol,
+        //   rewardTokenAddress,
+        //   stakeFee,
+        //   withdrawalFee,
+        //   rewardBasis,
+        //   numberOfDays,
+        //   apyRate
+        // )
         console.log("Submitting data: ", poolData);
         toast.success("Staking Pool created successfully!");
       } catch (error) {
@@ -91,16 +101,65 @@ function PoolForm() {
 
 
 
+
+
+  const _newOwner = "0x" + "0".repeat(40);
+  const _token0 = stakingTokenSymbol;
+  const _token1 = "0x" + "0".repeat(40);
+  const _apyRate = Number(apyRate);
+  const _stakeFeePercentage = parseInt(stakeFee);
+  const _withdrawalFeePercentage = parseFloat(withdrawalFee);
+ const _feeReceiver = rewardTokenAddress;
+ const _intervals = BigInt(numberOfDays)
+
+
+
+
+
   const renderButton = () => {
-    return (
-      <button
-        onClick={handleNextMove}
-        className={` bg-primary text-white p-[10px_20px] mt-[20px] rounded-[8px] w-full h-[50px]`}
-      >
-        {tab === 2 ? "Create Staking Pool" : "Continue"}
-      </button>
-    );
+    if(tab === 0){
+      return (
+        <button
+          onClick={handleNextMove}
+          className={` bg-primary text-white p-[10px_20px] mt-[20px] rounded-[8px] w-full h-[50px]`}
+        >
+          Continue
+        </button>
+      )
+    }else if (tab === 1) {
+      return (
+        <TransactionButton
+        style={{width: "100%", backgroundColor: "#5325A9", color: "white", padding: "15px 20px", borderRadius: "8px"}}
+        // className="bg-primary w-full"
+      
+        transaction={()=> (prepareContractCall({
+          contract,
+          method: "createStakingPool",
+          params: [
+            _newOwner,       // Address of the new owner
+            _token0,         // Staking Token (Your UI field `stakingTokenSymbol` should be converted to an address)
+            _token1,         // Reward Token Address
+            _apyRate,        // APY Rate (uint24)
+            _stakeFeePercentage,  // Stake Fee (uint16)
+            _withdrawalFeePercentage, // Withdrawal Fee (uint16)
+            _feeReceiver,    // Fee Receiver
+            _intervals       // Number of Days (uint256)
+          ]
+        }))}
+        
+        onError={(error) => {
+          console.log("Error", error);
+          toast.error(error.message)
+          // toast.error("An error occurred while creating the Staking Pool!");
+        }}
+        >
+            Create Staking Pool
+        </TransactionButton>
+     
+      )
+    }
   };
+
   return (
     <div className="p-[40px_20px] lg:p-[100px_40px] font-space">
       <div className="flex flex-col lg:flex-row items-start  gap-[20px] text-white">
@@ -139,7 +198,7 @@ function PoolForm() {
                   {tab > 1 ? (
                     <FaCheck className="text-white text-[20px]" />
                   ) : (
-                    <p className="text-white text-[20px] font-[600]">1</p>
+                    <p className="text-white text-[20px] font-[600]">2</p>
                   )}
                 </div>
                 <p className="font-[500] text-[#848895] text-[14px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
@@ -240,13 +299,17 @@ function PoolForm() {
           </div>
         </div>
         <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
-          <p className="text-[20px] lg:text-[36px] font-[500]">
+          <div className="flex items-center justify-between w-full">
+            {tab >0 && (
+              <div className="cursor-pointer" onClick={()=> setTab(tab - 1)}>back</div>)}
+          <p className="text-[20px] lg:text-[36px] font-[500] grow text-center">
             {tab === 0
               ? " Enter token addresses for Staking and reward"
               : tab === 1
                 ? "Staking Information"
                 : "Review Information"}
           </p>
+          </div>
           {tab === 0 && (
             <div className="flex flex-col w-full space-y-[20px] lg:space-y-[80px]">
               <div className="w-full">
@@ -293,7 +356,7 @@ function PoolForm() {
                   onChange={(e) =>
                     setPoolData({ ...poolData, withdrawalFee: e.target.value })
                   }
-                  type="text"
+                  type="number"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
               </div>
@@ -311,7 +374,7 @@ function PoolForm() {
               <div className="w-full">
                 <p>Number Of Days</p>
                 <input
-                  type="text"
+                  type="number"
                   value={numberOfDays}
                   onChange={(e) =>
                     setPoolData({ ...poolData, numberOfDays: e.target.value })

@@ -20,6 +20,7 @@ import { createThirdwebClient } from 'thirdweb'
 
 export const client = createThirdwebClient({
   clientId: import.meta.env.VITE_APP_CLIENT_ID,
+  
 });
 
 

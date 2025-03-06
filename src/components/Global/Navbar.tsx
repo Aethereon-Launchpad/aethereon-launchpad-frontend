@@ -4,13 +4,15 @@ import { Link } from "react-router-dom";
 // import { IoWalletSharp } from "react-icons/io5";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { LuPlus } from "react-icons/lu";
-import { ConnectButton } from 'thirdweb/react';
+import { ConnectButton, useConnect } from 'thirdweb/react';
 import { client } from '../../App';
+import { baseSepolia } from 'thirdweb/chains';
 // import { useConnect } from "thirdweb/react";
 
 
 function Navbar() {
   const [show, setShow] = React.useState(false);
+  // useConnect()
   // const { connect, isConnecting, error } = useConnect();
   const links = [
     { title: "Launchpad", link: "/launchpad" },
@@ -50,8 +52,15 @@ function Navbar() {
           <p>Join IDO</p>
         </button>
 
-       
-
+        <ConnectButton client={client}   chain={baseSepolia} connectButton={{
+          style:{
+            backgroundColor: "#291254",
+            textAlign: "center",
+            color: "#fff",
+          }
+        }} />
+        {/* <IoWalletSharp className="text-[12px] lg:text-[16px]" /> */}
+        {/* 
         <ConnectButton connectButton={
           {
             
@@ -71,15 +80,15 @@ function Navbar() {
           }
         } 
         
-        client={client} />
-        
+        client={client} /> */}
+
         {/* <button  className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]">
           <IoWalletSharp className="text-[12px] lg:text-[16px]" />
           <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
         </button>  */}
         {/* */}
 
-        
+
         <button onClick={() => setShow(!show)} className="xl:hidden">
           <HiMenuAlt3 className="text-[30px]" />
         </button>
