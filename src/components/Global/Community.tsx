@@ -12,7 +12,7 @@ function Community() {
       </div>
       <p className="text-[16px] px-[20px] lg:text-[28px] text-center mt-[40px]">
         It's time to join the thousands of creators,{" "}
-        <br className="hidden lg:block" /> artists, and developers using Solana.
+        <br className="hidden lg:block" /> artists, and developers using Sonic.
       </p>
       <button className="bg-[#5325A9] flex items-center space-x-[10px] mt-[15px] rounded-[8px] text-white p-[8px_25px]">
         <FaDiscord />

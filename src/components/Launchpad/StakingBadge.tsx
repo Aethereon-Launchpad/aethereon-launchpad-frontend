@@ -1,4 +1,5 @@
 // import React from 'react'
+import { Link } from "react-router-dom";
 
 function StakingBadge() {
   return (
@@ -25,9 +26,9 @@ function StakingBadge() {
               <li> Access to DerHex community forums and polls.</li>
             </ul>
           </div>
-          <button className="bg-primary w-full py-[5px] mt-[30px]">
+          <Link to="/dynamic-rewards" className="bg-primary w-full py-[5px] mt-[30px] text-center">
             Start Staking
-          </button>
+          </Link>
         </div>
         <div className="max-h-[460px] flex flex-col justify-between bg-[#000027] overflow-hidden rounded-[10px] text-white">
           <div className="p-[20px]">
@@ -48,9 +49,9 @@ function StakingBadge() {
               <li> Small bonus rewards for staking longer than 90 days.</li>
             </ul>
           </div>
-          <button className="bg-primary w-full py-[5px] mt-[30px]">
+          <Link to="/dynamic-rewards" className="bg-primary w-full py-[5px] mt-[30px]  text-center">
             Start Staking
-          </button>
+          </Link>
         </div>
         <div className="h-[460px] max-h-[460px] flex flex-col justify-between bg-[#000027] overflow-hidden rounded-[10px] text-white">
           <div className="p-[20px]">
@@ -75,9 +76,9 @@ function StakingBadge() {
               <li> Access to DerHex community forums and polls.</li>
             </ul>
           </div>
-          <button className="bg-primary w-full py-[5px] mt-[30px]">
+          <Link to="/dynamic-rewards" className="bg-primary w-full py-[5px] mt-[30px] text-center">
             Start Staking
-          </button>
+          </Link>
         </div>
         <div className="h-[460px] max-h-[460px] flex flex-col justify-between bg-[#000027] overflow-hidden rounded-[10px] text-white">
           <div className="p-[20px]">
@@ -103,9 +104,9 @@ function StakingBadge() {
               </li>
             </ul>
           </div>
-          <button className="bg-primary w-full py-[5px] mt-[30px]">
+          <Link to="/dynamic-rewards" className="bg-primary w-full py-[5px] mt-[30px]  text-center">
             Start Staking
-          </button>
+          </Link>
         </div>
         <div className="h-[460px] max-h-[460px] flex flex-col justify-between bg-[#000027] overflow-hidden rounded-[10px] text-white">
           <div className="p-[20px]">
@@ -136,12 +137,12 @@ function StakingBadge() {
               </li>
             </ul>
           </div>
-          <button className="bg-primary w-full py-[5px] mt-[30px]">
+          <Link to="/dynamic-rewards" className="bg-primary w-full py-[5px] mt-[30px] text-center">
             Start Staking
-          </button>
+          </Link>
         </div>
-        
-        
+
+
       </div>
     </div>
   );
