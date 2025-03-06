@@ -119,9 +119,9 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-t-[#797979] mt-[20px] pt-[20px]">
-        <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between text-white">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between text-white">
           <div>Copyright derhex {new Date().getFullYear()}. All Rights Reserved.</div>
-          <div className="flex gap-x-8">
+          <div className="flex gap-x-8 mt-[20px] lg:mt-0">
             {footerSocials.map((sm: { url: string, img: string }, index: number) => {
               return (
                 <Link to={sm.url} key={index}>
