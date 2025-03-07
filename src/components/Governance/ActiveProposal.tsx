@@ -36,7 +36,7 @@ function ActiveProposal() {
         <p className="text-[32px] font-[500]">Active Proposals</p>
         <p className="text-[18px]">Vote on important platform decisions and help shape the future of DerHex.</p>
 
-        <div className="grid grid-cols-3 items-center overflow-scroll scrollbar-hide gap-[40px] mt-[40px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-[40px] mt-[40px]">
           {votingSlots.length > 0 ? (
             votingSlots.map((slot: any) => (
               <ProposalCard key={slot.id} item={slot} refetch={refetch} />
