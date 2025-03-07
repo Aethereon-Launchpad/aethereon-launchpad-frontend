@@ -175,6 +175,40 @@ export const getAmountStaked = async (CA: `0x${string}`, userAddress: `0x${strin
     }
 }
 
+export const calculateStakeRewards = async (CA: `0x${string}`, userAddress: `0x${string}`) => {
+    try {
+        // Get Reward Token
+        const rewardTokenAddress = await client.readContract({
+            address: CA,
+            abi: stakingPoolABI,
+            functionName: "token1"
+        })
+
+        if (!rewardTokenAddress) {
+            throw new Error("failed to retrieve reward token address")
+        }
+        // Get Token Decimals
+        const decimals = await client.readContract({
+            address: rewardTokenAddress as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+        // Get Rewards
+        const calculatedRewards = await client.readContract({
+            address: CA,
+            abi: stakingPoolABI,
+            functionName: "staked",
+            args: [userAddress]
+        })
+
+        return ethers.formatUnits(calculatedRewards as string, decimals as number);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to retrieve stake rewards")
+    }
+}
+
 export const getStakingPoolRewardsAmount = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
     try {
         const rewards = await client.readContract({
@@ -267,3 +301,55 @@ export const getStakingPoolOwner = async (CA: `0x${string}`) => {
         throw new Error("Failed to get staking pool paused state")
     }
 }
+
+export const getStakingPower = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+    try {
+        let totalAmountStaked = 0;
+
+        for (var i = 0; i < pools.length; i++) {
+            const staked = await getAmountStaked(pools[i].id, userAddress);
+            totalAmountStaked += Number(staked);
+        }
+
+        return totalAmountStaked;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to calculate total staking power")
+    }
+}
+
+export const getTotalRewards = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+    try {
+        let totalRewards = 0;
+
+        for (var i = 0; i < pools.length; i++) {
+            const reward = await calculateStakeRewards(pools[i].id, userAddress);
+            totalRewards += Number(reward);
+        }
+
+        return totalRewards;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to calculate total rewards")
+    }
+}
+
+export const getParticipatedStakingPool = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+    try {
+        let stakedPools: any = [];
+
+        for (var i = 0; i < pools.length; i++) {
+            const staked = await getAmountStaked(pools[i].id, userAddress);
+            if (Number(staked) > 0) {
+                stakedPools.push(pools[i]);
+            }
+        }
+
+
+        return stakedPools;
+    } catch (error) {
+        console.error(error);
+
+        throw new Error("get participated pools")
+    }
+} 
