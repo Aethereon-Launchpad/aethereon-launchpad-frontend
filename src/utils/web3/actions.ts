@@ -566,7 +566,7 @@ export const getAllStakingPoolData = async () => {
     const allPools = await getAllStakingPoolAddress();
 
     const stakingPoolData = await Promise.all(allPools.map(async (pool: `0x${string}`) => {
-        const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken] = await Promise.all([
+        const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
             client.readContract({
                 address: pool,
                 abi: stakingPoolABI,
@@ -596,6 +596,21 @@ export const getAllStakingPoolData = async () => {
                 address: pool,
                 abi: stakingPoolABI,
                 functionName: "token1"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "totalStaked"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "totalRewardable"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "feeReceiver"
             })
         ])
 
@@ -653,7 +668,10 @@ export const getAllStakingPoolData = async () => {
                 name: rewardTokenName,
                 symbol: rewardTokenSymbol,
                 decimals: rewardTokenDecimals
-            }
+            },
+            totalStaked: ethers.formatUnits(totalStaked as string, stakeTokenDecimals as number),
+            totalRewardable: ethers.formatUnits(totalRewardable as string, rewardTokenDecimals as number),
+            feeReceiver
         }
     }))
 
@@ -661,7 +679,7 @@ export const getAllStakingPoolData = async () => {
 }
 
 export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) => {
-    const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken] = await Promise.all([
+    const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
         client.readContract({
             address: stakingPool,
             abi: stakingPoolABI,
@@ -691,6 +709,21 @@ export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) =>
             address: stakingPool,
             abi: stakingPoolABI,
             functionName: "token1"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "totalStaked"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "totalRewardable"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "feeReceiver"
         })
     ])
 
@@ -748,7 +781,10 @@ export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) =>
                 name: rewardTokenName,
                 symbol: rewardTokenSymbol,
                 decimals: rewardTokenDecimals
-            }
+            },
+            totalStaked: ethers.formatUnits(totalStaked as string, stakeTokenDecimals as number),
+            totalRewardable: ethers.formatUnits(totalRewardable as string, rewardTokenDecimals as number),
+            feeReceiver
         }
     }
 }

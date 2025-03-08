@@ -11,6 +11,7 @@ import { sonicTestnet } from "../../config/chain";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
+import { useNavigate } from "react-router-dom";
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
@@ -33,6 +34,7 @@ function PoolForm() {
 
   const [stakingSymbol, setStakingSymbol] = useState<string>("")
   const [rewardSymbol, setRewardSymbol] = useState<string>("")
+  const navigate = useNavigate();
 
 
   const [poolData, setPoolData] = useState({
@@ -110,7 +112,7 @@ function PoolForm() {
     } else if (tab === 2) {
       await createStakingPool();
       console.log("Submitting data: ", poolData);
-      toast.success("Staking Pool created successfully!");
+      // toast.success("Staking Pool created successfully!");
     }
   }
 
@@ -142,7 +144,7 @@ function PoolForm() {
       const fee: string = await getStakingPoolFactoryFee();
 
 
-      const { request } = await publicClient.simulateContract({
+      const { request, result } = await publicClient.simulateContract({
         address: StakingPoolFactoryCA,
         abi: stakingPoolActionsABI,
         functionName: "createStakingPool",
@@ -165,20 +167,10 @@ function PoolForm() {
       console.log(hash);
 
       toast.success("Successfully Created New Staking Pool")
+      navigate("/stake-farm")
     } catch (err: any) {
-      if (err instanceof BaseError) {
-        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
-        if (revertError instanceof ContractFunctionRevertedError) {
-          const errorName = revertError.data?.errorName ?? ''
-          if (errorName === "Fee()") {
-            const fee = await getStakingPoolFactoryFee();
-            toast.error(`Fund Wallet with Fee Amount :${fee}`)
-          }
-        }
-
-        console.error("Staking Pool Error", err);
-        toast.error("Creating Staking Pool Failed")
-      }
+      console.error("Staking Pool Error", err);
+      toast.error("Creating Staking Pool Failed")
     } finally {
       setLoading(false)
     }
