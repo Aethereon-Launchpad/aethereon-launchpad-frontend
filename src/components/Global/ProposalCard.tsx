@@ -23,6 +23,10 @@ function CountdownTimer({ endDate }: { endDate: string }) {
       //   endTime: new Date(endTime).toISOString(),
       //   now: new Date(now).toISOString()
       // });
+      // console.error('End time is in the past:', {
+      //   endTime: new Date(endTime).toISOString(),
+      //   now: new Date(now).toISOString()
+      // });
       return { days: 0, hours: 0, minutes: 0 };
     }
 
@@ -139,9 +143,9 @@ function ProposalCard({ item, refetch }: any) {
     setShowConfirmModal(false)
   }
 
-  useEffect(() => {
 
-  }, [])
+
+
 
   return (
     <div className="p-[30px_20px] border border-primary rounded-[10px] col-span-1 relative">

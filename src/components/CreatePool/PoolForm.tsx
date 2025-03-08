@@ -188,6 +188,21 @@ function PoolForm() {
 
 
 
+
+
+//   const _newOwner = "0x" + "0".repeat(40);
+//   const _token0 = stakingTokenSymbol;
+//   const _token1 = "0x" + "0".repeat(40);
+//   const _apyRate = Number(apyRate);
+//   const _stakeFeePercentage = parseInt(stakeFee);
+//   const _withdrawalFeePercentage = parseFloat(withdrawalFee);
+//  const _feeReceiver = rewardTokenAddress;
+//  const _intervals = BigInt(numberOfDays)
+
+
+
+
+
   const renderButton = () => {
     return (
       <button
@@ -246,7 +261,7 @@ function PoolForm() {
                   {tab > 1 ? (
                     <FaCheck className="text-white text-[20px]" />
                   ) : (
-                    <p className="text-white text-[20px] font-[600]">1</p>
+                    <p className="text-white text-[20px] font-[600]">2</p>
                   )}
                 </div>
                 <p className="font-[500] text-[#848895] text-[14px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
@@ -347,13 +362,17 @@ function PoolForm() {
           </div>
         </div>
         <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
-          <p className="text-[20px] lg:text-[36px] font-[500]">
+          <div className="flex items-center justify-between w-full">
+            {tab >0 && (
+              <div className="cursor-pointer" onClick={()=> setTab(tab - 1)}>back</div>)}
+          <p className="text-[20px] lg:text-[36px] font-[500] grow text-center">
             {tab === 0
               ? " Enter token addresses for Staking and reward"
               : tab === 1
                 ? "Staking Information"
                 : "Review Information"}
           </p>
+          </div>
           {tab === 0 && (
             <div className="flex flex-col w-full space-y-[20px] lg:space-y-[80px]">
               <div className="w-full">

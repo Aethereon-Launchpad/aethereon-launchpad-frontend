@@ -1,7 +1,7 @@
 // import React from 'react'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function NftCard({item}: any) {
+function NftCard({item}: {item: any}) {
   console.log(item)
   return (
     <div className="p-[20px] min-w-[350px] rounded-[10px] bg-[#000027]">

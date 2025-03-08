@@ -52,10 +52,10 @@ function Navbar() {
         ))}
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
-        <button className="hidden xl:flex items-center space-x-[5px]">
+        <Link to="/join-ido"  className="hidden xl:flex items-center space-x-[5px]">
           <img src="/ido.svg" alt="" />
           <p>Join IDO</p>
-        </button>
+        </Link>
 
 
         <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]" onClick={handleWalletConnect}>

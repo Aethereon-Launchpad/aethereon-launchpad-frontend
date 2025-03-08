@@ -16,6 +16,7 @@ import SeasonalStaking from './pages/seasonal-staking'
 import PresaleCreator from './pages/presale/create'
 import IDO from './pages/ido'
 import AdminAuthScreen from './pages/admin'
+import Ido from './pages/ido'
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
       <Route path='/launchpad' element={<Launchpad />} />
       <Route path='/launchpad/:id' element={<IDO />} />
       <Route path='/explore' element={<Explore />} />
+      <Route path='/join-ido' element={<Ido/>}/>
       <Route path='/stake-farm' element={<Staking />} />
       <Route path='/presale/create' element={<PresaleCreator />} />
       <Route path='/stake-farm/:id' element={<Single />} />

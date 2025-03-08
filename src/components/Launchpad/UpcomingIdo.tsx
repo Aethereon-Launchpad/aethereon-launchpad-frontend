@@ -15,6 +15,8 @@ function UpcomingIdo() {
     }
   });
 
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[200px]">
@@ -34,6 +36,7 @@ function UpcomingIdo() {
   }
 
   const tokenSales = data?.tokenSales || [];
+  console.log(tokenSales)
 
 
   return (
