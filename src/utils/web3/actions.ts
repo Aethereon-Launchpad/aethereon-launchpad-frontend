@@ -1,7 +1,7 @@
 import stakingPoolActionsABI from "../../abis/StakingPoolActions.json"
 import stakingPoolABI from "../../abis/StakingPool.json"
 import votingSlotFactory from "../../abis/VotingSlotFactory.json";
-import votingSlot from "../../abis/VotingSlot.json";
+import votingSlotABI from "../../abis/VotingSlot.json";
 import PresaleFactory from "../../abis/PresaleFactory.json";
 import Presale from "../../abis/Presale.json";
 import ERC20ABI from "../../abis/ERC20.json";
@@ -128,7 +128,7 @@ export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
 export const getStakingPoolFactoryFee = async () => {
     try {
         const fee = await client.readContract({
-            address: "0x0D8206c67D60bDE91093bB254E4Fc15f39B9dd3e",
+            address: "0x1446a9B64137B63e952e8860bf70142EB314E7bc",
             abi: stakingPoolActionsABI,
             functionName: "fee"
         })
@@ -352,4 +352,403 @@ export const getParticipatedStakingPool = async (pools: [{ id: `0x${string}` }],
 
         throw new Error("get participated pools")
     }
-} 
+}
+
+
+// Get Voting Pool Addresses
+export const getAllVotingPoolAddresses = async () => {
+    // Testnet Voting Factory
+    const votingPoolFactory = '0xDEb50f80349B5159D058e666134E611C99006b3a'
+    try {
+        let addressList: `0x${string}`[] = []
+        let index = 0
+
+        while (true) {
+            try {
+                const address: any = await client.readContract({
+                    address: votingPoolFactory,
+                    abi: votingSlotFactory,
+                    functionName: "allSlots",
+                    args: [index]
+                })
+
+                // If we get a valid address, add it to the list
+                if (address) {
+                    addressList.push(address)
+                    index++
+                } else {
+                    // If we get a null/undefined address, stop
+                    break
+                }
+            } catch (error) {
+                // If we get an error, stop the loop
+                break
+            }
+        }
+
+        return addressList
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to retrieve created voting pools")
+    }
+}
+
+
+export const getVotingSlotData = async () => {
+    const allSlots = await getAllVotingPoolAddresses();
+    const votingSlotData = await Promise.all(allSlots.map(async (slot) => {
+        const [
+            name,
+            image,
+            description,
+            voteStartDate,
+            voteEndDate,
+            negativeVoteWeight,
+            positiveVoteWeight
+        ] = await Promise.all([
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "name"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "image"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "description"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "voteStartDate"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "voteEndDate"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "negativeVoteWeight"
+            }),
+            client.readContract({
+                address: slot,
+                abi: votingSlotABI,
+                functionName: "positiveVoteWeight"
+            })
+        ]);
+
+        return {
+            id: slot,
+            contractAddress: slot,
+            name,
+            image,
+            description,
+            voteStartDate: Number(voteStartDate?.toString() || '0'),
+            voteEndDate: Number(voteEndDate?.toString() || '0'),
+            negativeVoteWeight: Number(negativeVoteWeight?.toString() || '0'),
+            positiveVoteWeight: Number(positiveVoteWeight?.toString() || '0')
+        }
+    }));
+    console.log(allSlots);
+    return votingSlotData;
+}
+
+export const getVotingSlotByID = async (votingSlotAddress: `0x${string}`) => {
+    try {
+        const [
+            name,
+            image,
+            description,
+            voteStartDate,
+            voteEndDate,
+            negativeVoteWeight,
+            positiveVoteWeight
+        ] = await Promise.all([
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "name"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "image"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "description"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "voteStartDate"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "voteEndDate"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "negativeVoteWeight"
+            }),
+            client.readContract({
+                address: votingSlotAddress,
+                abi: votingSlotABI,
+                functionName: "positiveVoteWeight"
+            })
+        ]);
+
+        return {
+            id: votingSlotAddress,
+            contractAddress: votingSlotAddress,
+            name,
+            image,
+            description,
+            voteStartDate: Number(voteStartDate?.toString() || '0'),
+            voteEndDate: Number(voteEndDate?.toString() || '0'),
+            negativeVoteWeight: Number(negativeVoteWeight?.toString() || '0'),
+            positiveVoteWeight: Number(positiveVoteWeight?.toString() || '0')
+        }
+    } catch (error) {
+        console.error(error)
+        throw new Error("failed to retrieve voting slot data")
+    }
+}
+
+export const getAllStakingPoolAddress = async () => {
+    const stakingPoolFactory = "0x1446a9B64137B63e952e8860bf70142EB314E7bc"
+
+    try {
+        let addressList: `0x${string}`[] = []
+        let index = 0
+
+        while (true) {
+            try {
+                const address: any = await client.readContract({
+                    address: stakingPoolFactory,
+                    abi: stakingPoolActionsABI,
+                    functionName: "allPools",
+                    args: [index]
+                })
+
+                // If we get a valid address, add it to the list
+                if (address) {
+                    addressList.push(address)
+                    index++
+                } else {
+                    // If we get a null/undefined address, stop
+                    break
+                }
+            } catch (error) {
+                // If we get an error, stop the loop
+                break
+            }
+        }
+
+        return addressList
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to retrieve created staking pools")
+    }
+}
+
+
+export const getAllStakingPoolData = async () => {
+    const allPools = await getAllStakingPoolAddress();
+
+    const stakingPoolData = await Promise.all(allPools.map(async (pool: `0x${string}`) => {
+        const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken] = await Promise.all([
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "apyRate"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "withdrawalIntervals"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "stakeFeePercentage"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "withdrawalFeePercentage"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "token0"
+            }),
+            client.readContract({
+                address: pool,
+                abi: stakingPoolABI,
+                functionName: "token1"
+            })
+        ])
+
+
+        const stakeTokenName = await client.readContract({
+            address: stakeToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "name"
+        })
+
+        const stakeTokenSymbol = await client.readContract({
+            address: stakeToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "symbol"
+        })
+
+        const stakeTokenDecimals = await client.readContract({
+            address: stakeToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+        const rewardTokenName = await client.readContract({
+            address: rewardToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "name"
+        })
+
+        const rewardTokenSymbol = await client.readContract({
+            address: rewardToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "symbol"
+        })
+
+        const rewardTokenDecimals = await client.readContract({
+            address: rewardToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+        return {
+            id: pool,
+            apyRate: Number(apyRate) / 1e4,
+            withdrawalIntervals: Number(withdrawalIntervals),
+            stakeFeePercentage: Number(stakeFeePercentage) * 100 / 1e4,
+            withdrawalFeePercentage: Number(withdrawalFeePercentage) * 100 / 1e4,
+            stakeToken: {
+                id: stakeToken,
+                name: stakeTokenName,
+                symbol: stakeTokenSymbol,
+                decimals: stakeTokenDecimals
+            },
+            rewardToken: {
+                id: rewardToken,
+                name: rewardTokenName,
+                symbol: rewardTokenSymbol,
+                decimals: rewardTokenDecimals
+            }
+        }
+    }))
+
+    return stakingPoolData;
+}
+
+export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) => {
+    const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken] = await Promise.all([
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "apyRate"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "withdrawalIntervals"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "stakeFeePercentage"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "withdrawalFeePercentage"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "token0"
+        }),
+        client.readContract({
+            address: stakingPool,
+            abi: stakingPoolABI,
+            functionName: "token1"
+        })
+    ])
+
+    const stakeTokenName = await client.readContract({
+        address: stakeToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "name"
+    })
+
+    const stakeTokenSymbol = await client.readContract({
+        address: stakeToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "symbol"
+    })
+
+    const stakeTokenDecimals = await client.readContract({
+        address: stakeToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "decimals"
+    })
+
+    const rewardTokenName = await client.readContract({
+        address: rewardToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "name"
+    })
+
+    const rewardTokenSymbol = await client.readContract({
+        address: rewardToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "symbol"
+    })
+
+    const rewardTokenDecimals = await client.readContract({
+        address: rewardToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "decimals"
+    })
+
+    return {
+        stakingPool: {
+            id: stakingPool,
+            apyRate: Number(apyRate) / 1e4,
+            withdrawalIntervals: Number(withdrawalIntervals),
+            stakeFeePercentage: Number(stakeFeePercentage) * 100 / 1e4,
+            withdrawalFeePercentage: Number(withdrawalFeePercentage) * 100 / 1e4,
+            stakeToken: {
+                id: stakeToken,
+                name: stakeTokenName,
+                symbol: stakeTokenSymbol,
+                decimals: stakeTokenDecimals
+            },
+            rewardToken: {
+                id: rewardToken,
+                name: rewardTokenName,
+                symbol: rewardTokenSymbol,
+                decimals: rewardTokenDecimals
+            }
+        }
+    }
+}

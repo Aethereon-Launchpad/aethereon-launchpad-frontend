@@ -18,10 +18,8 @@ function Layout({ children }: { children: ReactNode }) {
         const wallet = wallets[0];
         const info = wallet.chainId;
         const id = info.split(":")[1]
-        if (id !== "146") {
-          toast("Please connect your wallet to Sonic Chain Mainnet", {
-            duration: 5000
-          })
+        if (id !== "57054") {
+          toast("Please connect your wallet to Sonic Chain Testnet")
         }
       }
     }

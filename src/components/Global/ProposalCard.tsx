@@ -83,7 +83,7 @@ function ProposalCard({ item, refetch }: any) {
   const wallet = wallets[0];
 
   const handleVote = async () => {
-    await wallet.switchChain(sonic.id)
+    // await wallet.switchChain(sonic.id)
     try {
       setVoting(true)
       const walletClient = createViemWalletClient();

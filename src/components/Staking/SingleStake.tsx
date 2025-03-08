@@ -12,10 +12,10 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { noOfDays } from "../../utils/tools";
-import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime } from "../../utils/web3/actions";
+import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
-import { sonic } from "viem/chains";
+import { sonicTestnet } from "../../config/chain";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolABI from "../../abis/StakingPool.json";
@@ -28,7 +28,7 @@ import TxReceipt from "../Modal/TxReceipt";
 // Add this function to create wallet client
 const createViemWalletClient = () => {
   return createWalletClient({
-    chain: sonic,
+    chain: sonicTestnet,
     transport: custom(window.ethereum)
   });
 };
@@ -36,12 +36,15 @@ const createViemWalletClient = () => {
 
 function SingleStake() {
   const [coinGeckoData, setCoinGeckoData] = useState<any>(null);
-  const { id } = useParams<{ id: string }>();
-  const { data, loading: loadingStakingPool, error: stakingPoolError } = useQuery(GET_STAKING_POOL_BY_ID, {
-    variables: { id }
-  })
+  const { id } = useParams<{ id: `0x${string}` }>();
+  // const { data, loading: loadingStakingPool, error: stakingPoolError } = useQuery(GET_STAKING_POOL_BY_ID, {
+  //   variables: { id }
+  // })
 
   const [startUpLoading, setStartUpLoading] = useState<boolean>(true);
+  const [loadingStakingPool, setLoadingStakingPool] = useState<boolean>(true);
+  const [stakingPoolError, setStakingPoolError] = useState<{ message: string }>({ message: "" });
+  const [data, setData] = useState<any>(null);
 
   const { authenticated, login, user } = usePrivy();
   const [stakeAmount, setStakeAmount] = useState<number>(0.00)
@@ -60,7 +63,31 @@ function SingleStake() {
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const [lastStakeTime, setLastStakeTime] = useState(0);
 
-  async function getCoinGeckoTokenData() {
+  useEffect(() => {
+    loadUpData();
+  }, [authenticated]);
+
+  async function loadUpData() {
+    setLoadingStakingPool(true);
+    try {
+      const stakingPoolData = await getStakingPoolDataByAddress(id as `0x${string}`);
+      // Set data first
+      setData(stakingPoolData);
+      // Then call getCoinGeckoTokenData with the new data directly
+      await getCoinGeckoTokenData(stakingPoolData);
+    } catch (error) {
+      setStakingPoolError((prevError) => ({ ...prevError, message: "Failed to retrieve staking pool data" }));
+    } finally {
+      setLoadingStakingPool(false);
+    }
+  }
+
+  async function getCoinGeckoTokenData(stakingPoolData?: any) {
+    setStartUpLoading(true);
+
+    // Use the passed data or fall back to state
+    const poolData = stakingPoolData || data;
+
     if (!authenticated) {
       login();
       toast("Connect Wallet")
@@ -68,26 +95,36 @@ function SingleStake() {
     }
 
     try {
-      if (!data?.stakingPool?.stakeToken?.id) {
+      if (!poolData?.stakingPool?.stakeToken?.id) {
         throw new Error("Staking pool data not available");
       }
 
-      const tokenData = await getTokenData(data.stakingPool.stakeToken.id);
+      const tokenData = await getTokenData(poolData.stakingPool.stakeToken.id);
+      setCoinGeckoData(tokenData);
 
       if (!user?.wallet?.address) {
         throw new Error("User wallet not connected");
       }
 
-      const tokenBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user.wallet.address);
-      const pauseStatus = await getStakingPoolPauseStatus(data.stakingPool.id);
-      const supply = await getTotalSupply(data.stakingPool.stakeToken.id);
-      const alreadyStaked = await getAmountStaked(data.stakingPool.id, user.wallet.address as `0x${string}`)
-      const nextRewardTime = await getNextRewardWithdrawTime(data.stakingPool.id, user.wallet.address as `0x${string}`)
-      const rewardsAmount = await getStakingPoolRewardsAmount(data.stakingPool.id, user.wallet.address as `0x${string}`)
-      const lastStakeTime = await getLastStakeTime(data.stakingPool.id, user.wallet.address as `0x${string}`)
+      const [
+        tokenBalance,
+        pauseStatus,
+        supply,
+        alreadyStaked,
+        nextRewardTime,
+        rewardsAmount,
+        lastStakeTime
+      ] = await Promise.all([
+        getTokenBalance(poolData.stakingPool.stakeToken.id, user.wallet.address),
+        getStakingPoolPauseStatus(poolData.stakingPool.id),
+        getTotalSupply(poolData.stakingPool.stakeToken.id),
+        getAmountStaked(poolData.stakingPool.id, user.wallet.address as `0x${string}`),
+        getNextRewardWithdrawTime(poolData.stakingPool.id, user.wallet.address as `0x${string}`),
+        getStakingPoolRewardsAmount(poolData.stakingPool.id, user.wallet.address as `0x${string}`),
+        getLastStakeTime(poolData.stakingPool.id, user.wallet.address as `0x${string}`)
+      ]);
 
-
-      setCoinGeckoData(tokenData);
+      // Update state in one batch
       setTokenBalance(tokenBalance);
       setPaused(pauseStatus);
       setTotalSupply(supply);
@@ -95,11 +132,12 @@ function SingleStake() {
       setNextRewardTime(nextRewardTime);
       setRewardAmount(Number(rewardsAmount));
       setLastStakeTime(lastStakeTime);
+
     } catch (error) {
       console.error(error);
-      // toast.error("Failed to retrieve token data");
+      // toast.error("Failed to retrieve staking data");
     } finally {
-      setStartUpLoading(false)
+      setStartUpLoading(false);
     }
   }
 
@@ -107,18 +145,14 @@ function SingleStake() {
     try {
       if (user?.wallet?.address) {
         const alreadyStaked = await getAmountStaked(data.stakingPool.id, user.wallet.address as `0x${string}`)
+        const newBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user.wallet.address);
         setStaked(Number(alreadyStaked));
+        setTokenBalance(newBalance);
       }
     } catch (error: any) {
       console.error(error)
     }
   }
-
-  useEffect(() => {
-    if (!loadingStakingPool && data?.stakingPool) {
-      getCoinGeckoTokenData();
-    }
-  }, [data?.stakingPool, authenticated]);
 
   async function handleStake() {
     setIsStaking(true);
@@ -126,14 +160,23 @@ function SingleStake() {
     const [account] = await walletClient.getAddresses();
     const decimals = await getTokenDecimals(data.stakingPool.stakeToken.id)
     const stakeAmountArg = ethers.parseUnits(stakeAmount.toString(), decimals);
+    const balanceOfStakeToken = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address);
 
     if (stakeAmount === 0) {
       toast("Set stake amount")
+      setIsStaking(false)
+      return;
+    }
+
+    if (stakeAmount > Number(balanceOfStakeToken)) {
+      toast("Insufficient balance")
+      setIsStaking(false)
       return;
     }
 
     if (!account) {
       toast("Connect Wallet");
+      setIsStaking(false)
       return;
     }
 
@@ -191,11 +234,15 @@ function SingleStake() {
         toast("Successfully staked")
         setShowModal(false);
 
-        await reloadLockedAmount();
+
         setTxHash(hash)
         setTimeout(() => {
           setShowTxModal(true)
         }, 2000)
+        setStakeAmount(0)
+        setTimeout(async () => {
+          await reloadLockedAmount();
+        }, 5000)
       } catch (error: any) {
         console.error(error.message)
         if (error.message.includes("User rejected the request")) {
@@ -210,7 +257,7 @@ function SingleStake() {
     }
   }
 
-  if (loadingStakingPool || startUpLoading) {
+  if (startUpLoading || loadingStakingPool) {
     return (
       <div className="flex justify-center items-center h-[200px]">
         <Preloader
@@ -225,7 +272,7 @@ function SingleStake() {
   }
 
 
-  if (stakingPoolError) {
+  if (stakingPoolError.message) {
     return <div className="text-red-500 text-center">Error loading staking pool: {stakingPoolError.message}</div>;
   }
 
@@ -277,6 +324,9 @@ function SingleStake() {
       setTimeout(() => {
         setShowTxModal(false)
       }, 2000)
+      setTimeout(async () => {
+        await reloadLockedAmount();
+      }, 5000)
     } catch (error: any) {
       console.error(error)
       if (error.message.includes("User rejected the request")) {
@@ -291,7 +341,7 @@ function SingleStake() {
 
 
   return (
-    <div className="text-white font-space flex items-center justify-center p-[40px_20px] lg:py-[80px]">
+    <div className="text-white font-space flex items-center justify-center p-[40px_20px] lg:py-[80px] w-full">
       <TxReceipt
         visible={showTxModal}
         onClose={() => setShowTxModal(false)}
@@ -351,7 +401,7 @@ function SingleStake() {
           </div>
         </div>
         <form className="my-[20px] flex items-center w-full justify-center">
-          <input className="text-primary text-[63px] text-center bg-transparent outline-none border-none" type="number" step={0.01} value={stakeAmount.toFixed(2)} onChange={(e) => setStakeAmount(Number(e.target.value))} />
+          <input className="text-primary text-[63px] text-center bg-transparent outline-none border-none" type="number" step={0.01} value={stakeAmount.toFixed(2)} onChange={(e) => setStakeAmount(Number(e.target.value))} min={0} />
         </form>
         <div className="">
           <div className="flex items-center justify-between">

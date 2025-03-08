@@ -7,7 +7,7 @@ import { isValidERC20, getTokenSymbol, getStakingPoolFactoryFee } from "../../ut
 import { Preloader, Oval } from 'react-preloader-icon';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import stakingPoolActionsABI from "../../abis/StakingPoolActions.json";
-import { sonic } from "viem/chains";
+import { sonicTestnet } from "../../config/chain";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
@@ -15,7 +15,7 @@ import { BaseError, ContractFunctionRevertedError } from 'viem';
 // Add this function to create wallet client
 const createViemWalletClient = () => {
   return createWalletClient({
-    chain: sonic,
+    chain: sonicTestnet,
     transport: custom(window.ethereum)
   });
 };
@@ -116,9 +116,9 @@ function PoolForm() {
 
   async function createStakingPool() {
     setLoading(true)
-    await wallet.switchChain(sonic.id);
+    // await wallet.switchChain(sonic.id);
     try {
-      const StakingPoolFactoryCA = "0x0D8206c67D60bDE91093bB254E4Fc15f39B9dd3e"
+      const StakingPoolFactoryCA = "0x1446a9B64137B63e952e8860bf70142EB314E7bc"
       // Ensure all values are correctly formatted
       const formatPercentage = (value: number) => Math.round((value / 100) * 1e4);
       const formatRewardBasis = (value: number) => value * 24 * 60 * 60; // No of Days
@@ -190,14 +190,14 @@ function PoolForm() {
 
 
 
-//   const _newOwner = "0x" + "0".repeat(40);
-//   const _token0 = stakingTokenSymbol;
-//   const _token1 = "0x" + "0".repeat(40);
-//   const _apyRate = Number(apyRate);
-//   const _stakeFeePercentage = parseInt(stakeFee);
-//   const _withdrawalFeePercentage = parseFloat(withdrawalFee);
-//  const _feeReceiver = rewardTokenAddress;
-//  const _intervals = BigInt(numberOfDays)
+  //   const _newOwner = "0x" + "0".repeat(40);
+  //   const _token0 = stakingTokenSymbol;
+  //   const _token1 = "0x" + "0".repeat(40);
+  //   const _apyRate = Number(apyRate);
+  //   const _stakeFeePercentage = parseInt(stakeFee);
+  //   const _withdrawalFeePercentage = parseFloat(withdrawalFee);
+  //  const _feeReceiver = rewardTokenAddress;
+  //  const _intervals = BigInt(numberOfDays)
 
 
 
@@ -363,15 +363,15 @@ function PoolForm() {
         </div>
         <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
           <div className="flex items-center justify-between w-full">
-            {tab >0 && (
-              <div className="cursor-pointer" onClick={()=> setTab(tab - 1)}>back</div>)}
-          <p className="text-[20px] lg:text-[36px] font-[500] grow text-center">
-            {tab === 0
-              ? " Enter token addresses for Staking and reward"
-              : tab === 1
-                ? "Staking Information"
-                : "Review Information"}
-          </p>
+            {tab > 0 && (
+              <div className="cursor-pointer" onClick={() => setTab(tab - 1)}>back</div>)}
+            <p className="text-[20px] lg:text-[36px] font-[500] grow text-center">
+              {tab === 0
+                ? " Enter token addresses for Staking and reward"
+                : tab === 1
+                  ? "Staking Information"
+                  : "Review Information"}
+            </p>
           </div>
           {tab === 0 && (
             <div className="flex flex-col w-full space-y-[20px] lg:space-y-[80px]">

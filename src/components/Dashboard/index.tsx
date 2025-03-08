@@ -21,8 +21,8 @@ function DashComp() {
           <FaArrowCircleRight className="text-white" />
         </button>
       ) : (
-        <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px] hover:bg-red-500" onClick={logout}>
-          <span className="truncate max-w-[100px] hover:hidden block">{user?.wallet?.address}</span>
+        <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px] hover:bg-red-500 transition-all duration-1000" onClick={logout}>
+          <span className="truncate max-w-[100px] ">{user?.wallet?.address}</span>
           <span className="truncate max-w-[100px] hover:block hidden">Disconnect</span>
           <FaArrowCircleRight className="text-white" />
         </button>
@@ -31,13 +31,14 @@ function DashComp() {
       <div className="border border-primary p-[20px] lg:p-[40px] w-full  xl:w-[50%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
         <p className="text-[63px] leading-[60px] text-primary">0.00</p>
         <p className="text-[14px]">Total IDO Power</p>
-        <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
+        {!authenticated && (
+          <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
           <p className="text-center">
-            You do not have any registered wallets yet{" "}
-            <br className="hidden lg:block" /> Connect one or multiple wallets
+            You do not have any connected wallets yet{" "}
+            <br className="hidden lg:block" /> Connect your wallet
             so that you can be part of our IDOs
           </p>
-        </div>
+        </div>)}
       </div>
     </div>
   );

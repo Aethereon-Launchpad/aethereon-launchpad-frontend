@@ -13,7 +13,7 @@ function Home() {
   return (
     <Layout>
         <HomeHero/>
-        <Powering/>
+        {/* <Powering/> */}
         <Unlock/>
         <FeaturedIdo/>
         <Guaranteed/>

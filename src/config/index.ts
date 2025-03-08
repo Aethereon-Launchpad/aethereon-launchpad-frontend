@@ -1,16 +1,14 @@
 import { createConfig } from '@privy-io/wagmi';
-import { sonic, sonicTestnet } from "viem/chains";
+import { sonicTestnet } from './chain';
 import { http } from 'wagmi';
 import type { PrivyClientConfig } from '@privy-io/react-auth';
 import { addRpcUrlOverrideToChain } from '@privy-io/react-auth';
 import { createPublicClient } from 'viem';
 
-export const sonicOveride = addRpcUrlOverrideToChain(sonic, "https://rpc.ankr.com/sonic_mainnet")
 
 export const config = createConfig({
-  chains: [sonic, sonicTestnet], // Pass your required chains as an array
+  chains: [sonicTestnet], // Pass your required chains as an array
   transports: {
-    [sonic.id]: http(),
     [sonicTestnet.id]: http(),
   },
 });
@@ -28,6 +26,6 @@ export const privyConfig: PrivyClientConfig = {
 };
 
 export const publicClient = createPublicClient({
-  chain: sonic,
+  chain: sonicTestnet,
   transport: http()
 })
