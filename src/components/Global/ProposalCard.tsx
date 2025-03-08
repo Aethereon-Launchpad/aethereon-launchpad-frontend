@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 import { createWalletClient, custom } from 'viem';
 import { sonic } from 'viem/chains';
 import { publicClient } from '../../config';
+import ConfirmVoteModal from '../Modal/ConfirmVoteOption';
+import { isAfter, isBefore } from 'date-fns';
 
 function CountdownTimer({ endDate }: { endDate: string }) {
   const calculateTimeLeft = () => {
@@ -17,6 +19,10 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 
     // Ensure endTime is in the future
     if (endTime <= now) {
+      // console.error('End time is in the past:', {
+      //   endTime: new Date(endTime).toISOString(),
+      //   now: new Date(now).toISOString()
+      // });
       // console.error('End time is in the past:', {
       //   endTime: new Date(endTime).toISOString(),
       //   now: new Date(now).toISOString()
@@ -42,6 +48,11 @@ function CountdownTimer({ endDate }: { endDate: string }) {
     return () => clearInterval(timer);
   }, [endDate]);
 
+  // Check if voting is closed
+  if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0) {
+    return <p>Voting Closed</p>;
+  }
+
   return (
     <p>
       {timeLeft.days}D {timeLeft.hours}H {timeLeft.minutes}M
@@ -64,18 +75,38 @@ const createViemWalletClient = () => {
 };
 
 function ProposalCard({ item, refetch }: any) {
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [voteOption, setVoteOption] = useState<"yes" | "no" | "">("")
+  const [voting, setVoting] = useState<boolean>(false)
   const yesVotesPercentage = calculateYesToNoPercentage(Number(item.positiveVoteWeight), Number(item.negativeVoteWeight))
   const { wallets } = useWallets();
   const wallet = wallets[0];
 
-  const handleVote = async (voteType: 'yes' | 'no') => {
-    await wallet.switchChain(sonic.id)
+  const handleVote = async () => {
+    // await wallet.switchChain(sonic.id)
     try {
+      setVoting(true)
       const walletClient = createViemWalletClient();
       const [account] = await walletClient.getAddresses();
 
       if (!account) {
         toast("Connect Wallet");
+        setVoting(false)
+        return;
+      }
+
+
+      const startDate = parseInt(item.voteStartDate) * 1000;
+      const endDate = parseInt(item.voteEndDate) * 1000;
+      const now = Date.now();
+
+      if (isBefore(now, startDate)) {
+        toast("Voting hasn't started yet")
+        return;
+      }
+
+      if (isAfter(now, endDate)) {
+        toast("Voting has ended");
         return;
       }
 
@@ -89,7 +120,6 @@ function ProposalCard({ item, refetch }: any) {
 
       console.log("Simulate Transaction", simTransaction)
 
-
       const hash = await walletClient.writeContract(simTransaction);
 
       console.log(hash)
@@ -99,14 +129,30 @@ function ProposalCard({ item, refetch }: any) {
     } catch (error) {
       console.error('Voting failed:', error);
       toast.error('Voting failed. Please try again.');
+    } finally {
+      setVoting(false)
     }
   };
+
+  const handleVoteOption = (voteType: 'yes' | 'no') => {
+    setVoteOption(voteType);
+    setShowConfirmModal(true)
+  }
+
+  const handleCloseConfirm = () => {
+    setShowConfirmModal(false)
+  }
+
 
 
 
 
   return (
-    <div className="p-[30px_20px] min-w-[400px] border border-primary rounded-[10px] col-span-1">
+    <div className="p-[30px_20px] border border-primary rounded-[10px] col-span-1 relative">
+      {
+        showConfirmModal && <ConfirmVoteModal
+          voteSelection={voteOption} onConfirm={handleVote} onClose={handleCloseConfirm} loading={voting} voteTitle={item.name} />
+      }
       <div className="flex items-center justify-between">
         <img src={item.image} className='
         h-[60px] w-[60px] border rounded-full border-white' alt="" />
@@ -129,13 +175,13 @@ function ProposalCard({ item, refetch }: any) {
       <div className="mt-[10px] flex items-center space-x-[10px]">
         <button
           className="bg-primary p-[4px_8px] rounded-[5px]"
-          onClick={() => handleVote('yes')}
+          onClick={() => handleVoteOption('yes')}
         >
           YES
         </button>
         <button
           className="border p-[4px_10px] rounded-[5px]"
-          onClick={() => handleVote('no')}
+          onClick={() => handleVoteOption('no')}
         >
           NO
         </button>

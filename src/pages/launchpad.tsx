@@ -17,9 +17,9 @@ function Launchpad() {
         <LaunchHero/>
           <Trusted/>
           <Secure/>
-        <UpcomingIdo/>
         {/* <Funded/> */}
         <HowTo/>
+        <UpcomingIdo/>
         <StakingBadge/>
         <Access/>
         {/* <Multichain/> */}

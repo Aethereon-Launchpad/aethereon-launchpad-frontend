@@ -11,7 +11,7 @@ import { Toaster } from "react-hot-toast"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { apolloClient } from './graphql/client.ts';
 import { ApolloProvider } from '@apollo/client'
-import { privyConfig, sonicOveride, config as wagmiConfig } from './config/index.ts'
+import { privyConfig, config as wagmiConfig } from './config/index.ts'
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
 
@@ -23,7 +23,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ApolloProvider client={apolloClient}>
       <BrowserRouter>
-        <PrivyProvider appId={APP_ID} config={{ ...privyConfig, supportedChains: [sonicOveride] }}>
+        <PrivyProvider appId={APP_ID} config={privyConfig}>
           <QueryClientProvider client={queryClient}>
             <WagmiProvider config={wagmiConfig}>
               <App />

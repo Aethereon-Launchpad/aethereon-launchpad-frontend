@@ -14,6 +14,8 @@ import DynamicRewards from './pages/dynamic'
 import Leaderboard from './pages/leaderboard'
 import SeasonalStaking from './pages/seasonal-staking'
 import PresaleCreator from './pages/presale/create'
+import IDO from './pages/ido'
+import AdminAuthScreen from './pages/admin'
 import Ido from './pages/ido'
 
 function App() {
@@ -22,7 +24,7 @@ function App() {
     <Routes>
       <Route path='/' element={<Home />} />
       <Route path='/launchpad' element={<Launchpad />} />
-      <Route path='/launchpad/:id' element={<Whitelist />} />
+      <Route path='/launchpad/:id' element={<IDO />} />
       <Route path='/explore' element={<Explore />} />
       <Route path='/join-ido' element={<Ido/>}/>
       <Route path='/stake-farm' element={<Staking />} />
@@ -34,6 +36,7 @@ function App() {
       <Route path='/leaderboard' element={<Leaderboard />} />
       <Route path='/dynamic-rewards' element={<DynamicRewards />} />
       <Route path='/seasonal-staking' element={<SeasonalStaking />} />
+      <Route path='/admin' element={<AdminAuthScreen />} />
     </Routes>
   )
 }

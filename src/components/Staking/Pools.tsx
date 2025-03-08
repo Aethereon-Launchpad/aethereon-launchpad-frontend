@@ -1,6 +1,6 @@
 // import React from 'react'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRegCopy } from "react-icons/fa";
 import { useQuery } from "@apollo/client";
@@ -8,16 +8,38 @@ import { GET_STAKING_POOLS } from "../../graphql/queries";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import toast from 'react-hot-toast';
 import { noOfDays } from "../../utils/tools";
+import { getAllStakingPoolData } from "../../utils/web3/actions";
 
 function Pools() {
   const navigate = useNavigate()
   const [tab, setTab] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<any>([])
+  const [error, setError] = useState<{ message: string }>({ message: "" })
 
-  const { loading, error, data } = useQuery(GET_STAKING_POOLS, {
-    context: {
-      clientName: "staking"
+  // const { loading, error, data } = useQuery(GET_STAKING_POOLS, {
+  //   context: {
+  //     clientName: "staking"
+  //   }
+  // });
+
+  async function loadData() {
+    setLoading(true)
+    try {
+      const stakingPools = await getAllStakingPoolData();
+      console.log(stakingPools)
+      setData(stakingPools);
+    } catch (error) {
+      console.error(error)
+      setError((prevError) => ({ ...prevError, message: "Failed to load staking pools" }))
+    } finally {
+      setLoading(false)
     }
-  });
+  }
+
+  useEffect(() => {
+    loadData();
+  }, [])
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -43,11 +65,11 @@ function Pools() {
     );
   }
 
-  if (error) {
+  if (error.message) {
     return <div className="text-red-500 text-center">Error loading staking pools: {error.message}</div>;
   }
 
-  const stakingPools = data?.stakingPools || []
+  const stakingPools = data || []
 
   return (
     <div className="font-space p-[40px_20px] lg:p-[40px]">
@@ -131,12 +153,12 @@ function Pools() {
                   </th>
                   <td className="px-6 py-4 min-w-[210px]">{item.apyRate}% APY</td>
                   <td className="px-6 py-4 min-w-[210px]">
-                    {index === 0 || index === 1 ? "-" : `${noOfDays(item.withdrawalIntervals)} Days`}
+                    {`${noOfDays(item.withdrawalIntervals)} Days`}
                   </td>
                   <td className="px-6 py-4 min-w-[210px]">Recurring Rewards</td>
                   <td className="px-6 py-4 min-w-[210px]">
                     <div>
-                      Entry Fee: {item.stakingFeePercentage}% | <br /> Exit Fee: {item.withdrawalFeePercentage}%
+                      Entry Fee: {item.stakeFeePercentage}% | <br /> Exit Fee: {item.withdrawalFeePercentage}%
                     </div>
                   </td>
                   <td className="px-6 py-4 min-w-[210px]">
