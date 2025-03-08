@@ -17,6 +17,7 @@ import { isBefore, isAfter, isValid } from 'date-fns';
 import { ethers } from 'ethers'
 import { isValidERC20 } from '../../../utils/web3/actions.ts';
 import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
+import { useNavigate } from 'react-router-dom';
 
 interface Presale {
     metadataURI: `https://${string}`;
@@ -64,6 +65,7 @@ export default function PresaleCreator() {
     const [txReceiptTitle] = useState<string>("Successfully Created New Presale");
     const [txHash, setTxHash] = useState<`0x${string}`>("0x");
 
+    const navigate = useNavigate();
 
     const components = [
         <CreatePresaleStep1 formData={formData} setFormData={setFormData} />,
@@ -214,6 +216,7 @@ export default function PresaleCreator() {
             setShowTxModal(true)
 
             toast("Successfully Created New Presale")
+            navigate("/")
         } catch (error) {
             console.error("Creating New Presale Failed", error)
             toast.error("Creating New Presale Failed")
