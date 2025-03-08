@@ -61,7 +61,7 @@ export default function CreatePresaleStep3({ formData, setFormData }: Props) {
         />
       </div>
       <div className="w-full">
-        <label htmlFor="maxTotalPayment">Min Total Payment</label>
+        <label htmlFor="maxTotalPayment">Max Total Payment</label>
         <input
           value={maxTotalPayment}
           onChange={(e: any) =>

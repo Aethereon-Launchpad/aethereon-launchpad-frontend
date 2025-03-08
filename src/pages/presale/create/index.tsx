@@ -8,11 +8,15 @@ import { FaCheck } from "react-icons/fa6";
 import { usePrivy } from '@privy-io/react-auth';
 import { Preloader, Oval } from 'react-preloader-icon';
 import PresaleFactoryABI from '../../../abis/PresaleFactory.json';
-import { sonic } from "viem/chains";
+import { sonicTestnet } from '../../../config/chain/index.ts';
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { toast } from 'react-hot-toast';
+import { isBefore, isAfter, isValid } from 'date-fns';
+import { ethers } from 'ethers'
+import { isValidERC20 } from '../../../utils/web3/actions.ts';
+import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
 
 interface Presale {
     metadataURI: `https://${string}`;
@@ -28,6 +32,15 @@ interface Presale {
     maxTotalPayment: number;
     withdrawDelay: number;
 }
+
+// Add this function to create wallet client
+const createViemWalletClient = () => {
+    return createWalletClient({
+        chain: sonicTestnet,
+        transport: custom(window.ethereum)
+    });
+};
+
 
 export default function PresaleCreator() {
     const [currentPage, setCurrentPage] = useState<number>(0)
@@ -47,6 +60,10 @@ export default function PresaleCreator() {
     })
     const [loading, setLoading] = useState<boolean>(false)
     const { authenticated, login } = usePrivy();
+    const [showTxModal, setShowTxModal] = useState<boolean>(false);
+    const [txReceiptTitle] = useState<string>("Successfully Created New Presale");
+    const [txHash, setTxHash] = useState<`0x${string}`>("0x");
+
 
     const components = [
         <CreatePresaleStep1 formData={formData} setFormData={setFormData} />,
@@ -62,10 +79,19 @@ export default function PresaleCreator() {
             login()
             return
         }
+
         if (currentPage === 0) {
             const { metadataURI, funder, salePrice, paymentToken, saleToken } = formData;
             if (metadataURI === "https://") {
                 toast("Please include metadata URI to provide project information")
+                return;
+            }
+
+            const isValidPaymentToken = await isValidERC20(paymentToken);
+            const isValidSaleToken = await isValidERC20(saleToken);
+
+            if (!isValidPaymentToken || !isValidSaleToken) {
+                toast("Make sure sale token and sale tokens are valid ERC20 Tokens")
                 return;
             }
 
@@ -83,17 +109,57 @@ export default function PresaleCreator() {
         }
 
         if (currentPage === 1) {
+            const { withdrawDelay, startTime, endTime } = formData;
+
+            if (isBefore(new Date(startTime * 1000), new Date())) {
+                toast("Start time cannot be in the past");
+                return;
+            }
+
+            if (isAfter(new Date(startTime * 1000), new Date(endTime * 1000))) {
+                toast("End time must be after start time");
+                return;
+            }
+
+            if (withdrawDelay === 0) {
+                toast("Withdrawal delay can't be set to zero days")
+                return;
+            }
+
             setCurrentPage(2)
             return;
         }
 
 
         if (currentPage === 2) {
+            const { softCap, hardCap, minTotalPayment, maxTotalPayment } = formData;
+
+            if (!softCap) {
+                toast("Soft Cap can't be zero")
+                return;
+            }
+
+            if (!hardCap) {
+                toast("Hard Cap can't be zero")
+                return;
+            }
+
+            if (!minTotalPayment) {
+                toast("Min Total Payment can't be zero")
+                return;
+            }
+
+            if (!maxTotalPayment) {
+                toast("Max Total Payment can't be zero")
+                return
+            }
+
+
             setCurrentPage(3)
             return
         }
 
-        if (currentPage === components.length - 1) {
+        if (currentPage === (components.length - 1)) {
             await createPresale()
         }
     }
@@ -101,10 +167,56 @@ export default function PresaleCreator() {
 
     async function createPresale() {
         setLoading(true)
+        const formatEthValues = (amount: string) => ethers.parseEther(amount);
+        const presaleFactoryCA = "0x76bDcdCc41285C9dD6a22b29c2c70810e3Dc26Ca"
+
         try {
+            const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
+            const salePrice = formatEthValues(formData.salePrice.toString());
+            const softCap = formatEthValues(formData.softCap.toString());
+            const hardCap = formatEthValues(formData.hardCap.toString());
+            const minTotalPayment = formatEthValues(formData.minTotalPayment.toString())
+            const maxTotalPayment = formatEthValues(formData.maxTotalPayment.toString())
 
+            // Process Wallet
+            const walletClient = await createViemWalletClient();
+            const [account] = await walletClient.getAddresses();
+
+            if (!account) {
+                toast("Connect Wallet");
+                return;
+            }
+
+            const { request, result } = await publicClient.simulateContract({
+                address: presaleFactoryCA,
+                abi: PresaleFactoryABI,
+                functionName: "initialize",
+                account,
+                args: [
+                    metadataURI,
+                    funder,
+                    salePrice,
+                    paymentToken,
+                    saleToken,
+                    softCap,
+                    hardCap,
+                    startTime,
+                    endTime,
+                    minTotalPayment,
+                    maxTotalPayment,
+                    withdrawDelay
+                ]
+            })
+
+            const hash = await walletClient.writeContract(request);
+            console.log(hash, result)
+            setTxHash(hash);
+            setShowTxModal(true)
+
+            toast("Successfully Created New Presale")
         } catch (error) {
-
+            console.error("Creating New Presale Failed", error)
+            toast.error("Creating New Presale Failed")
         } finally {
             setLoading(false)
         }
@@ -113,165 +225,18 @@ export default function PresaleCreator() {
 
     return (
         <Layout>
+            <TxReceipt
+                visible={showTxModal}
+                onClose={() => setShowTxModal(false)}
+                title={txReceiptTitle}
+                txHash={txHash}
+            />
             <div className="p-[40px_20px] lg:p-[100px_40px] font-space">
-                <div className="flex flex-col lg:flex-row items-start gap-[20px] text-white">
+                <div className="flex flex-col items-center justify-center gap-[20px] text-white">
                     <div className="w-full h-full lg:w-[30%] ">
-                        <p className="text-[20px] lg:text-[36px] font-[500]">
+                        <p className="text-[20px] lg:text-[36px] font-[500] text-center">
                             DerHex Create Presale System
                         </p>
-                        <div className="w-full flex items-center lg:hidden mt-[40px]  justify-between">
-                            <div className="flex   w-full items-center">
-                                <div className="w-fit  flex flex-col lg:flex-row items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 0 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 0 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">1</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[14px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Token Information
-                                    </p>
-                                </div>
-                                <div
-                                    className={` ${currentPage > 0 ? "border-[#28C76B]" : "border-[#5325A9] "
-                                        } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                                ></div>
-                            </div>
-                            <div className="flex w-full items-center">
-                                <div className="w-fit  flex flex-col lg:flex-row items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 1 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 1 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">1</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[14px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Staking Information
-                                    </p>
-                                </div>
-                                <div
-                                    className={` ${currentPage > 1 ? "border-[#28C76B]" : "border-[#5325A9] "
-                                        } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                                ></div>
-                            </div>
-                            <div className="flex  flex-col lg:mt-[20px] items-center">
-                                <div className="flex flex-col lg:flex-row items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 2 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 2 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">3</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[14px] w-[100px]   text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Review & Submit
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="hidden w-full lg:flex flex-row lg:flex-col mt-[20px] items-start justify-start">
-                            <div className="flex-1 flex flex-row lg:flex-col lg:space-y-[10px] items-start">
-                                <div className="flex flex-col lg:flex-row items-center lg:space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 0 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 0 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">1</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[12px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Presale Details
-                                    </p>
-                                </div>
-                                <div className="w-full lg:w-[40px] min-h-full flex justify-center items-center">
-                                    <div
-                                        className={` ${currentPage > 0 ? "border-[#28C76B]" : "border-[#5325A9] "
-                                            } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                                    ></div>
-                                </div>
-                            </div>
-                            <div className="flex-1  flex flex-vrow lg:flex-col lg:mt-[20px] space-y-[10px] items-start">
-                                <div className="w-full flex flex-col lg:flex-row items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 1 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 1 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">2</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[12px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Timing Configuration
-                                    </p>
-                                </div>
-                                <div className="w-[40px] flex justify-center items-center">
-                                    <div className="w-full lg:w-[40px] min-h-full flex justify-center items-center">
-                                        <div
-                                            className={` ${currentPage > 1 ? "border-[#28C76B]" : "border-[#5325A9] "
-                                                } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                                        ></div>
-                                    </div>{" "}
-                                </div>
-                            </div>
-                            <div className="flex-1  flex flex-vrow lg:flex-col lg:mt-[20px] space-y-[10px] items-start">
-                                <div className="w-full flex flex-col lg:flex-row items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 2 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 2 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">3</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[12px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Payment Configuration
-                                    </p>
-                                </div>
-                                <div className="w-[40px] flex justify-center items-center">
-                                    <div className="w-full lg:w-[40px] min-h-full flex justify-center items-center">
-                                        <div
-                                            className={` ${currentPage > 2 ? "border-[#28C76B]" : "border-[#5325A9] "
-                                                } w-full lg:w-fit  lg:h-[150px] border border-dotted"`}
-                                        ></div>
-                                    </div>{" "}
-                                </div>
-                            </div>
-                            <div className="flex flex-col mt-[20px] items-center">
-                                <div className="flex items-center space-x-[5px]">
-                                    <div
-                                        className={`${currentPage > 3 ? "bg-[#28C76B]" : "border-[#8949FF] bg-[#291254]"
-                                            } h-[40px] w-[40px] border rounded-full flex items-center justify-center`}
-                                    >
-                                        {currentPage > 2 ? (
-                                            <FaCheck className="text-white text-[20px]" />
-                                        ) : (
-                                            <p className="text-white text-[20px] font-[600]">4</p>
-                                        )}
-                                    </div>
-                                    <p className="font-[500] text-[#848895] text-[12px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
-                                        Review & Submit
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
                         {components[currentPage]}

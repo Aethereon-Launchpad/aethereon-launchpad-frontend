@@ -1,3 +1,5 @@
+import { } from 'date-fns';
+
 interface Presale {
   metadataURI: `https://${string}`;
   funder: `0x${string}`;
@@ -25,47 +27,29 @@ export default function CreatePresaleStep2({ formData, setFormData }: Props) {
   return (
     <div className="flex flex-col w-full space-y-[20px] lg:space-y-[80px] min-h-[600px]">
       <div className="w-full">
-        <label htmlFor="startTime">Presale Start Time</label>
+        <label htmlFor="startTime">Presale Start Date</label>
         <div className="flex gap-x-3">
           <input
-            value={startTime}
+            value={startTime ? new Date(startTime * 1000).toISOString().split('T')[0] : ''}
             onChange={(e: any) =>
-              setFormData({ ...formData, startTime: e.target.value })
+              setFormData({ ...formData, startTime: Math.floor(new Date(e.target.value).getTime() / 1000) })
             }
             id="startTime"
             type="date"
-            className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
-          />
-          <input
-            value={startTime}
-            onChange={(e: any) =>
-              setFormData({ ...formData, startTime: e.target.value })
-            }
-            id="startTime"
-            type="time"
             className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
           />
         </div>
       </div>
       <div className="w-full">
-        <label htmlFor="startTime">Presale End Time</label>
+        <label htmlFor="startTime">Presale End Date</label>
         <div className="flex gap-x-3">
           <input
-            value={endTime}
+            value={endTime ? new Date(endTime * 1000).toISOString().split('T')[0] : ''}
             onChange={(e: any) =>
-              setFormData({ ...formData, endTime: e.target.value })
+              setFormData({ ...formData, endTime: Math.floor(new Date(e.target.value).getTime() / 1000) })
             }
             id="endTime"
             type="date"
-            className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
-          />
-          <input
-            value={endTime}
-            onChange={(e: any) =>
-              setFormData({ ...formData, endTime: e.target.value })
-            }
-            id="endTime"
-            type="time"
             className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
           />
         </div>
@@ -73,7 +57,7 @@ export default function CreatePresaleStep2({ formData, setFormData }: Props) {
       <div className="w-full">
         <label htmlFor="metadataURI">Withdrawal Delay (No Of Days)</label>
         <input
-          value={withdrawDelay}
+          value={withdrawDelay ? withdrawDelay / (60 * 60 * 24) : 0}
           onChange={(e: any) =>
             setFormData({ ...formData, withdrawDelay: Number(e.target.value * 60 * 60 * 24) })
           }

@@ -72,6 +72,7 @@ function PoolForm() {
         const isRewardTokenValid = await isValidERC20(rewardTokenAddress);
 
         if (!isStakingTokenValid || !isRewardTokenValid) {
+          toast("Make sure Staking and Reward Tokens are valid ERC20 Tokens")
           return;
         }
 
@@ -164,7 +165,7 @@ function PoolForm() {
 
       const hash = await walletClient.writeContract(request)
 
-      console.log(hash);
+      console.log(hash, result);
 
       toast.success("Successfully Created New Staking Pool")
       navigate("/stake-farm")
