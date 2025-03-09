@@ -12,7 +12,7 @@ import {
 import { usePrivy } from "@privy-io/react-auth";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { noOfDays } from "../../utils/tools";
-import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress } from "../../utils/web3/actions";
+import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress, getStakingPoolOwner } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
 import { sonicTestnet } from "../../config/chain";
@@ -23,7 +23,7 @@ import erc20Abi from "../../abis/ERC20.json";
 import { ethers } from "ethers";
 import TxReceipt from "../Modal/TxReceipt";
 
-
+import ManageStaking from "../Modal/ManageStaking";
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
@@ -62,6 +62,9 @@ function SingleStake() {
   const [nextRewardTime, setNextRewardTime] = useState<number>(0);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const [lastStakeTime, setLastStakeTime] = useState(0);
+  const [stakingPoolOwner, setStakingPoolOwner] = useState<`0x${string}` | string>("")
+
+  const [manageStakingModal, setManageStakingModal] = useState<boolean>(false)
 
   useEffect(() => {
     loadUpData();
@@ -70,6 +73,8 @@ function SingleStake() {
   async function loadUpData() {
     setLoadingStakingPool(true);
     try {
+      const owner = await getStakingPoolOwner(id as `0x${string}`);
+      setStakingPoolOwner(owner)
       const stakingPoolData = await getStakingPoolDataByAddress(id as `0x${string}`);
       // Set data first
       setData(stakingPoolData);
@@ -348,6 +353,14 @@ function SingleStake() {
         title={txReceiptTitle}
         txHash={txHash}
       />
+      {
+        manageStakingModal && (
+          <ManageStaking
+            stakingPoolAddress={id as `0x${string}`}
+            onClose={() => setManageStakingModal(false)}
+          />
+        )
+      }
       {showModal && (
         <ConfirmStakingModal
           stakeAmount={stakeAmount}
@@ -445,6 +458,13 @@ function SingleStake() {
             </button>
           ) : (
             <div className="space-y-5">
+              {
+                stakingPoolOwner.toLowerCase() === user?.wallet?.address?.toLowerCase() && (
+                  <button onClick={() => setManageStakingModal(true)} className="bg-transparent border-secondary border-2 text-bold text-secondary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]">
+                    Manage Staking Pool
+                  </button>
+                )
+              }
               {(staked > 0 || rewardAmount > 0) && <button className="bg-transparent border-primary border-2 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={unstakeConfirm}>
                 <p className="text-[14px] lg:text-[16px]">Withdraw</p>
               </button>}

@@ -1,0 +1,61 @@
+{
+  "projectName": "Derhex",
+  "description": "Derhex is a multi-protocol bridge enabling seamless cross-chain swaps using Chainlink, LayerZero, Wormhole, and Axelar.",
+  "website": "https://derhex.io",
+  "socials": {
+    "twitter": "https://twitter.com/derhex",
+    "telegram": "https://t.me/derhex",
+    "discord": "https://discord.gg/derhex"
+  },
+  "token": {
+    "name": "DRX Token",
+    "symbol": "BOLT",
+    "decimals": 18,
+    "totalSupply": "1000000000",
+    "contractAddress": "0xdEB561F9216576B41D6E67414c81Ff0fdbba5b46"
+  },
+//   "fundraising": {
+//     "softCap": "500000",
+//     "hardCap": "2000000",
+//     "presalePrice": "0.05",
+//     "listingPrice": "0.08",
+//     "acceptedCurrency": "USDT",
+//     "liquidityAllocationPercentage": 60,
+//     "platformFeePercentage": 2
+//   },
+//   "timeline": {
+//     "startTime": 1714564800,
+//     "endTime": 1717243200,
+//     "vestingStart": 1719835200,
+//     "cliffPeriod": 60,
+//     "vestingDuration": 180
+//   },
+  "team": [
+    {
+      "name": "John Doe",
+      "role": "CEO",
+      "linkedin": "https://linkedin.com/in/johndoe"
+    },
+    {
+      "name": "Alice Smith",
+      "role": "CTO",
+      "linkedin": "https://linkedin.com/in/alicesmith"
+    }
+  ],
+  "roadmap": [
+    {
+      "quarter": "Q2 2024",
+      "milestone": "Beta Launch & Initial IDO"
+    },
+    {
+      "quarter": "Q3 2024",
+      "milestone": "Mainnet Deployment & CEX Listing"
+    }
+  ],
+  "audits": [
+    {
+      "auditor": "CertiK",
+      "reportUrl": "https://certik.com/projects/derhex"
+    }
+  ]
+}
