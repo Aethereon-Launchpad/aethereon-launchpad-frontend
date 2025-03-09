@@ -2,8 +2,6 @@ import stakingPoolActionsABI from "../../abis/StakingPoolActions.json"
 import stakingPoolABI from "../../abis/StakingPool.json"
 import votingSlotFactory from "../../abis/VotingSlotFactory.json";
 import votingSlotABI from "../../abis/VotingSlot.json";
-import PresaleFactory from "../../abis/PresaleFactory.json";
-import Presale from "../../abis/Presale.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';

@@ -170,7 +170,7 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x76bDcdCc41285C9dD6a22b29c2c70810e3Dc26Ca"
+        const presaleFactoryCA = "0x77a30E8FD48A2fA6Ba6EAAcA225B35aFbE48e5d2"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
@@ -216,7 +216,6 @@ export default function PresaleCreator() {
             setShowTxModal(true)
 
             toast("Successfully Created New Presale")
-            navigate("/")
         } catch (error) {
             console.error("Creating New Presale Failed", error)
             toast.error("Creating New Presale Failed")
@@ -243,21 +242,28 @@ export default function PresaleCreator() {
                     </div>
                     <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
                         {components[currentPage]}
-                        <button
-                            onClick={handleNext}
-                            className={` bg-primary text-white p-[10px_20px] mt-[20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`}
-                        >
-                            {!authenticated ? "Connect Wallet" : loading ? (
-                                <Preloader
-                                    use={Oval}
-                                    size={32}
-                                    strokeWidth={8}
-                                    strokeColor="#FFF"
-                                    duration={800}
-                                />
-                            ) : currentPage === 2 ? "Create Presale" : "Continue"}
+                        <div className='mt-[20px] space-y-3 w-full'>
+                            <button
+                                onClick={handleNext}
+                                className={` bg-primary text-white p-[10px_20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`}
+                            >
+                                {!authenticated ? "Connect Wallet" : loading ? (
+                                    <Preloader
+                                        use={Oval}
+                                        size={32}
+                                        strokeWidth={8}
+                                        strokeColor="#FFF"
+                                        duration={800}
+                                    />
+                                ) : currentPage === 2 ? "Create Presale" : "Continue"}
 
-                        </button>
+                            </button>
+                            {currentPage && (<button className={`bg-transparent border-2 border-white text-white p-[10px_20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`} onClick={() => {
+                                setCurrentPage(currentPage - 1)
+                            }}>
+                                Back
+                            </button>)}
+                        </div>
                     </div>
                 </div>
             </div>

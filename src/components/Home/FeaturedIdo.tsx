@@ -2,9 +2,40 @@
 
 import { useNavigate } from "react-router-dom";
 import SaleCard from "../Global/SaleCard";
+import { usePresale } from "../../hooks/web3/usePresale";
+import { Preloader, ThreeDots } from 'react-preloader-icon';
+import { useEffect } from "react";
+import { getAllPresaleData } from "../../utils/web3/presale";
 
 function FeaturedIdo() {
   const navigation = useNavigate()
+  // const { data, error, loading } = usePresale();
+
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[200px]">
+  //       <Preloader
+  //         use={ThreeDots}
+  //         size={60}
+  //         strokeWidth={6}
+  //         strokeColor="#5325A9"
+  //         duration={2000}
+  //       />
+  //     </div>
+  //   );
+  // }
+
+  useEffect(() => {
+    async function getIDOs() {
+      const data = await getAllPresaleData();
+      console.log(data)
+    }
+
+
+    getIDOs();
+  }, [])
+
+
   return (
     <div className="p-[40px_20px] font-space lg:p-[40px] mx-auto flex flex-col items-center">
       <div className="flex flex-col items-center">
@@ -20,7 +51,7 @@ function FeaturedIdo() {
           <SaleCard key={i} />
         ))}
       </div>
-      <button onClick={()=> navigation("/explore")} className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px]">
+      <button onClick={() => navigation("/explore")} className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px]">
         Explore more IDO’s
       </button>
     </div>
