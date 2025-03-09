@@ -14,22 +14,26 @@
     "totalSupply": "1000000000",
     "contractAddress": "0xdEB561F9216576B41D6E67414c81Ff0fdbba5b46"
   },
-//   "fundraising": {
-//     "softCap": "500000",
-//     "hardCap": "2000000",
-//     "presalePrice": "0.05",
-//     "listingPrice": "0.08",
-//     "acceptedCurrency": "USDT",
-//     "liquidityAllocationPercentage": 60,
-//     "platformFeePercentage": 2
-//   },
-//   "timeline": {
-//     "startTime": 1714564800,
-//     "endTime": 1717243200,
-//     "vestingStart": 1719835200,
-//     "cliffPeriod": 60,
-//     "vestingDuration": 180
-//   },
+  "images": {
+    "logo": "https://derhex.com/derhex-logo-sm.svg",
+    "bg": "https://derhex.com/hero-der.svg"
+  },
+  //   "fundraising": {
+  //     "softCap": "500000",
+  //     "hardCap": "2000000",
+  //     "presalePrice": "0.05",
+  //     "listingPrice": "0.08",
+  //     "acceptedCurrency": "USDT",
+  //     "liquidityAllocationPercentage": 60,
+  //     "platformFeePercentage": 2
+  //   },
+  //   "timeline": {
+  //     "startTime": 1714564800,
+  //     "endTime": 1717243200,
+  //     "vestingStart": 1719835200,
+  //     "cliffPeriod": 60,
+  //     "vestingDuration": 180
+  //   },
   "team": [
     {
       "name": "John Doe",
