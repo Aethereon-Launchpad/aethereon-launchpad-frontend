@@ -1475,9 +1475,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint16",
         "name": "_taxPercentage",
-        "type": "uint8"
+        "type": "uint16"
       }
     ],
     "name": "setTaxPercentage",

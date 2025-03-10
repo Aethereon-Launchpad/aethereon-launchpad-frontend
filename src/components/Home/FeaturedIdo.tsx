@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import SaleCard from "../Global/SaleCard";
 import { usePresale } from "../../hooks/web3/usePresale";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import { useEffect } from "react";
-import { getAllPresaleData } from "../../utils/web3/presale";
 
 function FeaturedIdo() {
   const navigation = useNavigate()

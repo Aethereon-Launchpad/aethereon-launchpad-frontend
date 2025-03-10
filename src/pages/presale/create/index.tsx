@@ -170,7 +170,7 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x77a30E8FD48A2fA6Ba6EAAcA225B35aFbE48e5d2"
+        const presaleFactoryCA = "0x83320B5edFE162A1AbF841bFEE429bCEeC5C99A4"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
@@ -258,7 +258,7 @@ export default function PresaleCreator() {
                                 ) : currentPage === 2 ? "Create Presale" : "Continue"}
 
                             </button>
-                            {currentPage && (<button className={`bg-transparent border-2 border-white text-white p-[10px_20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`} onClick={() => {
+                            {currentPage !== 0 && (<button className={`bg-transparent border-2 border-white text-white p-[10px_20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`} onClick={() => {
                                 setCurrentPage(currentPage - 1)
                             }}>
                                 Back

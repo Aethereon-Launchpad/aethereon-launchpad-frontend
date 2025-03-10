@@ -206,6 +206,7 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
     const [
         metadataURI,
         paymentToken,
+        saleToken,
         salePrice,
         startTime,
         endTime,
@@ -227,6 +228,11 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             address: presale,
             abi: Presale,
             functionName: "paymentToken"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "saleToken"
         }),
         client.readContract({
             address: presale,
@@ -303,6 +309,25 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         functionName: "decimals"
     });
 
+
+    const saleTokenName = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "name"
+    })
+
+    const saleTokenSymbol = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "symbol"
+    });
+
+    const saleTokenDecimals = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "decimals"
+    });
+
     return {
         id: presale,
         metadataURI,
@@ -311,6 +336,12 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             name: paymentTokenName,
             symbol: paymentTokenSymbol,
             decimals: paymentTokenDecimals
+        },
+        saleToken: {
+            id: saleToken,
+            name: saleTokenName,
+            symbol: saleTokenSymbol,
+            decimals: saleTokenDecimals
         },
         salePrice: ethers.formatUnits(salePrice as string, paymentTokenDecimals as number),
         startTime: Number(startTime),
