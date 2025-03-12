@@ -18,6 +18,9 @@ import { getTokenAllowance } from '../../utils/web3/actions';
 import { getClaimableTokensAmount, paymentMade } from '../../utils/web3/presale';
 import erc20Abi from "../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
+import PresaleDescription from '../../components/IDO/IDOInfo/Description/index';
+import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
 
 
 const createViemWalletClient = () => {
@@ -45,6 +48,7 @@ function IdoComponent() {
     const [paymentMadeAmount, setPaymentMadeAmount] = useState<number>(0);
     const [claimableAmount, setClaimableAmount] = useState<number>(0);
     const [loadingInfo, setLoadingInfo] = useState<boolean>(true)
+    const [markdownContent, setMarkdownContent] = useState(``);
 
     async function getPaymentMade() {
         setLoadingInfo(true)
@@ -91,6 +95,20 @@ function IdoComponent() {
         getPaymentMade();
 
     }, [authenticated, data])
+
+    useEffect(() => {
+        if (data?.presaleInfo?.description_md) {
+            const fetchMarkdown = async () => {
+                try {
+                    const response = await axios.get(data.presaleInfo.description_md);
+                    setMarkdownContent(response.data);
+                } catch (error) {
+                    console.error('Error fetching markdown:', error);
+                }
+            };
+            fetchMarkdown();
+        }
+    }, [data?.presaleInfo?.description_md]);
 
     function PresaleStatus({ startTime, endTime }: { startTime: number, endTime: number }) {
         const startTimeUnix = startTime * 1000
@@ -463,32 +481,11 @@ function IdoComponent() {
 
                     <div className='text-[15px] lg:text-[18px] mt-[20px]'>
                         <p>{data?.presaleInfo?.description}</p>
-                        <ul className='list-disc px-[20px] mt-[10px]'>
-                            <li>⚡  Grant received from Aethir ($3B FDV) for computing power to support our AI infrastructure and ecosystem.</li>
-                            <li> ⚡️ Available on the Google Play Store with a 5.0 rating from over 5,000 reviews. The Apple Store and Chrome extensions are under review and are expected to go live this week. The app has been trending for over 2 weeks now in most European countries in the Finance category.</li>
-                            <li>⚡️ Revenue Model: Derhex receives payments from clients in USDT, ensuring a deflationary model. Revenue distribution: 33% is allocated to users, 33% goes to the foundation, 33% is used to buy back and burn $Derhex tokens, creating a deflationary effect.</li>
-                        </ul>
-
-
-
-                        <p className='mt-[20px]'> Product</p>
-                        <p> Derhex Ecosystem</p>
-                        <p>Modular Data Network</p>
-                        <p> A revolutionary network transforming billions of devices into a decentralized powerhouse for AI. It empowers data providers to own, control, and monetize their data, delivering quadrillions of reliable and sourced data points to fuel AI advancements.</p>
-                        <ul className='list-disc px-[20px]'>
-                            <li>Intensive and Versatile Data</li>
-                            <li> Advanced Data Aggregation Algorithms</li>
-                            <li>  Data Provenance and Transparency</li>
-                            <li> Non-custodial and Portable Data</li>
-                        </ul>
-
-
-
-                        <p className='mt-[10px]'> Nodes Data Market</p>
-                        <p>A scalable ecosystem of nodes allowing individual users to contribute to the evolution of AI. Offers bespoke solutions for enhanced safety and privacy, redefining the web browsing experience with unmatched anonymity and protection.</p>
-                        <ul className='list-disc px-[20px]'>
-                            <li> Unsurpassed Privacy & Anonymity</li>
-                        </ul>
+                        {data?.presaleInfo?.description_md && markdownContent && (
+                            <div className="markdown-content">
+                                <ReactMarkdown>{markdownContent}</ReactMarkdown>
+                            </div>
+                        )}
                     </div>
 
                     <div className='grid grid-cols-3 gap-x-5 my-10'>
