@@ -170,7 +170,7 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x3C2FDdCd3E5f0b91c012C06Cc717ae7Dc0a0f60d"
+        const presaleFactoryCA = "0xCe8a274Aa7A485Fa0B3991451cfaA23be5B2D40B"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
@@ -188,6 +188,8 @@ export default function PresaleCreator() {
                 toast("Connect Wallet");
                 return;
             }
+
+            console.log(paymentToken, saleToken)
 
             const { request, result } = await publicClient.simulateContract({
                 address: presaleFactoryCA,
