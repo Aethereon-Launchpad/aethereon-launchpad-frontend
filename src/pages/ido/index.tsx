@@ -1,6 +1,6 @@
 import React from 'react'
 import Layout from '../../layout'
-import IdoComponent from '../../components/Ido'
+import IdoComponent from '../../components/IDO'
 
 function Ido() {
   return (
