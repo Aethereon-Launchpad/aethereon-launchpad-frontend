@@ -1,6 +1,6 @@
 import React from 'react'
 import Layout from '../../layout'
-import IDOComponent from '../../components/IDO/index.tsx'
+import IDOComponent from '../../components/Presale'
 
 function Ido() {
   return (

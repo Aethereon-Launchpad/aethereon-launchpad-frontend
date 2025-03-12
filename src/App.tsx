@@ -17,6 +17,7 @@ import PresaleCreator from './pages/presale/create'
 import IDO from './pages/ido'
 import AdminAuthScreen from './pages/admin'
 import Ido from './pages/ido'
+import AdminDashboardPage from './pages/admin/dashboard'
 
 function App() {
 
@@ -26,9 +27,8 @@ function App() {
       <Route path='/launchpad' element={<Launchpad />} />
       <Route path='/launchpad/:id' element={<IDO />} />
       <Route path='/explore' element={<Explore />} />
-      <Route path='/join-ido' element={<Ido/>}/>
+      <Route path='/join-ido' element={<Ido />} />
       <Route path='/stake-farm' element={<Staking />} />
-      <Route path='/presale/create' element={<PresaleCreator />} />
       <Route path='/stake-farm/:id' element={<Single />} />
       <Route path='/stake-farm/new' element={<NewPool />} />
       <Route path='/dashboard' element={<Dashboard />} />
@@ -37,6 +37,8 @@ function App() {
       <Route path='/dynamic-rewards' element={<DynamicRewards />} />
       <Route path='/seasonal-staking' element={<SeasonalStaking />} />
       <Route path='/admin' element={<AdminAuthScreen />} />
+      <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
+      <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />☻
     </Routes>
   )
 }

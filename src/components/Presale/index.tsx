@@ -421,7 +421,7 @@ export default function IDOComponent() {
         }
     }
 
-    console.log(data.withdrawDelay)
+    console.log(data)
 
     return (
         <div className='p-[40px_20px] flex flex-col-reverse gap-[40px] lg:flex-row items-start lg:p-[40px] font-grotesk text-white space-y-5'>

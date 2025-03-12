@@ -9,28 +9,28 @@ export default function AdminAuthScreen() {
     const { authenticated, login, user, logout } = usePrivy();
     const [loading, setLoading] = useState<boolean>(false)
     const navigate = useNavigate();
-    const ADMIN_WALLET: `0x${string}` = "0x8254a986319461bf29ae35940a96786e507ad9ac"
+    const ADMIN_WALLET: `0x${string}` = "0x426DcF053185c099cbE05dcb23775544bbEe16d6"
 
 
-    // useEffect(() => {
-    //     setLoading(true)
-    //     if (!user?.wallet?.address) {
-    //         setLoading(false)
-    //         return;
-    //     }
+    useEffect(() => {
+        setLoading(true)
+        if (!user?.wallet?.address) {
+            setLoading(false)
+            return;
+        }
 
-    //     if (user.wallet.address && user.wallet.address.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-    //         toast("Successfully Verified Admin")
-    //         logout();
-    //         navigate('/admin/dashboard');
-    //     } else {
-    //         toast("Access Denied ❌")
-    //         logout();
-    //     }
+        if (user.wallet.address && user.wallet.address.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+            toast("Successfully Verified Admin")
+            logout();
+            navigate('/admin/dashboard');
+        } else {
+            toast("Access Denied ❌")
+            logout();
+        }
 
 
-    //     setLoading(false)
-    // }, [authenticated])
+        setLoading(false)
+    }, [authenticated])
 
 
     return (
