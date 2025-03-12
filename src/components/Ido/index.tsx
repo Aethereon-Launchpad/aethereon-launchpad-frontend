@@ -30,7 +30,7 @@ const createViemWalletClient = () => {
 };
 
 
-function IdoComponent() {
+export default function IDOComponent() {
     const { id } = useParams<{ id: `0x${string}` }>();
     const { data, error, loading, refetch } = usePresale(id)
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(false);
@@ -619,5 +619,3 @@ function IdoComponent() {
         </div>
     );
 }
-
-export default IdoComponent
