@@ -1,6 +1,7 @@
 {
   "projectName": "Derhex",
   "description": "Derhex is a multi-protocol bridge enabling seamless cross-chain swaps using Chainlink, LayerZero, Wormhole, and Axelar.",
+  "description_md": "https://timmyisanerd.github.io/project_info.MD",
   "website": "https://derhex.io",
   "socials": {
     "twitter": "https://twitter.com/derhex",

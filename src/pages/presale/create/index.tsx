@@ -170,15 +170,15 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x83320B5edFE162A1AbF841bFEE429bCEeC5C99A4"
+        const presaleFactoryCA = "0x3C2FDdCd3E5f0b91c012C06Cc717ae7Dc0a0f60d"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
-            const salePrice = formatEthValues(formData.salePrice.toString());
             const softCap = formatEthValues(formData.softCap.toString());
             const hardCap = formatEthValues(formData.hardCap.toString());
             const minTotalPayment = formatEthValues(formData.minTotalPayment.toString())
             const maxTotalPayment = formatEthValues(formData.maxTotalPayment.toString())
+            const salePrice = formatEthValues(formData.salePrice.toString());
 
             // Process Wallet
             const walletClient = await createViemWalletClient();
@@ -206,7 +206,8 @@ export default function PresaleCreator() {
                     endTime,
                     minTotalPayment,
                     maxTotalPayment,
-                    withdrawDelay
+                    withdrawDelay,
+                    account
                 ]
             })
 
@@ -216,8 +217,17 @@ export default function PresaleCreator() {
             setShowTxModal(true)
 
             toast("Successfully Created New Presale")
-        } catch (error) {
+            navigate("/")
+        } catch (error: any) {
             console.error("Creating New Presale Failed", error)
+            if (error.message.includes("softCap must be <= hardCap")) {
+                toast("softCap must be <= hardCap")
+                return;
+            }
+            if (error.message.includes("User rejected the request")) {
+                toast("User rejected the request");
+                return;
+            }
             toast.error("Creating New Presale Failed")
         } finally {
             setLoading(false)

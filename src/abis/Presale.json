@@ -60,6 +60,11 @@
         "internalType": "uint256",
         "name": "_withdrawDelay",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -252,6 +257,12 @@
         "internalType": "uint256",
         "name": "maxTotalPayment",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "PresaleCreated",
@@ -484,6 +495,19 @@
       }
     ],
     "name": "SetMinTotalPayment",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "stakingPool",
+        "type": "address"
+      }
+    ],
+    "name": "SetNewStakingPool",
     "type": "event"
   },
   {
@@ -1021,6 +1045,11 @@
         "internalType": "uint256",
         "name": "_withdrawDelay",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -1436,7 +1465,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IStakingPool",
+        "internalType": "address",
         "name": "_stakingPool",
         "type": "address"
       }
@@ -1702,6 +1731,19 @@
     "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdrawDelay",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

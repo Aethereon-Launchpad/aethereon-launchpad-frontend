@@ -72,16 +72,22 @@ export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
     };
 
     useEffect(() => {
+        // Initial fetch
         fetchData();
+
+        // Set up polling every 10 seconds
+        const interval = setInterval(fetchData, 10000);
+
+        // Cleanup interval on unmount
         return () => {
-            // Cleanup logic here
+            clearInterval(interval);
         };
-    }, [id]); // Add id to dependency array to refetch when id changes
+    }, [id]);
 
     return {
         loading,
         error,
         data,
-        refetch: fetchData // Expose the fetch function
+        refetch: fetchData
     };
 }
