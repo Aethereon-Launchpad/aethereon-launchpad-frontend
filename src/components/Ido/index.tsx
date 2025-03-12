@@ -18,7 +18,6 @@ import { getTokenAllowance } from '../../utils/web3/actions';
 import { getClaimableTokensAmount, paymentMade } from '../../utils/web3/presale';
 import erc20Abi from "../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
-import PresaleDescription from '../../components/IDO/IDOInfo/Description/index';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
