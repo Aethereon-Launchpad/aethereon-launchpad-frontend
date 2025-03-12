@@ -129,6 +129,12 @@
         "internalType": "uint256",
         "name": "withdrawDelay",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "PresaleCreated",
@@ -467,6 +473,11 @@
         "internalType": "uint256",
         "name": "withdrawDelay",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "initialize",

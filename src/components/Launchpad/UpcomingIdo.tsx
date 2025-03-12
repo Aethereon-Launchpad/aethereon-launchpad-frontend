@@ -1,21 +1,16 @@
 // import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import SaleCard from '../Global/SaleCard'
-import { useQuery } from "@apollo/client"
-import { GET_ALL_PRESALES } from "../../graphql/queries"
+// import { useQuery } from "@apollo/client"
+// import { GET_ALL_PRESALES } from "../../graphql/queries"
+import { usePresale } from "../../hooks/web3/usePresale";
+
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 
 
 function UpcomingIdo() {
   const navigation = useNavigate()
-
-  const { data, loading, error } = useQuery(GET_ALL_PRESALES, {
-    context: {
-      clientName: "presale"
-    }
-  });
-
-
+  const { data, error, loading } = usePresale();
 
   if (loading) {
     return (
@@ -31,12 +26,13 @@ function UpcomingIdo() {
     );
   }
 
-  if (error) {
-    return <div className="text-red-500 text-center">Error loading presale: {error.message}</div>;
+  if (error.message) {
+    return (
+      <div className="flex items-center justify-center">
+        <h3 className="text-red-600 text-xl">{error.message}</h3>
+      </div>
+    )
   }
-
-  const tokenSales = data?.tokenSales || [];
-  console.log(tokenSales)
 
 
   return (
@@ -48,18 +44,14 @@ function UpcomingIdo() {
       {/* <div className="flex items-center justify-center text-white">
         {tokenSales.length === 0 && <h3 className='animate-pulse'>Launches Coming Soon</h3>}
       </div> */}
-      {tokenSales.length === 0 && (
-        <>
-          <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
-            {Array.from({ length: 1 }).map((_, i) => (
-              <SaleCard key={i} />
-            ))}
-          </div>
-          <button onClick={() => navigation("/explore")} className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px]">
-            Explore more IDO’s
-          </button>
-        </>
-      )}
+      <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
+        {data.map((presale: any, i: number) => (
+          <SaleCard key={i} presale={presale} />
+        ))}
+      </div>
+      <button onClick={() => navigation("/explore")} className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px]">
+        Explore more IDO’s
+      </button>
     </div>
   )
 }

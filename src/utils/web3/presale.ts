@@ -5,7 +5,7 @@ import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0x77a30E8FD48A2fA6Ba6EAAcA225B35aFbE48e5d2`
+    const presaleFactoryAddress = `0x3C2FDdCd3E5f0b91c012C06Cc717ae7Dc0a0f60d`
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
@@ -59,7 +59,9 @@ export const getAllPresaleData = async () => {
             totalPaymentReceived,
             purchaserCount,
             isSoftCapReached,
-            hasCashed
+            hasCashed,
+            withdrawerCount,
+            withdrawDelay
         ] = await Promise.all([
             client.readContract({
                 address: presale,
@@ -130,7 +132,17 @@ export const getAllPresaleData = async () => {
                 address: presale,
                 abi: Presale,
                 functionName: "hasCashed"
-            })
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "withdrawerCount"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "withdrawDelay"
+            }),
         ]);
 
         const paymentTokenName = await client.readContract({
@@ -195,7 +207,9 @@ export const getAllPresaleData = async () => {
             totalPaymentReceived: ethers.formatUnits(totalPaymentReceived as string, paymentTokenDecimals as number),
             purchaserCount: Number(purchaserCount),
             isSoftCapReached,
-            hasCashed
+            hasCashed,
+            withdrawerCount,
+            withdrawDelay
         };
     }));
 
@@ -206,6 +220,7 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
     const [
         metadataURI,
         paymentToken,
+        saleToken,
         salePrice,
         startTime,
         endTime,
@@ -216,7 +231,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         totalPaymentReceived,
         purchaserCount,
         isSoftCapReached,
-        hasCashed
+        hasCashed,
+        withdrawerCount,
+        withdrawDelay
     ] = await Promise.all([
         client.readContract({
             address: presale,
@@ -227,6 +244,11 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             address: presale,
             abi: Presale,
             functionName: "paymentToken"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "saleToken"
         }),
         client.readContract({
             address: presale,
@@ -282,7 +304,17 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             address: presale,
             abi: Presale,
             functionName: "hasCashed"
-        })
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "withdrawerCount"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "withdrawDelay"
+        }),
     ]);
 
     const paymentTokenName = await client.readContract({
@@ -303,6 +335,25 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         functionName: "decimals"
     });
 
+
+    const saleTokenName = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "name"
+    })
+
+    const saleTokenSymbol = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "symbol"
+    });
+
+    const saleTokenDecimals = await client.readContract({
+        address: saleToken as `0x${string}`,
+        abi: ERC20ABI,
+        functionName: "decimals"
+    });
+
     return {
         id: presale,
         metadataURI,
@@ -311,6 +362,12 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             name: paymentTokenName,
             symbol: paymentTokenSymbol,
             decimals: paymentTokenDecimals
+        },
+        saleToken: {
+            id: saleToken,
+            name: saleTokenName,
+            symbol: saleTokenSymbol,
+            decimals: saleTokenDecimals
         },
         salePrice: ethers.formatUnits(salePrice as string, paymentTokenDecimals as number),
         startTime: Number(startTime),
@@ -322,6 +379,57 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         totalPaymentReceived: ethers.formatUnits(totalPaymentReceived as string, paymentTokenDecimals as number),
         purchaserCount: Number(purchaserCount),
         isSoftCapReached,
-        hasCashed
+        hasCashed,
+        withdrawerCount,
+        withdrawDelay
     };
+}
+
+export const paymentMade = async (presale: `0x${string}`, walletAddress: `0x${string}`) => {
+    try {
+        const paymentReceived = await client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "paymentReceived",
+            args: [
+                walletAddress
+            ]
+        })
+
+        return (Number(ethers.formatUnits(paymentReceived as string, 18)))
+    } catch (error: any) {
+        console.error(error.message)
+        throw new Error("Failed to retrieve payment made");
+    }
+}
+
+export const getClaimableTokensAmount = async (presale: `0x${string}`, walletAddress: `0x${string}`) => {
+    try {
+        const claimableAmount = await client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "claimable",
+            args: [
+                walletAddress
+            ]
+        })
+
+        const saleToken = await client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "saleToken"
+        })
+
+        const decimals = await client.readContract({
+            address: saleToken as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: "decimals"
+        })
+
+
+        return (Number(ethers.formatUnits(claimableAmount as string, decimals as number)))
+    } catch (error: any) {
+        console.error(error.message)
+        throw new Error("Failed to retrieve claimable amount");
+    }
 }
