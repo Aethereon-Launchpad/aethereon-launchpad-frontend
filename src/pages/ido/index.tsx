@@ -1,11 +1,11 @@
 import React from 'react'
 import Layout from '../../layout'
-import IdoComponent from '../../components/IDO'
+import IDOComponent from '../../components/IDO/index.tsx'
 
 function Ido() {
   return (
     <Layout>
-      <IdoComponent/>
+      <IDOComponent />
     </Layout>
   )
 }
