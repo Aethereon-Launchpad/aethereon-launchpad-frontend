@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Layout from '../../../layout';
+import Layout from '../../../layout/Admin';
 import CreatePresaleStep1 from "../../../components/CreatePresale/Step1.tsx"
 import CreatePresaleStep2 from "../../../components/CreatePresale/Step2.tsx"
 import CreatePresaleStep3 from "../../../components/CreatePresale/Step3.tsx"

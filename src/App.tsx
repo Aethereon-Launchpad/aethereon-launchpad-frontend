@@ -38,7 +38,7 @@ function App() {
       <Route path='/seasonal-staking' element={<SeasonalStaking />} />
       <Route path='/admin' element={<AdminAuthScreen />} />
       <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
-      <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />☻
+      <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />
     </Routes>
   )
 }
