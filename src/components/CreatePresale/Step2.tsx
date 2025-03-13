@@ -38,6 +38,43 @@ export default function CreatePresaleStep2({ formData, setFormData }: Props) {
             type="date"
             className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
           />
+          <input
+            value={startTime ? new Date(startTime * 1000).toISOString().split('T')[1].substring(0, 5) : ''}
+            onChange={(e: any) => {
+              const timeValue = e.target.value;
+              if (timeValue.length === 5) {
+                const date = new Date(startTime * 1000);
+                const [hours, minutes] = timeValue.split(':').map(Number);
+                // Use UTC methods to avoid timezone issues
+                const newDate = new Date(Date.UTC(
+                  date.getUTCFullYear(),
+                  date.getUTCMonth(),
+                  date.getUTCDate(),
+                  hours,
+                  minutes
+                ));
+                setFormData({ ...formData, startTime: Math.floor(newDate.getTime() / 1000) });
+              }
+            }}
+            onBlur={(e: any) => {
+              const timeValue = e.target.value;
+              if (timeValue.length === 5) {
+                const date = new Date(startTime * 1000);
+                const [hours, minutes] = timeValue.split(':').map(Number);
+                const newDate = new Date(Date.UTC(
+                  date.getUTCFullYear(),
+                  date.getUTCMonth(),
+                  date.getUTCDate(),
+                  hours,
+                  minutes
+                ));
+                setFormData({ ...formData, startTime: Math.floor(newDate.getTime() / 1000) });
+              }
+            }}
+            id="startTime"
+            type="time"
+            className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
+          />
         </div>
       </div>
       <div className="w-full">
@@ -50,6 +87,42 @@ export default function CreatePresaleStep2({ formData, setFormData }: Props) {
             }
             id="endTime"
             type="date"
+            className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
+          />
+          <input
+            value={endTime ? new Date(endTime * 1000).toISOString().split('T')[1].substring(0, 5) : ''}
+            onChange={(e: any) => {
+              const timeValue = e.target.value;
+              if (timeValue.length === 5) {
+                const date = new Date(endTime * 1000);
+                const [hours, minutes] = timeValue.split(':').map(Number);
+                const newDate = new Date(Date.UTC(
+                  date.getUTCFullYear(),
+                  date.getUTCMonth(),
+                  date.getUTCDate(),
+                  hours,
+                  minutes
+                ));
+                setFormData({ ...formData, endTime: Math.floor(newDate.getTime() / 1000) });
+              }
+            }}
+            onBlur={(e: any) => {
+              const timeValue = e.target.value;
+              if (timeValue.length === 5) {
+                const date = new Date(endTime * 1000);
+                const [hours, minutes] = timeValue.split(':').map(Number);
+                const newDate = new Date(Date.UTC(
+                  date.getUTCFullYear(),
+                  date.getUTCMonth(),
+                  date.getUTCDate(),
+                  hours,
+                  minutes
+                ));
+                setFormData({ ...formData, endTime: Math.floor(newDate.getTime() / 1000) });
+              }
+            }}
+            id="endTime"
+            type="time"
             className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
           />
         </div>

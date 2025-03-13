@@ -18,6 +18,8 @@ import IDO from './pages/ido'
 import AdminAuthScreen from './pages/admin'
 import Ido from './pages/ido'
 import AdminDashboardPage from './pages/admin/dashboard'
+import AdminManagePresales from './pages/admin/dashboard/presale'
+import FundPresale from "./pages/"
 
 function App() {
 
@@ -39,6 +41,8 @@ function App() {
       <Route path='/admin' element={<AdminAuthScreen />} />
       <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
       <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />
+      <Route path='/admin/dashboard/presales' element={<AdminManagePresales />} />
+      <Route path='/admin/dashboard/presales/:id' element={<AdminManagePresales />} />
     </Routes>
   )
 }

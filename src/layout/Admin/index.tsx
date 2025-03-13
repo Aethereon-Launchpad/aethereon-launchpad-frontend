@@ -28,22 +28,22 @@ function Layout({ children }: { children: ReactNode }) {
             <nav className="p-4">
                 <ul className="flex space-x-4">
                     <li>
-                        <a href="/dashboard" className="text-primary hover:text-primary/70">
+                        <a href="/admin/dashboard" className="text-primary hover:text-primary/70">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/dashboard/traders" className="text-primary hover:text-primary/70">
+                        <a href="/admin/dashboard/staking-pool" className="text-primary hover:text-primary/70">
                             Staking Pools
                         </a>
                     </li>
                     <li>
-                        <a href="/dashboard/traders" className="text-primary hover:text-primary/70">
+                        <a href="/admin/dashboard/lock-stake" className="text-primary hover:text-primary/70">
                             Lock & Stake
                         </a>
                     </li>
                     <li>
-                        <a href="/dashboard/admins" className="text-primary hover:text-primary/70">
+                        <a href="/admin/dashboard/presales" className="text-primary hover:text-primary/70">
                             Presales
                         </a>
                     </li>

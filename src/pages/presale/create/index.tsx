@@ -219,7 +219,13 @@ export default function PresaleCreator() {
             setShowTxModal(true)
 
             toast("Successfully Created New Presale")
-            navigate("/")
+            setTimeout(async () => {
+                // Verify Transaction is Complete
+                const receipt = await publicClient.getTransactionReceipt({ hash })
+                if (receipt && receipt.status === "success") {
+                    navigate("/admin/dashboard/presales")
+                }
+            }, 5000)
         } catch (error: any) {
             console.error("Creating New Presale Failed", error)
             if (error.message.includes("softCap must be <= hardCap")) {

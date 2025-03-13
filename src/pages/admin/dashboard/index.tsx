@@ -7,28 +7,23 @@ import { usePresale } from "../../../hooks/web3/usePresale";
 import { getAllStakingPoolAddress } from "../../../utils/web3/actions";
 import { useEffect, useState } from "react";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import { useWallets } from "@privy-io/react-auth";
 
 export default function AdminDashboardPage() {
     const [noOfStakingPools, setNoOfStakingPools] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
+    const [adminAddress, setAdminAddress] = useState<`0x${string}`>("0x");
     const { logout, user } = usePrivy();
     const navigate = useNavigate();
-    const { data, loading: loadingPresale, error } = usePresale();
-
-    console.log(user)
-
-    function handleLogout() {
-        logout();
-        navigate("/admin")
-        return;
-    }
+    const { data, loading: loadingPresale } = usePresale();
 
     useEffect(() => {
         async function loadData() {
             try {
                 const stakingPools = await getAllStakingPoolAddress()
                 setNoOfStakingPools(stakingPools.length);
+                if (user?.wallet?.address) {
+                    setAdminAddress(user.wallet.address as `0x${string}`)
+                }
             } catch (error) {
                 console.error(error)
             } finally {
@@ -38,6 +33,13 @@ export default function AdminDashboardPage() {
 
         loadData()
     }, [])
+
+    function handleLogout() {
+        logout();
+        navigate("/admin")
+        return;
+    }
+
 
     if (loading || loadingPresale) {
         return (
@@ -72,19 +74,17 @@ export default function AdminDashboardPage() {
                     </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <DashboardCard title="Admin" value={user?.wallet?.address} />
+                    <DashboardCard title="Admin" value={adminAddress} />
                     <DashboardCard title="No of Staking Pools" value={noOfStakingPools} />
                     <DashboardCard title="No of Presales" value={data.length} />
-                    <DashboardCard title="Custom Fee" value={12} />
-                    <DashboardCard title="Fee Receiver" value={1} />
-                    <DashboardCard title="Total Trade Volume" value={10} />
+                    <DashboardCard title="No Of Voting Slots" value={1} />
                 </div>
             </section>
         </Layout>
     )
 }
 
-function DashboardCard({ title, value }: { title: string; value: string | number }) {
+function DashboardCard({ title, value }: { title: string; value: string | number | undefined }) {
     return (
         <motion.div whileHover={{ scale: 1.05 }} className="bg-gray-800 p-6 rounded-lg shadow-lg truncate">
             <h2 className="text-xl font-semibold mb-2 text-primary">{title}</h2>

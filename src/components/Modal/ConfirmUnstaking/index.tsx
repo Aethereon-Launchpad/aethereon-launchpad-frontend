@@ -55,7 +55,7 @@ function ConfirmUnstaking({
                         </div>
                         <p className="text-[#C4C4C4] text-sm mb-1">Rewards:</p>
                         <p className="text-white text-3xl font-bold">
-                            {rewardAmount} <span className="text-primary">{rewardsTokenSymbol}</span>
+                            {Number(rewardAmount).toFixed(3)} <span className="text-primary">{rewardsTokenSymbol}</span>
                         </p>
                     </div>
 

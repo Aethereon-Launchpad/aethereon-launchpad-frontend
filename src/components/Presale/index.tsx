@@ -149,6 +149,10 @@ export default function IDOComponent() {
             } else {
                 setTarget("Hard Cap");
                 const percentage = (Number(totalPaymentReceived) / Number(hardCap)) * 100;
+                if (percentage > 100) {
+                    setProgress(100)
+                    return;
+                }
                 setProgress(percentage);
             }
         }, [data])
@@ -203,6 +207,12 @@ export default function IDOComponent() {
     async function handlePayment() {
         setPurchasing(true)
         try {
+            if (Number(data.hardCap) === data.totalPaymentReceived || data.totalPaymentReceived > data.hardCap) {
+                toast("IDO has reached Hard Cap")
+                setPurchasing(false)
+                return;
+            }
+
             if (purchaseAmount < data.minTotalPayment) {
                 toast(`Can't purchase less than minimum amount ${data.minTotalPayment}`)
                 setPurchasing(false)
@@ -319,7 +329,7 @@ export default function IDOComponent() {
         try {
             const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
-            const refundDeadline = data.endTime * 1000;
+            const refundDeadline = (Number(data.endTime) + Number(data.withdrawDelay)) * 1000;
 
             if (isBefore(new Date(refundDeadline), new Date())) {
                 toast("You have missed the refund period")
@@ -420,8 +430,6 @@ export default function IDOComponent() {
             setRefunding(false)
         }
     }
-
-    console.log(data)
 
     return (
         <div className='p-[40px_20px] flex flex-col-reverse gap-[40px] lg:flex-row items-start lg:p-[40px] font-grotesk text-white space-y-5'>
@@ -595,7 +603,7 @@ export default function IDOComponent() {
                                         }
 
                                         setShowPaymentConfirmModal(true)
-                                        setPurchaseAmount(data.minTotalPayment)
+                                        setPurchaseAmount(Number(data.minTotalPayment))
                                     }}>
                                         Buy Tokens
                                     </button>
@@ -606,7 +614,7 @@ export default function IDOComponent() {
                         <>
                             <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500] mt-10 transition-all duration-700 hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:hover:scale-100" onClick={() => {
                                 setShowPaymentConfirmModal(true)
-                                setPurchaseAmount(data.minTotalPayment)
+                                setPurchaseAmount(Number(data.minTotalPayment))
                             }}>
                                 <IoWalletSharp className="w-5 h-5" />
                                 <span>Connect Wallet</span>
