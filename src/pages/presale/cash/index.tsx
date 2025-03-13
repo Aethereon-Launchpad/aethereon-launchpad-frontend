@@ -27,7 +27,7 @@ export default function Cash() {
     const [funding, setFunding] = useState<boolean>(false);
     const { user, authenticated, login } = usePrivy();
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
-    const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Funded Presale");
+    const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Cashed Presale");
     const [txHash, setTxHash] = useState<string>("");
 
     if (loading) {
@@ -77,7 +77,11 @@ export default function Cash() {
                     return;
                 }
                 if (error.message.includes("cannot withdraw yet")) {
-                    toast("Cannot Withdraw Yet!")
+                    toast.error("Cannot Withdraw Yet!")
+                    return;
+                }
+                if (error.message.includes("already cashed")) {
+                    toast("Presale Already Cashed")
                     return;
                 }
                 toast.error("Presale Cash Failure, Please Try Again later")
