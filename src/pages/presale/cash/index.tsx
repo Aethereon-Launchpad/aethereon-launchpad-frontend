@@ -7,10 +7,7 @@ import { createWalletClient, custom } from "viem";
 import { Oval, Preloader, ThreeDots } from 'react-preloader-icon';
 import TxReceipt from "../../../components/Modal/TxReceipt";
 import Presale from '../../../abis/Presale.json';
-import { ethers } from "ethers";
-import erc20Abi from "../../../abis/ERC20.json";
 import { usePrivy } from "@privy-io/react-auth";
-import { getTokenAllowance, getTokenDecimals } from "../../../utils/web3/actions";
 import { toast } from "react-hot-toast";
 import { IoWalletSharp } from "react-icons/io5";
 

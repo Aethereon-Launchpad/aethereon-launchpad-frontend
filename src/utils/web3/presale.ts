@@ -61,7 +61,8 @@ export const getAllPresaleData = async () => {
             isSoftCapReached,
             hasCashed,
             withdrawerCount,
-            withdrawDelay
+            withdrawDelay,
+            linearVestingEndTime
         ] = await Promise.all([
             client.readContract({
                 address: presale,
@@ -142,6 +143,11 @@ export const getAllPresaleData = async () => {
                 address: presale,
                 abi: Presale,
                 functionName: "withdrawDelay"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "linearVestingEndTime"
             }),
         ]);
 
@@ -233,7 +239,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         isSoftCapReached,
         hasCashed,
         withdrawerCount,
-        withdrawDelay
+        withdrawDelay,
+        linearVestingEndTime,
+        cliffPeriod
     ] = await Promise.all([
         client.readContract({
             address: presale,
@@ -315,6 +323,16 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             abi: Presale,
             functionName: "withdrawDelay"
         }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "linearVestingEndTime"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "getCliffPeriod"
+        }),
     ]);
 
     const paymentTokenName = await client.readContract({
@@ -381,7 +399,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         isSoftCapReached,
         hasCashed,
         withdrawerCount,
-        withdrawDelay
+        withdrawDelay,
+        linearVestingEndTime: Number(linearVestingEndTime),
+        cliffPeriod: Number(cliffPeriod)
     };
 }
 
@@ -408,7 +428,7 @@ export const getClaimableTokensAmount = async (presale: `0x${string}`, walletAdd
         const claimableAmount = await client.readContract({
             address: presale,
             abi: Presale,
-            functionName: "claimable",
+            functionName: "getCurrentClaimableToken",
             args: [
                 walletAddress
             ]

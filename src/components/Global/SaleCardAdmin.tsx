@@ -94,9 +94,9 @@ function SaleCardAdmin({ presale }: any) {
             </div>
           </div>
         </div>
-        <div onClick={() => navigation(`/admin/dashboard/presales/${presale.id}`)} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
+        <Link to={`/admin/dashboard/presales/manage/${presale.id}`} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
           Manage Project
-        </div>
+        </Link>
       </div>
     </div>
   );
