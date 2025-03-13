@@ -159,7 +159,7 @@ export default function IDOComponent() {
 
         return (
             <div className="mt-[15px] flex flex-col items-start space-y-[3px] w-[80%]">
-                <p>Progress ({progress}%) {"--------->"} {target} </p>
+                <p>Progress ({progress.toFixed(2)}%) {"--------->"} {target} </p>
                 <div className="h-[10px] w-full rounded-full bg-white">
                     <div style={{ width: `${progress}%` }} className="h-full bg-primary rounded-full"></div>
                 </div>
