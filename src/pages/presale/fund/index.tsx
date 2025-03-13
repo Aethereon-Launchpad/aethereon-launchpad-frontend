@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { sonicTestnet } from "../../../config/chain";
 import { publicClient } from "../../../config";
-import { noOfDays } from "../../../utils/tools";
 import { usePresale } from "../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";
 import { Oval, Preloader, ThreeDots } from 'react-preloader-icon';
@@ -13,6 +12,7 @@ import erc20Abi from "../../../abis/ERC20.json";
 import { usePrivy } from "@privy-io/react-auth";
 import { getTokenAllowance, getTokenDecimals } from "../../../utils/web3/actions";
 import { toast } from "react-hot-toast";
+import { IoWalletSharp } from "react-icons/io5";
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -23,12 +23,12 @@ const createViemWalletClient = () => {
 
 export default function Fund() {
     const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading, refetch } = usePresale(id as `0x${string}`);
+    const { data, error, loading } = usePresale(id as `0x${string}`);
     const [amount, setAmount] = useState<number>(0)
     const [funding, setFunding] = useState<boolean>(false);
-    const { user } = usePrivy();
+    const { user, authenticated, login } = usePrivy();
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
-    const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Staking Successful");
+    const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Funded Presale");
     const [txHash, setTxHash] = useState<string>("");
 
     if (loading) {
@@ -57,78 +57,86 @@ export default function Fund() {
         const fundAmount = ethers.parseUnits(amount.toString(), decimals);
 
 
-        // Approve Token Spending
-        async function approveTokenSpending() {
-            if (user?.wallet?.address) {
-                let allowance = await getTokenAllowance(
-                    data.saleToken.id,
-                    data.id,
-                    user.wallet.address as `0x${string}`
-                )
+        try {
+            // Approve Token Spending
+            async function approveTokenSpending() {
+                if (user?.wallet?.address) {
+                    let allowance = await getTokenAllowance(
+                        data.saleToken.id,
+                        data.id,
+                        user.wallet.address as `0x${string}`
+                    )
 
-                console.log(allowance);
-                // Check if allowance is less than stake amount
-                if (Number(allowance) < amount) {
-                    // Allow Contract to Spend
+                    console.log(allowance);
+                    // Check if allowance is less than stake amount
+                    if (Number(allowance) < amount) {
+                        // Allow Contract to Spend
+                        const { request } = await publicClient.simulateContract({
+                            address: data.saleToken.id,
+                            account,
+                            abi: erc20Abi,
+                            functionName: "approve",
+                            args: [data.id, fundAmount]  // Changed to approve staking pool contract
+                        })
+
+                        // Run Approval
+                        const txHash = await walletClient.writeContract(request);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        const receipt = await publicClient.getTransactionReceipt({
+                            hash: txHash
+                        })
+                        return receipt
+                    }
+
+                    return {
+                        status: "success"
+                    }
+                }
+            }
+
+            const receipt = await approveTokenSpending();
+            if (receipt && receipt.status === "success") {
+                try {
                     const { request } = await publicClient.simulateContract({
-                        address: data.stakingPool.stakeToken.id,
+                        address: data.id,
+                        abi: Presale,
                         account,
-                        abi: erc20Abi,
-                        functionName: "approve",
-                        args: [data.id, fundAmount]  // Changed to approve staking pool contract
+                        functionName: "fund",
+                        args: [
+                            fundAmount
+                        ]
                     })
 
-                    // Run Approval
-                    const txHash = await walletClient.writeContract(request);
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    const receipt = await publicClient.getTransactionReceipt({
-                        hash: txHash
-                    })
-                    return receipt
-                }
+                    const hash = await walletClient.writeContract(request)
+                    toast("Successfully Funded Presale")
 
-                return {
-                    status: "success"
+                    setTxHash(hash)
+                    setTimeout(() => {
+                        setShowTxModal(true)
+                    }, 2000)
+                    setAmount(0)
+                } catch (error: any) {
+                    console.error(error.message)
+                    if (error.message.includes("User rejected the request")) {
+                        toast("User Rejected the Request")
+                        return;
+                    }
+                    if (error.message.includes("sale already started")) {
+                        toast("Fund Failure! presale already started")
+                        return;
+                    }
+                    if (error.message.includes("caller not funder")) {
+                        toast("You are not presale funder")
+                        return;
+                    }
+                    toast.error("Presale Fund Failure, Please Try Again later")
+                    setFunding(false)
+                } finally {
+                    setFunding(false)
                 }
             }
-        }
-
-        const receipt = await approveTokenSpending();
-        if (receipt && receipt.status === "success") {
-            try {
-                const { request } = await publicClient.simulateContract({
-                    address: data.id,
-                    abi: Presale,
-                    account,
-                    functionName: "fund",
-                    args: [
-                        fundAmount
-                    ]
-                })
-
-                const hash = await walletClient.writeContract(request)
-                toast("Successfully Funded Presale")
-
-                setTxHash(hash)
-                setTimeout(() => {
-                    setShowTxModal(true)
-                }, 2000)
-
-            } catch (error: any) {
-                console.error(error.message)
-                if (error.message.includes("User rejected the request")) {
-                    toast("User Rejected the Request")
-                    return;
-                }
-                if (error.message.includes("sale already started")) {
-                    toast("Fund Failure! presale already started")
-                    return;
-                }
-                toast.error("Presale Fund Failure, Please Try Again later")
-                setFunding(false)
-            } finally {
-                setFunding(false)
-            }
+        } finally {
+            setFunding(false)
         }
     }
 
@@ -149,6 +157,14 @@ export default function Fund() {
         const hours = Math.floor((timeLeft % 86400) / 3600);
         const minutes = Math.floor((timeLeft % 3600) / 60);
         const seconds = timeLeft % 60;
+
+        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+            return (
+                <div className="text-red-500 font-medium">
+                    Deadline Passed
+                </div>
+            );
+        }
 
         return (
             <div className="flex items-center space-x-2">
@@ -186,7 +202,8 @@ export default function Fund() {
                     Fund {data?.presaleInfo?.projectName}
                 </p>
                 <div>
-                    <DeadlineCounter deadline={Number(data.startTime)} />
+                    <DeadlineCounter
+                        deadline={Number(data.startTime)} />
                 </div>
                 <div className="w-full space-y-3">
                     <div className="flex flex-col space-y-2">
@@ -202,18 +219,29 @@ export default function Fund() {
                             className="w-full h-[50px] bg-[#291254]/50 border border-primary/20 rounded-[8px] px-4 outline-none focus:ring-2 focus:ring-primary/50"
                         />
                     </div>
-                    <button
-                        className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
-                        onClick={fundPresale}
-                    >
-                        {funding ? <Preloader
-                            use={Oval}
-                            size={24}
-                            strokeWidth={8}
-                            strokeColor="#FFF"
-                            duration={800}
-                        /> : "Fund Presale"}
-                    </button>
+                    {!authenticated ? (
+                        <button
+                            onClick={login}
+                            className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                        >
+                            <IoWalletSharp className="w-5 h-5" />
+                            <span>Connect Wallet</span>
+                        </button>
+                    ) : (
+                        <button
+                            className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                            onClick={fundPresale}
+                            disabled={funding}
+                        >
+                            {funding ? <Preloader
+                                use={Oval}
+                                size={24}
+                                strokeWidth={8}
+                                strokeColor="#FFF"
+                                duration={800}
+                            /> : "Fund Presale"}
+                        </button>
+                    )}
                 </div>
             </div>
         </section>
