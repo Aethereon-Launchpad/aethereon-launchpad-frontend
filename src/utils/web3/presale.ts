@@ -5,7 +5,7 @@ import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0xCe8a274Aa7A485Fa0B3991451cfaA23be5B2D40B`
+    const presaleFactoryAddress = `0x94BA86336A2e6740983B97df627d9d81bfED2949`
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
