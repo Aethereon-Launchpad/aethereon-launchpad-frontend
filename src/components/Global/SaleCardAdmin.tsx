@@ -51,9 +51,16 @@ function SaleCardAdmin({ presale }: any) {
               <p className="text-[28px] font-[500] text-[#FAFAFA]">
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
-              <Link to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
-                View Project Description
-              </Link>
+              <div className="flex flex-col gap-y-3">
+                <Link to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
+                  View Project Page
+                </Link>
+                <Link to={`/admin/dashboard/presales/fund/${presale.id}`}
+                  target="_blank"
+                  className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
+                  Fund Project
+                </Link>
+              </div>
             </div>
             <div className="h-[49px] w-[49px]  rounded-full">
               <img src={presale?.presaleInfo?.images?.logo} alt="" />
