@@ -57,7 +57,7 @@ export default function PresaleCreator() {
         endTime: 0,
         minTotalPayment: 0,
         maxTotalPayment: 0,
-        withdrawDelay: 0,
+        withdrawDelay: 60 * 20,
     })
     const [loading, setLoading] = useState<boolean>(false)
     const { authenticated, login } = usePrivy();
@@ -170,7 +170,7 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0xCe8a274Aa7A485Fa0B3991451cfaA23be5B2D40B"
+        const presaleFactoryCA = "0x94BA86336A2e6740983B97df627d9d81bfED2949"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
