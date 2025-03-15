@@ -5,7 +5,7 @@ import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0xAC32b14Ad198054a880a34A490ac13E730Bb48a2`
+    const presaleFactoryAddress = `0x26800Ad6D932113e4C37D0e1F8dfd051Ea45835B`
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
@@ -62,7 +62,11 @@ export const getAllPresaleData = async () => {
             hasCashed,
             withdrawerCount,
             withdrawDelay,
-            linearVestingEndTime
+            linearVestingEndTime,
+            taxCollector,
+            taxPercentage,
+            stakingPool,
+            isPrivateSale
         ] = await Promise.all([
             client.readContract({
                 address: presale,
@@ -149,6 +153,26 @@ export const getAllPresaleData = async () => {
                 abi: Presale,
                 functionName: "linearVestingEndTime"
             }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "taxCollector"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "taxPercentage"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "stakingPool"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "isPrivateSale"
+            }),
         ]);
 
         const paymentTokenName = await client.readContract({
@@ -215,7 +239,12 @@ export const getAllPresaleData = async () => {
             isSoftCapReached,
             hasCashed,
             withdrawerCount,
-            withdrawDelay
+            withdrawDelay,
+            linearVestingEndTime: Number(linearVestingEndTime),
+            taxCollector,
+            taxPercentage: Number(taxPercentage) / 100,
+            stakingPool,
+            isPrivateSale
         };
     }));
 
@@ -242,7 +271,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         withdrawDelay,
         linearVestingEndTime,
         taxCollector,
-        taxPercentage
+        taxPercentage,
+        stakingPool,
+        isPrivateSale
     ] = await Promise.all([
         client.readContract({
             address: presale,
@@ -338,6 +369,16 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             address: presale,
             abi: Presale,
             functionName: "taxPercentage"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "stakingPool"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "isPrivateSale"
         }),
     ]);
 
@@ -448,7 +489,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         linearVestingEndTime: Number(linearVestingEndTime),
         cliffPeriod: cliffPeriod,
         taxCollector,
-        taxPercentage: Number(taxPercentage) / 100
+        taxPercentage: Number(taxPercentage) / 100,
+        stakingPool,
+        isPrivateSale
     };
 }
 

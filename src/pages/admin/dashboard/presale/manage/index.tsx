@@ -13,6 +13,7 @@ import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import erc20Abi from "../../../../../abis/ERC20.json";
 import Presale from "../../../../../abis/Presale.json"
+import { Link } from "react-router-dom";
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -38,6 +39,13 @@ export default function AdminPresaleManageID() {
         endOfLinearVesting: 0,
         loading: false
     })
+
+    const [stakingPool, setStakingPool] = useState<{ address: `0x${string}`, loading: boolean }>({
+        address: '0x',
+        loading: false
+    })
+
+    const [switchingSaleStatus, setSwitchingSaleStatus] = useState<boolean>(false);
 
     const [cliffPeriods, setCliffPeriods] = useState<{
         claimTimes: number[],
@@ -232,7 +240,7 @@ export default function AdminPresaleManageID() {
         setTaxSetting((prevState) => ({ ...prevState, loading: true }))
 
         if (taxSetting.taxCollector === "0x") {
-            setTaxSetting((prevState) => ({ ...prevState, loading: false }))
+            setStakingPool((prevState) => ({ ...prevState, loading: false }))
             toast("Invalid Tax Collector Address")
             return;
         }
@@ -242,7 +250,7 @@ export default function AdminPresaleManageID() {
                 address: data.id,
                 abi: Presale,
                 account,
-                functionName: "setTaxPercentage",
+                functionName: "setTaxCollector",
                 args: [
                     taxSetting.taxCollector
                 ]
@@ -274,6 +282,57 @@ export default function AdminPresaleManageID() {
             toast.error("Tax Collector Setting Failed, Please Try Again later")
         } finally {
             setTaxSetting((prevState) => ({ ...prevState, loading: false }))
+        }
+    }
+
+    async function handleSetStakingPool() {
+        const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        setStakingPool((prevState) => ({ ...prevState, loading: true }))
+
+        if (stakingPool.address === "0x") {
+            setStakingPool((prevState) => ({ ...prevState, loading: false }))
+            toast("Invalid Lock & Stake Address")
+            return;
+        }
+
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: data.id,
+                abi: Presale,
+                account,
+                functionName: "setStakingPool",
+                args: [
+                    stakingPool.address
+                ]
+            })
+
+            const hash = await walletClient.writeContract(request);
+            toast("Successfully set Lock & Stake ")
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
+        } catch (error: any) {
+            console.error(error.message)
+            if (error.message.includes("User rejected the request")) {
+                toast("User Rejected the Request")
+                return;
+            }
+            if (error.message.includes("must be tax setter")) {
+                toast("User is not a Tax Setter!")
+                return;
+            }
+            if (error.message.includes("0x0 taxCollector")) {
+                toast("Invalid Tax Collector")
+                return;
+            }
+            toast.error("Tax Collector Setting Failed, Please Try Again later")
+        } finally {
+            setStakingPool((prevState) => ({ ...prevState, loading: false }))
         }
     }
 
@@ -320,6 +379,45 @@ export default function AdminPresaleManageID() {
             }
         } finally {
             setTaxSetting((prevState) => ({ ...prevState, loading: false }))
+        }
+    }
+
+    async function handleChangeSaleStatus() {
+        const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        setSwitchingSaleStatus(true);
+
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: data.id,
+                abi: Presale,
+                account,
+                functionName: "toggleIsPrivateSale",
+            })
+
+            const hash = await walletClient.writeContract(request);
+
+            toast(`Successfully set Sale Type to ${data.isPrivateSale ? "Public" : "Private"}`)
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
+
+        } catch (error: any) {
+            console.error(error.message)
+            if (error.message.includes("User rejected the request")) {
+                toast("User Rejected the Request")
+                return;
+            }
+            if (error.message.includes("sale already started")) {
+                toast("Sale already started")
+                return;
+            }
+        } finally {
+            setSwitchingSaleStatus(false);
         }
     }
 
@@ -389,12 +487,99 @@ export default function AdminPresaleManageID() {
                             deadline={Number(data.startTime)} />
                     </div>
 
+                    {/* Staking Pool Section */}
+                    <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
+                        <h3 className="text-xl font-semibold text-primary">Sale Configuration</h3>
+                        <div className="space-y-4">
+                            <div className="flex flex-col space-y-2">
+                                <label htmlFor="lockStakeAddress" className="text-[#C4C4C4] text-sm">
+                                    Sale Type : {data.isPrivateSale ? "Private Sale" : "Public Sale"}
+                                </label>
+                                <button
+                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    onClick={handleChangeSaleStatus}
+                                    disabled={switchingSaleStatus}
+                                >
+                                    {stakingPool.loading ? (
+                                        <Preloader
+                                            use={ThreeDots}
+                                            size={60}
+                                            strokeWidth={6}
+                                            strokeColor="#FFF"
+                                            duration={2000}
+                                        />
+                                    ) : (
+                                        `Switch to ${data.isPrivateSale ? "Public Sale" : "Private Sale"}`
+                                    )}
+                                </button>
+                            </div>
+                            <div className="flex flex-col space-y-2">
+                                <Link
+                                    target="_blank"
+                                    to={`/admin/dashboard/presales/cash/${data.id}`}
+                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+
+                                >
+                                    Cash Sale
+                                </Link>
+                            </div>
+                            <div className="flex flex-col space-y-2">
+                                <Link
+                                    to={`/admin/dashboard/presales/fund/${data.id}`}
+                                    target="_blank"
+                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+
+                                >
+                                    Fund Sale
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/* Staking Pool Section */}
+                    <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
+                        <h3 className="text-xl font-semibold text-primary">Lock & Stake</h3>
+                        <div className="space-y-4">
+                            <div className="flex flex-col space-y-2">
+                                <label htmlFor="lockStakeAddress" className="text-[#C4C4C4] text-sm">
+                                    Lock & Stake Address: {data.stakingPool === "0x0000000000000000000000000000000000000000" ? "Lock & Stake Not Set" : data.stakingPool}
+                                </label>
+                                <input
+                                    id="lockStakeAddress"
+                                    type="string"
+                                    value={stakingPool.address}
+                                    onChange={(e) => setStakingPool((prevState) => ({ ...prevState, address: e.target.value as `0x${string}` }))}
+                                    className="w-full h-[50px] bg-[#291254]/50 border border-primary/20 rounded-[8px] px-4 outline-none focus:ring-2 focus:ring-primary/50"
+                                />
+                                <button
+                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    onClick={handleSetStakingPool}
+                                    disabled={!authenticated || stakingPool.loading}
+                                >
+                                    {stakingPool.loading ? (
+                                        <Preloader
+                                            use={ThreeDots}
+                                            size={60}
+                                            strokeWidth={6}
+                                            strokeColor="#FFF"
+                                            duration={2000}
+                                        />
+                                    ) : (
+                                        'Set Lock & Stake'
+                                    )}
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
                     {/* Tax Settings Section */}
                     <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
                         <h3 className="text-xl font-semibold text-primary">Tax Settings</h3>
                         <div className="space-y-4">
                             <div className="flex flex-col space-y-2">
-                                <label htmlFor="taxCollector" className="text-[#C4C4C4] text-sm">
+                                <label htmlFor="Lock & Stake" className="text-[#C4C4C4] text-sm">
                                     Tax Collector Address: {data.taxCollector === "0x0000000000000000000000000000000000000000" ? "Tax Collector Not Set" : data.taxCollector}
                                 </label>
                                 <input
@@ -621,6 +806,6 @@ export default function AdminPresaleManageID() {
                     </div>
                 </div>
             </section>
-        </Layout>
+        </Layout >
     )
 }

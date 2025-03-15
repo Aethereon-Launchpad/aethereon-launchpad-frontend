@@ -303,6 +303,7 @@ function Dynamic() {
             nextRewardTime={data.userData.nextRewardTime}
             rewardAmount={data?.userData?.rewards}
             lastStakeTime={data.userData.lastStakeTime}
+            lockStake={true}
           />
         )
       }
@@ -357,20 +358,20 @@ function Dynamic() {
         </div>
         {
           !authenticated ? (
-            <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={login}>
-              <IoWalletSharp className="text-[14px] lg:text-[16px] col-span-3" />
+            <button className="bg-primary flex items-center col-span-3 space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={login}>
+              <IoWalletSharp className="text-[14px] lg:text-[16px] " />
               <p className="text-[14px] lg:text-[16px]">Connect Wallet to Join</p>
             </button>
           ) : (
             <>
-                {(data?.userData?.amountStaked > 0 || data?.userData?.rewards > 0) && <button className="bg-transparent border-primary border-2 lg:col-span-3 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] min-w-full justify-center font-[500]" onClick={() => setOpenConfirmUnstaking(true)}>
-                  <p className="text-[14px] lg:text-[16px]">Withdraw</p>
-                </button>}
-                <button className="bg-primary lg:col-span-3 text-white font-[500] items-center justify-center h-[50px] rounded-[8px] min-w-full"
-                  onClick={() => setOpenConfirmStaking(true)}
-                >
-                  Lock My Stake
-                </button>
+              {(data?.userData?.amountStaked > 0 || data?.userData?.rewards > 0) && <button className="bg-transparent border-primary border-2 lg:col-span-3 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] min-w-full justify-center font-[500]" onClick={() => setOpenConfirmUnstaking(true)}>
+                <p className="text-[14px] lg:text-[16px]">Withdraw</p>
+              </button>}
+              <button className="bg-primary lg:col-span-3 text-white font-[500] items-center justify-center h-[50px] rounded-[8px] min-w-full"
+                onClick={() => setOpenConfirmStaking(true)}
+              >
+                Lock My Stake
+              </button>
             </>
           )
         }

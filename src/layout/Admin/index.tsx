@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { useWallets } from "@privy-io/react-auth";
+import { useWallets, usePrivy } from "@privy-io/react-auth";
 
 function Layout({ children }: { children: ReactNode }) {
     const { wallets } = useWallets();
+    const { login, authenticated } = usePrivy();
     const navigate = useNavigate();
     const ADMIN_WALLET: `0x${string}` = "0x426DcF053185c099cbE05dcb23775544bbEe16d6"
 
@@ -25,6 +26,21 @@ function Layout({ children }: { children: ReactNode }) {
 
     return (
         <main className="bg-black min-h-screen">
+            <div className="topbar-gradient py-[10px] font-space flex items-center justify-between uppercase text-white text-[12px] lg:text-[17px] px-4">
+                <span>DerHex - Fueling the Future of Blockchain - Get In Early</span>
+                {!authenticated ? (
+                    <button
+                        onClick={login}
+                        className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm"
+                    >
+                        Connect Wallet
+                    </button>
+                ) : (
+                    <div className="text-sm">
+                        Connected: {wallets[0]?.address.slice(0, 6)}...{wallets[0]?.address.slice(-4)}
+                    </div>
+                )}
+            </div>
             <nav className="p-6 border-b border-gray-800">
                 <ul className="flex space-x-6">
                     <li>

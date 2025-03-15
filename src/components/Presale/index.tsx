@@ -142,6 +142,8 @@ export default function IDOComponent() {
         const [progress, setProgress] = useState<number>(0);
         const [target, setTarget] = useState<"Soft Cap" | "Hard Cap">("Soft Cap")
 
+        console.log(totalPaymentReceived)
+
         useEffect(() => {
             if (Number(totalPaymentReceived) < Number(softCap)) {
                 setTarget("Soft Cap");
@@ -208,11 +210,11 @@ export default function IDOComponent() {
     async function handlePayment() {
         setPurchasing(true)
         try {
-            if (Number(data.hardCap) === data.totalPaymentReceived || data.totalPaymentReceived > data.hardCap) {
-                toast("IDO has reached Hard Cap")
-                setPurchasing(false)
-                return;
-            }
+            // if (Number(data.hardCap) === data.totalPaymentReceived || data.totalPaymentReceived > data.hardCap) {
+            //     toast("IDO has reached Hard Cap")
+            //     setPurchasing(false)
+            //     return;
+            // }
 
             if (purchaseAmount < data.minTotalPayment) {
                 toast(`Can't purchase less than minimum amount ${data.minTotalPayment}`)
@@ -309,6 +311,10 @@ export default function IDOComponent() {
                     if (error.message.includes("sale has not begun")) {
                         toast('Sale has not started yet')
                         return
+                    }
+                    if (error.message.includes("must stake to participate in private sale")) {
+                        toast("Must stake in Lock & Stake to Participate")
+                        return;
                     }
 
                     toast.error("Purchase Failure, Please Try Again later")
@@ -482,7 +488,11 @@ export default function IDOComponent() {
                             <ul className='space-y-3'>
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>IDO Type</span>
-                                    <span className='font-medium'>Refundable during sale</span>
+                                    <span className='font-medium'>Refundable sale</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='font-medium'>Sale Access</span>
+                                    <span className='text-primary underline'>{data.isPrivateSale ? "Private Sale" : "Public Sale"}</span>
                                 </li>
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>Sale Period</span>
@@ -714,7 +724,7 @@ export default function IDOComponent() {
                                         setShowPaymentConfirmModal(true)
                                         setPurchaseAmount(Number(data.minTotalPayment))
                                     }}>
-                                        Buy Tokens
+                                        {isRefundPeriod ? "Request Refund" : "Buy Tokens"}
                                     </button>
                                 )
                             }

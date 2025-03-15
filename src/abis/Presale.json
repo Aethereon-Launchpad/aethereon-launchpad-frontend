@@ -1097,6 +1097,19 @@
   },
   {
     "inputs": [],
+    "name": "isPrivateSale",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "isSoftCapReached",
     "outputs": [
       {
@@ -1705,6 +1718,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "toggleIsPrivateSale",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

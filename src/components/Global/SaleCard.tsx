@@ -52,7 +52,7 @@ function SaleCard({ presale }: any) {
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
               <Link to={`/launchpad/${presale.id}`} className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
-                View Project
+                {presale.isPrivateSale ? "Private Sale" : "Public Sale"}
               </Link>
             </div>
             <div className="h-[49px] w-[49px]  rounded-full">

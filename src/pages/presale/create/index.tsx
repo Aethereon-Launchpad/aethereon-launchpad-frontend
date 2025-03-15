@@ -170,7 +170,12 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0xAC32b14Ad198054a880a34A490ac13E730Bb48a2"
+        const presaleFactoryCA = "0x26800Ad6D932113e4C37D0e1F8dfd051Ea45835B"
+
+        if (!authenticated) {
+            login();
+            return;
+        }
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
@@ -235,6 +240,10 @@ export default function PresaleCreator() {
             if (error.message.includes("User rejected the request")) {
                 toast("User rejected the request");
                 return;
+            }
+            if (error.message.includes("end timestamp before start should be least 1 hour")) {
+                toast("Increase time between start and end of presale")
+                return
             }
             toast.error("Creating New Presale Failed")
         } finally {

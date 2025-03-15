@@ -14,7 +14,8 @@ interface ConfirmUnstakingProps {
     nextRewardTime: number;
     lockAmount: number;
     rewardAmount: number | string;
-    lastStakeTime: number
+    lastStakeTime: number;
+    lockStake?: boolean;
 }
 
 function ConfirmUnstaking({
@@ -27,10 +28,11 @@ function ConfirmUnstaking({
     nextRewardTime,
     lockAmount,
     rewardAmount,
-    lastStakeTime
+    lastStakeTime,
+    lockStake = false
 }: ConfirmUnstakingProps) {
     const { authenticated, login } = usePrivy();
-    const [unstake, setUnstake] = useState<boolean>(false)
+    const [unstake, setUnstake] = useState<boolean>(!lockStake)
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -78,16 +80,18 @@ function ConfirmUnstaking({
                     </div>
                 </div>
 
-                <div className="space-x-2 flex items-center my-3">
-                    <label htmlFor="unstake" className="text-xl">Unstake</label>
-                    <input
-                        type="checkbox"
-                        id="unstake"
-                        checked={unstake}
-                        className="h-5 w-5 accent-primary rounded border-2 border-primary/50 focus:ring-primary focus:ring-offset-2 focus:ring-2 transition-all duration-200 cursor-pointer"
-                        onChange={(e) => setUnstake(e.target.checked)}
-                    />
-                </div>
+                {!lockStake && (
+                    <div className="space-x-2 flex items-center my-3">
+                        <label htmlFor="unstake" className="text-xl">Unstake</label>
+                        <input
+                            type="checkbox"
+                            id="unstake"
+                            checked={unstake}
+                            className="h-5 w-5 accent-primary rounded border-2 border-primary/50 focus:ring-primary focus:ring-offset-2 focus:ring-2 transition-all duration-200 cursor-pointer"
+                            onChange={(e) => setUnstake(e.target.checked)}
+                        />
+                    </div>)
+                }
 
                 <div className="mt-8 space-y-3">
                     {!authenticated ? (
@@ -114,7 +118,7 @@ function ConfirmUnstaking({
                                         duration={800}
                                     />
                                 ) : (
-                                            `${unstake ? "Unstake" : "Withdraw Rewards"}`
+                                    `${unstake ? "Unstake" : "Withdraw Rewards"}`
                                 )}
                             </button>
                         </>

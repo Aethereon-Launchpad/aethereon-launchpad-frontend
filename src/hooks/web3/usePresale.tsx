@@ -31,40 +31,43 @@ export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOption
                 // Fetch single presale data if ID is provided
                 result = await getPresaleDataByAddress(id);
                 if (result) {
-                    const response = await fetch(result.metadataURI as string, {
-                        headers: {
-                            "X-Master-Key": "$2b$10$PjHjTea8i.l7eowYv.06HOljwmxG/y2RiI7ruhUVr6LJBcA3abVq2",
-                            "X-Access-Key": "$2a$10$uNs7S5lYHo7PjziwmscVIehwIi66ZN3mhSaNOoLiTehdxo/LYBVoy"
+                    try {
+                        const response = await fetch(result.metadataURI as string);
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log(data)
+                            result = {
+                                ...result,
+                                presaleInfo: data
+                            };
+                        } else {
+                            console.error('Failed to fetch presale info:', response.statusText);
                         }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        result = {
-                            ...result,
-                            presaleInfo: data.record
-                        };
-                    } else {
-                        console.error('Failed to fetch presale info:', response.statusText);
+                    } catch (err) {
+                        console.error('Error fetching metadata:', err);
                     }
                 }
             } else {
                 // Fetch all presale data if no ID is provided
                 result = await getAllPresaleData();
-                result = await Promise.all(result.map(async (presale) => {
-                    const response = await fetch(presale.metadataURI as string, {
-                        headers: {
-                            "X-Master-Key": "$2b$10$PjHjTea8i.l7eowYv.06HOljwmxG/y2RiI7ruhUVr6LJBcA3abVq2",
-                            "X-Access-Key": "$2a$10$uNs7S5lYHo7PjziwmscVIehwIi66ZN3mhSaNOoLiTehdxo/LYBVoy"
+                result = await Promise.all(result.map(async (presale, index) => {
+                    // Add delay based on index (2 seconds between each request)
+                    await new Promise(resolve => setTimeout(resolve, index * 2000));
+
+                    try {
+                        const response = await fetch(presale.metadataURI as string);
+                        if (response.ok) {
+                            const data = await response.json();
+                            return {
+                                ...presale,
+                                presaleInfo: data
+                            };
+                        } else {
+                            console.error('Failed to fetch presale info:', response.statusText);
+                            return presale;
                         }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return {
-                            ...presale,
-                            presaleInfo: data.record
-                        };
-                    } else {
-                        console.error('Failed to fetch presale info:', response.statusText);
+                    } catch (err) {
+                        console.error('Error fetching metadata:', err);
                         return presale;
                     }
                 }));
