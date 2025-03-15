@@ -1,9 +1,35 @@
 // import React from 'react'
 import { FaArrowCircleRight } from "react-icons/fa";
 import { usePrivy } from "@privy-io/react-auth";
+import { useLockStake } from "../../hooks/web3/useLockStake";
+import { Preloader, ThreeDots } from 'react-preloader-icon';
 
 function DashComp() {
   const { authenticated, login, logout, user } = usePrivy();
+  const { data, error, loading } = useLockStake({ polling: true, userAddress: user?.wallet?.address as `0x${string}` })
+
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[200px]">
+        <Preloader
+          use={ThreeDots}
+          size={60}
+          strokeWidth={6}
+          strokeColor="#5325A9"
+          duration={2000}
+        />
+      </div>
+    );
+  }
+
+
+  if (error.message) {
+    return <div className="text-red-500 text-center">Error loading Lock & Stake: {error.message}</div>;
+  }
+
+
+
   return (
     <div className="p-[40px_20px] lg:p-[40px] flex flex-col items-center justify-center font-space text-white">
       <p className="font-[700] text-[30px] lg:text-[70px]">Welcome!</p>
@@ -29,16 +55,16 @@ function DashComp() {
       )}
 
       <div className="border border-primary p-[20px] lg:p-[40px] w-full  xl:w-[50%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
-        <p className="text-[63px] leading-[60px] text-primary">0.00</p>
+        <p className="text-[63px] leading-[60px] text-primary">{data?.userData?.amountStaked}</p>
         <p className="text-[14px]">Total IDO Power</p>
         {!authenticated && (
           <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
-          <p className="text-center">
-            You do not have any connected wallets yet{" "}
-            <br className="hidden lg:block" /> Connect your wallet
-            so that you can be part of our IDOs
-          </p>
-        </div>)}
+            <p className="text-center">
+              You do not have any connected wallets yet{" "}
+              <br className="hidden lg:block" /> Connect your wallet
+              so that you can be part of our IDOs
+            </p>
+          </div>)}
       </div>
     </div>
   );
