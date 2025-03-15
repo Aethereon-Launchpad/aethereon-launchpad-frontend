@@ -5,7 +5,7 @@ import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0x94BA86336A2e6740983B97df627d9d81bfED2949`
+    const presaleFactoryAddress = `0xAC32b14Ad198054a880a34A490ac13E730Bb48a2`
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
@@ -241,7 +241,8 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         withdrawerCount,
         withdrawDelay,
         linearVestingEndTime,
-        cliffPeriod
+        taxCollector,
+        taxPercentage
     ] = await Promise.all([
         client.readContract({
             address: presale,
@@ -331,7 +332,12 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         client.readContract({
             address: presale,
             abi: Presale,
-            functionName: "getCliffPeriod"
+            functionName: "taxCollector"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "taxPercentage"
         }),
     ]);
 
@@ -372,6 +378,45 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         functionName: "decimals"
     });
 
+    interface Period {
+        claimTime: number,
+        pct: number
+    }
+
+    async function generateCliffPeriod() {
+        let index = 0;
+        let cliffPeriod: Period[] = []
+        while (true) {
+            try {
+                const currentPeriod: any = await client.readContract({
+                    address: presale,
+                    abi: Presale,
+                    functionName: 'cliffPeriod',
+                    args: [
+                        index
+                    ]
+                })
+
+                if (currentPeriod) {
+                    currentPeriod.claimTime = Number(currentPeriod["0"]);
+                    currentPeriod.pct = Number(currentPeriod["1"]);
+                    delete currentPeriod["0"];
+                    delete currentPeriod["1"];
+                    cliffPeriod.push(currentPeriod)
+                    index++;
+                } else {
+                    break
+                }
+            } catch (error) {
+                break
+            }
+        }
+
+        return cliffPeriod;
+    }
+
+    const cliffPeriod = await generateCliffPeriod();
+
     return {
         id: presale,
         metadataURI,
@@ -401,7 +446,9 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         withdrawerCount,
         withdrawDelay,
         linearVestingEndTime: Number(linearVestingEndTime),
-        cliffPeriod: Number(cliffPeriod)
+        cliffPeriod: cliffPeriod,
+        taxCollector,
+        taxPercentage: Number(taxPercentage) / 100
     };
 }
 

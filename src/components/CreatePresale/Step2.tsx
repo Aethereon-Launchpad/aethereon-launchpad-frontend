@@ -155,7 +155,7 @@ export default function CreatePresaleStep2({ formData, setFormData }: Props) {
           type="url"
           className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
         />
-        <button className='absolute right-5 bg-white text-white p-1 rounded-md bg-primary/80 top-10' onClick={() => setFormData({...formData, withdrawDelay: 60 * 20})}>Reset</button>
+        <button className='absolute right-5 bg-white text-primary p-1 rounded-md bg-primary/80 top-10' onClick={() => setFormData({...formData, withdrawDelay: 60 * 20})}>Reset</button>
       </div>
     </div>
   );

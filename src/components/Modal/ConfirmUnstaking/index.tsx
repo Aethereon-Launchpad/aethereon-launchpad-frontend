@@ -39,7 +39,7 @@ function ConfirmUnstaking({
 
                 <div className="space-y-4">
                     <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20 space-y-2">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between flex-wrap">
                             <div>
                                 <p className="text-[#C4C4C4] text-sm mb-1" title="This is when your rewards have reached full maturity">Last Stake Date:</p>
                                 <p className="text-white text-3xl font-bold">
@@ -114,7 +114,7 @@ function ConfirmUnstaking({
                                         duration={800}
                                     />
                                 ) : (
-                                    `Withdraw Rewards ${unstake ? "& Unstake" : ""}`
+                                            `${unstake ? "Unstake" : "Withdraw Rewards"}`
                                 )}
                             </button>
                         </>

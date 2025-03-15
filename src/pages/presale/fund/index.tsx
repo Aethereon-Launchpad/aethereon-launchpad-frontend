@@ -23,7 +23,7 @@ const createViemWalletClient = () => {
 
 export default function Fund() {
     const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading } = usePresale(id as `0x${string}`);
+    const { data, error, loading } = usePresale(id as `0x${string}`, { polling: false });
     const [amount, setAmount] = useState<number>(0)
     const [funding, setFunding] = useState<boolean>(false);
     const { user, authenticated, login } = usePrivy();

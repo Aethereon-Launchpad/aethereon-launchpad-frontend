@@ -81,9 +81,9 @@ export default function IDOComponent() {
         const delayPeriod = (data.endTime + (Number(data?.withdrawDelay) || 0)) * 1000;
 
         // Past Refund Period is when current time is after endTime + withdrawDelay
-        // Using isBefore to check if delayPeriod is in the past
-        if (isBefore(new Date(delayPeriod), new Date())) {
+        if (isAfter(new Date(), new Date(delayPeriod))) {
             setPastRefundPeriod(true)
+            console.log("Hello!")
         }
 
         // Refund Period is when current time is after endTime but before endTime + withdrawDelay
@@ -92,6 +92,7 @@ export default function IDOComponent() {
         }
 
         getPaymentMade();
+
 
     }, [authenticated, data])
 
@@ -431,6 +432,8 @@ export default function IDOComponent() {
         }
     }
 
+    console.log(data.cliffPeriod)
+
     return (
         <div className='p-[40px_20px] flex flex-col-reverse gap-[40px] lg:flex-row items-start lg:p-[40px] font-grotesk text-white space-y-5'>
             {
@@ -463,23 +466,129 @@ export default function IDOComponent() {
                 visible={showTxModal}
             />
             <div className='w-full lg:w-[60%] p-[10px]'>
-                <div className=''>
-                    <p className='text-[50px] uppercase font-semibold tracking-wider'>{data?.presaleInfo?.projectName}</p>
-                    <p className='text-primary text-[18px] uppercase font-normal tracking-[3px]'>Participate!</p>
-
+                <div className='space-y-6'>
                     <div>
-                        <ul>
-                            <li><span className="font-semibold">IDO Type</span> : Refundable during sale</li>
-                            <li><span className="font-semibold">Sale Period</span> : {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000))} {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000)) === 1 ? "day" : "days"}</li>
-                            <li><span className="font-semibold">Ticker</span> : {data.saleToken.symbol}</li>
-                            <li><span className="font-semibold" title='Using CORAL for test purposes'>Token Price</span> : ${data.salePrice} {data.paymentToken.symbol}</li>
-                            <li><span className="font-semibold">Soft Cap</span> : {Number(data.softCap).toFixed(0)} {data.saleToken.symbol}</li>
-                            <li><span className="font-semibold">Hard Cap</span> : {Number(data.hardCap).toFixed(0)} {data.saleToken.symbol}</li>
-                            <li><span className='font-semibold'>Min Payment</span> : {Number(data.minTotalPayment).toFixed(0)}</li>
-                            <li><span className='font-semibold'>Max Payment</span> : {Number(data.maxTotalPayment).toFixed(0)}</li>
-                            <li><span className='font-semibold'>Refund Period</span> : {Number(data.withdrawDelay) / 86400} {Number(data.withdrawDelay) / 86400 === 1 ? "Day" : "Days"}</li>
-                            <li><span className='font-semibold'>Mainnet Contract</span> : <span className="underline flex gap-x-3 items-center hover:cursor-pointer hover:text-primary" onClick={() => copyAddress(data.saleToken.id)}> {data.saleToken.id} <FaCopy size={15} /></span> </li>
-                        </ul>
+                        <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
+                            {data?.presaleInfo?.projectName}
+                        </p>
+                        <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
+                            Participate in the Future
+                        </p>
+                    </div>
+
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                        <div className='bg-[#17043B]/50 p-6 rounded-xl border border-primary/20'>
+                            <h3 className='text-xl font-semibold mb-4 text-primary'>Presale Details</h3>
+                            <ul className='space-y-3'>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>IDO Type</span>
+                                    <span className='font-medium'>Refundable during sale</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Sale Period</span>
+                                    <span className='font-medium'>
+                                        {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000))}
+                                        {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000)) === 1 ? " day" : " days"}
+                                    </span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Ticker</span>
+                                    <span className='font-medium'>{data.saleToken.symbol}</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Token Price</span>
+                                    <span className='font-medium'>${data.salePrice} {data.paymentToken.symbol}</span>
+                                </li>
+                                {data.linearVestingEndTime !== 0 && (
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Linear Vesting End</span>
+                                        <span className='font-medium'>
+                                            {data.linearVestingEndTime && data.linearVestingEndTime > 0 ? (
+                                                new Date(data.linearVestingEndTime * 1000).toLocaleDateString('en-GB', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })
+                                            ) : (
+                                                <span className='text-gray-400'>TBA</span>
+                                            )}
+                                        </span>
+                                    </li>)}
+                                {data.cliffPeriod.length > 0 && (
+                                    <li className='flex flex-col'>
+                                        <span className='text-gray-300 mb-2'>Cliff Vesting Periods</span>
+                                        {data.cliffPeriod &&
+                                            Array.isArray(data.cliffPeriod) &&
+                                            data.cliffPeriod.length > 0 &&
+                                            data.cliffPeriod[0].length > 0 ? (
+                                            <div className='space-y-2'>
+                                                {data.cliffPeriod.map((period: any, index: number) => (
+                                                    period.length > 0 && (
+                                                        <div key={index} className='flex justify-between'>
+                                                            <span className='text-gray-400'>
+                                                                {new Date(period.claimTime * 1000).toLocaleDateString('en-GB', {
+                                                                    day: '2-digit',
+                                                                    month: '2-digit',
+                                                                    year: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })}
+                                                            </span>
+                                                            <span className='font-medium'>
+                                                                {period.pct}%
+                                                            </span>
+                                                        </div>
+                                                    )
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <span className='text-gray-400'>TBA</span>
+                                        )}
+                                    </li>)
+                                }
+                            </ul>
+                        </div>
+
+                        <div className='bg-[#17043B]/50 p-6 rounded-xl border border-primary/20'>
+                            <h3 className='text-xl font-semibold mb-4 text-primary'>Investment Details</h3>
+                            <ul className='space-y-3'>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Soft Cap</span>
+                                    <span className='font-medium'>{Number(data.softCap).toFixed(0)} {data.saleToken.symbol}</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Hard Cap</span>
+                                    <span className='font-medium'>{Number(data.hardCap).toFixed(0)} {data.saleToken.symbol}</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Min Payment</span>
+                                    <span className='font-medium'>{Number(data.minTotalPayment).toFixed(0)}</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Max Payment</span>
+                                    <span className='font-medium'>{Number(data.maxTotalPayment).toFixed(0)}</span>
+                                </li>
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Refund Period</span>
+                                    <span className='font-medium'>
+                                        {Number(data.withdrawDelay) / 86400}
+                                        {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
+                                    </span>
+                                </li>
+                                <li className='flex justify-between items-center'>
+                                    <span className='text-gray-300'>Mainnet Contract</span>
+                                    <span
+                                        className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
+                                        onClick={() => copyAddress(data.saleToken.id)}
+                                    >
+                                        {data.saleToken.id.slice(0, 6)}...{data.saleToken.id.slice(-4)}
+                                        <FaCopy size={15} />
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -592,7 +701,7 @@ export default function IDOComponent() {
                                         onClick={handleClaim}
                                         disabled={claimableAmount === 0 ? true : false}
                                     >
-                                        {claimableAmount === 0 ? "You have no tokens to claim" : "Claim Tokens"}
+                                        {claimableAmount === 0 ? "You have no tokens to claim" : `Claim Tokens ${Number(claimableAmount).toFixed(3)} ${data.saleToken.symbol}`}
                                     </button>
                                 ) : (
                                     <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500] mt-10 transition-all duration-700 hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:hover:scale-100" onClick={() => {

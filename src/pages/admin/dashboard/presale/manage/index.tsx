@@ -25,7 +25,7 @@ const createViemWalletClient = () => {
 export default function AdminPresaleManageID() {
     const { authenticated, login, user } = usePrivy();
     const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading, refetch } = usePresale(id);
+    const { data, error, loading, refetch } = usePresale(id, { polling: false });
 
 
     const [taxSetting, setTaxSetting] = useState<{ taxCollector: `0x${string}`, taxPercent: number, loading: boolean }>({
@@ -146,8 +146,15 @@ export default function AdminPresaleManageID() {
                 args: [claimTimes, percentages]
             });
 
-            await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(request);
             toast.success("Cliff period successfully set");
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
         } catch (error: any) {
             console.error(error.message);
             if (error.message.includes("User rejected the request")) {
@@ -190,8 +197,15 @@ export default function AdminPresaleManageID() {
                 ]
             })
 
-            await walletClient.writeContract(request);
-            toast("Successfully set Tax Collector ")
+            const hash = await walletClient.writeContract(request);
+            toast("Successfully set Linear Vesting ")
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
         } catch (error: any) {
             console.error(error.message)
             if (error.message.includes("User rejected the request")) {
@@ -234,8 +248,15 @@ export default function AdminPresaleManageID() {
                 ]
             })
 
-            await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(request);
             toast("Successfully set Tax Collector ")
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
         } catch (error: any) {
             console.error(error.message)
             if (error.message.includes("User rejected the request")) {
@@ -278,8 +299,15 @@ export default function AdminPresaleManageID() {
                 ]
             })
 
-            await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(request);
             toast("Successfully set tax amount ")
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const receipt = await publicClient.getTransactionReceipt({
+                hash
+            });
+            if (receipt.status === "success") {
+                await refetch()
+            }
         } catch (error: any) {
             console.error(error.message)
             if (error.message.includes("User rejected the request")) {
@@ -367,7 +395,7 @@ export default function AdminPresaleManageID() {
                         <div className="space-y-4">
                             <div className="flex flex-col space-y-2">
                                 <label htmlFor="taxCollector" className="text-[#C4C4C4] text-sm">
-                                    Tax Collector Address
+                                    Tax Collector Address: {data.taxCollector === "0x0000000000000000000000000000000000000000" ? "Tax Collector Not Set" : data.taxCollector}
                                 </label>
                                 <input
                                     id="taxCollector"
@@ -396,7 +424,7 @@ export default function AdminPresaleManageID() {
                             </div>
                             <div className="flex flex-col space-y-2">
                                 <label htmlFor="taxPercent" className="text-[#C4C4C4] text-sm">
-                                    Tax Percentage
+                                    Tax Percentage : {data.taxPercentage}%
                                 </label>
                                 <input
                                     id="taxPercent"

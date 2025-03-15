@@ -648,6 +648,19 @@
   },
   {
     "inputs": [],
+    "name": "MAX_EXTENSION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "WHITELIST_SETTER_ROLE",
     "outputs": [
       {
@@ -657,6 +670,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_taxSetter",
+        "type": "address"
+      }
+    ],
+    "name": "addTaxSetter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1090,6 +1116,25 @@
         "type": "address"
       }
     ],
+    "name": "isTaxSetter",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "latestClaimTime",
     "outputs": [
       {
@@ -1240,6 +1285,19 @@
       }
     ],
     "name": "removeCasher",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_taxSetter",
+        "type": "address"
+      }
+    ],
+    "name": "removeTaxSetter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1644,19 +1702,6 @@
         "internalType": "uint16",
         "name": "",
         "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "taxSetterRole",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
       }
     ],
     "stateMutability": "view",

@@ -52,7 +52,7 @@ function SaleCardAdmin({ presale }: any) {
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
               <div className="flex flex-col gap-y-3">
-                <Link to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
+                <Link target="_blank" to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
                   View Project Page
                 </Link>
                 <Link to={`/admin/dashboard/presales/fund/${presale.id}`}
@@ -81,7 +81,7 @@ function SaleCardAdmin({ presale }: any) {
                 Sale Starts In
               </p>
               <div className="bg-primary w-[64px] h-[2px]" />
-              <CountdownTimer time={presale.startTime} endTime={presale.endTime} key={'sdsdsds'} />
+              <CountdownTimer time={presale.startTime} endTime={presale.endTime} key={'12345'} />
             </div>
             <div className="flex space-x-[10px] items-center justify-between ">
               <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">

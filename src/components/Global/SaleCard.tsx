@@ -51,8 +51,8 @@ function SaleCard({ presale }: any) {
               <p className="text-[28px] font-[500] text-[#FAFAFA]">
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
-              <Link to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
-                View Project Description
+              <Link to={`/launchpad/${presale.id}`} className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
+                View Project
               </Link>
             </div>
             <div className="h-[49px] w-[49px]  rounded-full">

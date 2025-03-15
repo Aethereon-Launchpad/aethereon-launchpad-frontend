@@ -170,7 +170,7 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x94BA86336A2e6740983B97df627d9d81bfED2949"
+        const presaleFactoryCA = "0xAC32b14Ad198054a880a34A490ac13E730Bb48a2"
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;

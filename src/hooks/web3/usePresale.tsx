@@ -8,12 +8,18 @@ interface UsePresaleReturn {
     refetch: () => Promise<void>; // Add refetch function to return type
 }
 
+interface UsePresaleOptions {
+    polling?: boolean;
+}
+
 /**
  * Custom hook for handling presale data
  * @param {`0x${string}` | null} id - Optional presale address to fetch specific data
+ * @param {UsePresaleOptions} options - Options object with polling configuration
  * @returns {UsePresaleReturn} Object containing loading state, error, and data
  */
-export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
+export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOptions): UsePresaleReturn {
+    const { polling = true } = options || {};
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<{ message: string }>({ message: "" });
     const [data, setData] = useState<any[] | any>([]);
@@ -75,14 +81,19 @@ export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
         // Initial fetch
         fetchData();
 
-        // Set up polling every 10 seconds
-        const interval = setInterval(fetchData, 10000);
+        // Set up polling every 10 seconds if enabled
+        let interval: NodeJS.Timeout;
+        if (polling) {
+            interval = setInterval(fetchData, 10000);
+        }
 
         // Cleanup interval on unmount
         return () => {
-            clearInterval(interval);
+            if (interval) {
+                clearInterval(interval);
+            }
         };
-    }, [id]);
+    }, [id, polling]);
 
     return {
         loading,

@@ -38,7 +38,7 @@ function App() {
       <Route path='/dashboard' element={<Dashboard />} />
       <Route path='/governance' element={<Governance />} />
       <Route path='/leaderboard' element={<Leaderboard />} />
-      <Route path='/dynamic-rewards' element={<DynamicRewards />} />
+      <Route path='/lock-stake' element={<DynamicRewards />} />
       <Route path='/seasonal-staking' element={<SeasonalStaking />} />
       <Route path='/admin' element={<AdminAuthScreen />} />
       <Route path='/admin/dashboard' element={<AdminDashboardPage />} />

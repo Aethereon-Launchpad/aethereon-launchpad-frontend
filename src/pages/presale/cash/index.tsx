@@ -20,7 +20,7 @@ const createViemWalletClient = () => {
 
 export default function Cash() {
     const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading } = usePresale(id as `0x${string}`);
+    const { data, error, loading } = usePresale(id as `0x${string}`, { polling: false });
     const [funding, setFunding] = useState<boolean>(false);
     const { user, authenticated, login } = usePrivy();
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
@@ -45,7 +45,7 @@ export default function Cash() {
         return <div className="text-red-500 text-center">Error loading presale: {error.message}</div>;
     }
 
-    async function fundPresale() {
+    async function cashPresale() {
         setFunding(true);
         const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
@@ -169,7 +169,7 @@ export default function Cash() {
                     ) : (
                         <button
                             className="bg-primary/90 hover:bg-primary w-full py-3 rounded-[8px] text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
-                            onClick={fundPresale}
+                            onClick={cashPresale}
                             disabled={funding}
                         >
                             {funding ?
