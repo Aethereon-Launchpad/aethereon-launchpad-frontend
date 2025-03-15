@@ -35,7 +35,7 @@ function Dynamic() {
   const { user, login, authenticated } = usePrivy();
   const { data, error, loading, refetch } = useLockStake({ polling: true, userAddress: user?.wallet?.address as `0x${string}` })
   const [openConfirmStaking, setOpenConfirmStaking] = useState<boolean>(false);
-  const [openConfirmUnstaking, setOpenConfirmUnstaking] = useState<boolean>(true);
+  const [openConfirmUnstaking, setOpenConfirmUnstaking] = useState<boolean>(false);
   const [isStaking, setIsStaking] = useState<boolean>(false);
   const [showTxModal, setShowTxModal] = useState<boolean>(false);
   const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Staking Successful");
@@ -358,7 +358,7 @@ function Dynamic() {
         {
           !authenticated ? (
             <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={login}>
-              <IoWalletSharp className="text-[14px] lg:text-[16px]" />
+              <IoWalletSharp className="text-[14px] lg:text-[16px] col-span-3" />
               <p className="text-[14px] lg:text-[16px]">Connect Wallet to Join</p>
             </button>
           ) : (
