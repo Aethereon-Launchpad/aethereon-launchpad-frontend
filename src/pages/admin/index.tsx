@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth"
-import Layout from "../../layout";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
+
 
 export default function AdminAuthScreen() {
     const { authenticated, login, user, logout } = usePrivy();

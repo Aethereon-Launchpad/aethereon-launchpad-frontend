@@ -5,7 +5,7 @@ import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0xCe8a274Aa7A485Fa0B3991451cfaA23be5B2D40B`
+    const presaleFactoryAddress = `0x26800Ad6D932113e4C37D0e1F8dfd051Ea45835B`
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
@@ -61,7 +61,12 @@ export const getAllPresaleData = async () => {
             isSoftCapReached,
             hasCashed,
             withdrawerCount,
-            withdrawDelay
+            withdrawDelay,
+            linearVestingEndTime,
+            taxCollector,
+            taxPercentage,
+            stakingPool,
+            isPrivateSale
         ] = await Promise.all([
             client.readContract({
                 address: presale,
@@ -143,6 +148,31 @@ export const getAllPresaleData = async () => {
                 abi: Presale,
                 functionName: "withdrawDelay"
             }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "linearVestingEndTime"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "taxCollector"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "taxPercentage"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "stakingPool"
+            }),
+            client.readContract({
+                address: presale,
+                abi: Presale,
+                functionName: "isPrivateSale"
+            }),
         ]);
 
         const paymentTokenName = await client.readContract({
@@ -209,7 +239,12 @@ export const getAllPresaleData = async () => {
             isSoftCapReached,
             hasCashed,
             withdrawerCount,
-            withdrawDelay
+            withdrawDelay,
+            linearVestingEndTime: Number(linearVestingEndTime),
+            taxCollector,
+            taxPercentage: Number(taxPercentage) / 100,
+            stakingPool,
+            isPrivateSale
         };
     }));
 
@@ -233,7 +268,12 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         isSoftCapReached,
         hasCashed,
         withdrawerCount,
-        withdrawDelay
+        withdrawDelay,
+        linearVestingEndTime,
+        taxCollector,
+        taxPercentage,
+        stakingPool,
+        isPrivateSale
     ] = await Promise.all([
         client.readContract({
             address: presale,
@@ -315,6 +355,31 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
             abi: Presale,
             functionName: "withdrawDelay"
         }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "linearVestingEndTime"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "taxCollector"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "taxPercentage"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "stakingPool"
+        }),
+        client.readContract({
+            address: presale,
+            abi: Presale,
+            functionName: "isPrivateSale"
+        }),
     ]);
 
     const paymentTokenName = await client.readContract({
@@ -354,6 +419,45 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         functionName: "decimals"
     });
 
+    interface Period {
+        claimTime: number,
+        pct: number
+    }
+
+    async function generateCliffPeriod() {
+        let index = 0;
+        let cliffPeriod: Period[] = []
+        while (true) {
+            try {
+                const currentPeriod: any = await client.readContract({
+                    address: presale,
+                    abi: Presale,
+                    functionName: 'cliffPeriod',
+                    args: [
+                        index
+                    ]
+                })
+
+                if (currentPeriod) {
+                    currentPeriod.claimTime = Number(currentPeriod["0"]);
+                    currentPeriod.pct = Number(currentPeriod["1"]);
+                    delete currentPeriod["0"];
+                    delete currentPeriod["1"];
+                    cliffPeriod.push(currentPeriod)
+                    index++;
+                } else {
+                    break
+                }
+            } catch (error) {
+                break
+            }
+        }
+
+        return cliffPeriod;
+    }
+
+    const cliffPeriod = await generateCliffPeriod();
+
     return {
         id: presale,
         metadataURI,
@@ -381,7 +485,13 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         isSoftCapReached,
         hasCashed,
         withdrawerCount,
-        withdrawDelay
+        withdrawDelay,
+        linearVestingEndTime: Number(linearVestingEndTime),
+        cliffPeriod: cliffPeriod,
+        taxCollector,
+        taxPercentage: Number(taxPercentage) / 100,
+        stakingPool,
+        isPrivateSale
     };
 }
 
@@ -408,7 +518,7 @@ export const getClaimableTokensAmount = async (presale: `0x${string}`, walletAdd
         const claimableAmount = await client.readContract({
             address: presale,
             abi: Presale,
-            functionName: "claimable",
+            functionName: "getCurrentClaimableToken",
             args: [
                 walletAddress
             ]

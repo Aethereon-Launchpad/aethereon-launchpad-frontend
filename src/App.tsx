@@ -18,6 +18,10 @@ import IDO from './pages/ido'
 import AdminAuthScreen from './pages/admin'
 import Ido from './pages/ido'
 import AdminDashboardPage from './pages/admin/dashboard'
+import AdminManagePresales from './pages/admin/dashboard/presale'
+import AdminPresaleManageID from "./pages/admin/dashboard/presale/manage"
+import FundPresale from "./pages/presale/fund";
+import CashPresale from "./pages/presale/cash";
 
 function App() {
 
@@ -34,11 +38,16 @@ function App() {
       <Route path='/dashboard' element={<Dashboard />} />
       <Route path='/governance' element={<Governance />} />
       <Route path='/leaderboard' element={<Leaderboard />} />
-      <Route path='/dynamic-rewards' element={<DynamicRewards />} />
+      <Route path='/lock-stake' element={<DynamicRewards />} />
       <Route path='/seasonal-staking' element={<SeasonalStaking />} />
       <Route path='/admin' element={<AdminAuthScreen />} />
       <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
-      <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />☻
+      <Route path='/admin/dashboard/presale/create' element={<PresaleCreator />} />
+      <Route path='/admin/dashboard/presales' element={<AdminManagePresales />} />
+      <Route path='/admin/dashboard/presales/manage/:id' element={<AdminPresaleManageID />} />
+      <Route path='/admin/dashboard/presales/:id' element={<AdminManagePresales />} />
+      <Route path='/admin/dashboard/presales/fund/:id' element={<FundPresale />} />
+      <Route path='/admin/dashboard/presales/cash/:id' element={<CashPresale />} />
     </Routes>
   )
 }

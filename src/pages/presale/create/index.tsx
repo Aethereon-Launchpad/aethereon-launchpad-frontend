@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Layout from '../../../layout';
+import Layout from '../../../layout/Admin';
 import CreatePresaleStep1 from "../../../components/CreatePresale/Step1.tsx"
 import CreatePresaleStep2 from "../../../components/CreatePresale/Step2.tsx"
 import CreatePresaleStep3 from "../../../components/CreatePresale/Step3.tsx"
@@ -57,7 +57,7 @@ export default function PresaleCreator() {
         endTime: 0,
         minTotalPayment: 0,
         maxTotalPayment: 0,
-        withdrawDelay: 0,
+        withdrawDelay: 60 * 20,
     })
     const [loading, setLoading] = useState<boolean>(false)
     const { authenticated, login } = usePrivy();
@@ -170,7 +170,12 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0xCe8a274Aa7A485Fa0B3991451cfaA23be5B2D40B"
+        const presaleFactoryCA = "0x26800Ad6D932113e4C37D0e1F8dfd051Ea45835B"
+
+        if (!authenticated) {
+            login();
+            return;
+        }
 
         try {
             const { metadataURI, startTime, endTime, withdrawDelay, funder, paymentToken, saleToken } = formData;
@@ -219,7 +224,13 @@ export default function PresaleCreator() {
             setShowTxModal(true)
 
             toast("Successfully Created New Presale")
-            navigate("/")
+            setTimeout(async () => {
+                // Verify Transaction is Complete
+                const receipt = await publicClient.getTransactionReceipt({ hash })
+                if (receipt && receipt.status === "success") {
+                    navigate("/admin/dashboard/presales")
+                }
+            }, 5000)
         } catch (error: any) {
             console.error("Creating New Presale Failed", error)
             if (error.message.includes("softCap must be <= hardCap")) {
@@ -229,6 +240,10 @@ export default function PresaleCreator() {
             if (error.message.includes("User rejected the request")) {
                 toast("User rejected the request");
                 return;
+            }
+            if (error.message.includes("end timestamp before start should be least 1 hour")) {
+                toast("Increase time between start and end of presale")
+                return
             }
             toast.error("Creating New Presale Failed")
         } finally {

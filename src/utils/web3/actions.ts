@@ -196,7 +196,7 @@ export const calculateStakeRewards = async (CA: `0x${string}`, userAddress: `0x$
         const calculatedRewards = await client.readContract({
             address: CA,
             abi: stakingPoolABI,
-            functionName: "staked",
+            functionName: "calculateReward",
             args: [userAddress]
         })
 
@@ -300,7 +300,7 @@ export const getStakingPoolOwner = async (CA: `0x${string}`) => {
     }
 }
 
-export const getStakingPower = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+export const getStakingPower = async (pools: any[], userAddress: `0x${string}`) => {
     try {
         let totalAmountStaked = 0;
 
@@ -316,7 +316,7 @@ export const getStakingPower = async (pools: [{ id: `0x${string}` }], userAddres
     }
 }
 
-export const getTotalRewards = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+export const getTotalRewards = async (pools: any[], userAddress: `0x${string}`) => {
     try {
         let totalRewards = 0;
 
@@ -332,7 +332,7 @@ export const getTotalRewards = async (pools: [{ id: `0x${string}` }], userAddres
     }
 }
 
-export const getParticipatedStakingPool = async (pools: [{ id: `0x${string}` }], userAddress: `0x${string}`) => {
+export const getParticipatedStakingPool = async (pools: any[], userAddress: `0x${string}`) => {
     try {
         let stakedPools: any = [];
 
@@ -561,119 +561,123 @@ export const getAllStakingPoolAddress = async () => {
 
 
 export const getAllStakingPoolData = async () => {
-    const allPools = await getAllStakingPoolAddress();
+    try {
+        const allPools = await getAllStakingPoolAddress();
 
-    const stakingPoolData = await Promise.all(allPools.map(async (pool: `0x${string}`) => {
-        const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "apyRate"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "withdrawalIntervals"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "stakeFeePercentage"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "withdrawalFeePercentage"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "token0"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "token1"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "totalStaked"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "totalRewardable"
-            }),
-            client.readContract({
-                address: pool,
-                abi: stakingPoolABI,
-                functionName: "feeReceiver"
+        const stakingPoolData = await Promise.all(allPools.map(async (pool: `0x${string}`) => {
+            const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "apyRate"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "withdrawalIntervals"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "stakeFeePercentage"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "withdrawalFeePercentage"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "token0"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "token1"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "totalStaked"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "totalRewardable"
+                }),
+                client.readContract({
+                    address: pool,
+                    abi: stakingPoolABI,
+                    functionName: "feeReceiver"
+                })
+            ])
+
+            const stakeTokenName = await client.readContract({
+                address: stakeToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
             })
-        ])
 
+            const stakeTokenSymbol = await client.readContract({
+                address: stakeToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            })
 
-        const stakeTokenName = await client.readContract({
-            address: stakeToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "name"
-        })
+            const stakeTokenDecimals = await client.readContract({
+                address: stakeToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            })
 
-        const stakeTokenSymbol = await client.readContract({
-            address: stakeToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "symbol"
-        })
+            const rewardTokenName = await client.readContract({
+                address: rewardToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
+            })
 
-        const stakeTokenDecimals = await client.readContract({
-            address: stakeToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "decimals"
-        })
+            const rewardTokenSymbol = await client.readContract({
+                address: rewardToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            })
 
-        const rewardTokenName = await client.readContract({
-            address: rewardToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "name"
-        })
+            const rewardTokenDecimals = await client.readContract({
+                address: rewardToken as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            })
 
-        const rewardTokenSymbol = await client.readContract({
-            address: rewardToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "symbol"
-        })
+            return {
+                id: pool,
+                apyRate: Number(apyRate) / 1e4,
+                withdrawalIntervals: Number(withdrawalIntervals),
+                stakeFeePercentage: Number(stakeFeePercentage) * 100 / 1e4,
+                withdrawalFeePercentage: Number(withdrawalFeePercentage) * 100 / 1e4,
+                stakeToken: {
+                    id: stakeToken,
+                    name: stakeTokenName,
+                    symbol: stakeTokenSymbol,
+                    decimals: stakeTokenDecimals
+                },
+                rewardToken: {
+                    id: rewardToken,
+                    name: rewardTokenName,
+                    symbol: rewardTokenSymbol,
+                    decimals: rewardTokenDecimals
+                },
+                totalStaked: ethers.formatUnits(totalStaked as string, stakeTokenDecimals as number),
+                totalRewardable: ethers.formatUnits(totalRewardable as string, rewardTokenDecimals as number),
+                feeReceiver
+            }
+        }))
 
-        const rewardTokenDecimals = await client.readContract({
-            address: rewardToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "decimals"
-        })
-
-        return {
-            id: pool,
-            apyRate: Number(apyRate) / 1e4,
-            withdrawalIntervals: Number(withdrawalIntervals),
-            stakeFeePercentage: Number(stakeFeePercentage) * 100 / 1e4,
-            withdrawalFeePercentage: Number(withdrawalFeePercentage) * 100 / 1e4,
-            stakeToken: {
-                id: stakeToken,
-                name: stakeTokenName,
-                symbol: stakeTokenSymbol,
-                decimals: stakeTokenDecimals
-            },
-            rewardToken: {
-                id: rewardToken,
-                name: rewardTokenName,
-                symbol: rewardTokenSymbol,
-                decimals: rewardTokenDecimals
-            },
-            totalStaked: ethers.formatUnits(totalStaked as string, stakeTokenDecimals as number),
-            totalRewardable: ethers.formatUnits(totalRewardable as string, rewardTokenDecimals as number),
-            feeReceiver
-        }
-    }))
-
-    return stakingPoolData;
+        return stakingPoolData;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to retrieve staking pool data");
+    }
 }
 
 export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) => {

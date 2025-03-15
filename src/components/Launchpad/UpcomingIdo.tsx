@@ -44,7 +44,7 @@ function UpcomingIdo() {
       {/* <div className="flex items-center justify-center text-white">
         {tokenSales.length === 0 && <h3 className='animate-pulse'>Launches Coming Soon</h3>}
       </div> */}
-      <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
+      <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-[40px]">
         {data.map((presale: any, i: number) => (
           <SaleCard key={i} presale={presale} />
         ))}

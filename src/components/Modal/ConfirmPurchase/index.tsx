@@ -42,7 +42,7 @@ function ConfirmPurchase({
     isRefundPeriod = false,
     isPastRefundPeriod,
     handleClaim,
-    claimableAmount
+    claimableAmount,
 }: ConfirmPurchase) {
     const { authenticated, login, user } = usePrivy();
     const [paymentMadeAmount, setPaymentMadeAmount] = useState<number>(0)
@@ -95,36 +95,20 @@ function ConfirmPurchase({
                 </div>
             )
         } else {
-            const remaining = Number(maxAmount) - paymentMadeAmount;
-
-            if (remaining === 0) {
-                return (
-                    <div className="space-y-4">
-                        <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
-                            <p className="text-[#C4C4C4] text-sm mb-1">Current Contribution:</p>
-                            <p className="text-3xl font-bold">{paymentMadeAmount} {tokenSymbol}</p>
-                        </div>
-                        <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
-                            <p className="text-[#C4C4C4] text-sm mb-1">You have contributed the max amount</p>
-                            {/* <p className="text-white text-3xl font-bold flex">
-                                <input type="number" value={purchaseAmount} className="outline-none border-none bg-transparent w-28" min={minAmount} max={maxAmount} onChange={(e) => setPurchaseAmount(Number(e.target.value))} /> <span className="text-primary">{tokenSymbol}</span>
-                            </p> */}
-                        </div>
-                    </div>)
-            }
-
             return (
                 <div className="space-y-4">
                     <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
                         <p className="text-[#C4C4C4] text-sm mb-1">Current Contribution:</p>
                         <p className="text-3xl font-bold">{paymentMadeAmount} {tokenSymbol}</p>
                     </div>
-                    <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
-                        <p className="text-[#C4C4C4] text-sm mb-1">You can only contribute: {remaining} {tokenSymbol}</p>
-                        <p className="text-white text-3xl font-bold flex">
-                            <input type="number" value={purchaseAmount} className="outline-none border-none bg-transparent w-28" min={minAmount} max={maxAmount} onChange={(e) => setPurchaseAmount(Number(e.target.value))} /> <span className="text-primary">{tokenSymbol}</span>
-                        </p>
-                    </div>
+                    {!isRefundPeriod && (
+                        <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
+                            <p className="text-[#C4C4C4] text-sm mb-1">You can only contribute: Min: {minAmount} {tokenSymbol} | Max: {maxAmount} {tokenSymbol}</p>
+                            <p className="text-white text-3xl font-bold flex">
+                                <input type="number" value={purchaseAmount} className="outline-none border-none bg-transparent w-28" min={minAmount} max={maxAmount} onChange={(e) => setPurchaseAmount(Number(e.target.value))} /> <span className="text-primary">{tokenSymbol}</span>
+                            </p>
+                        </div>)
+                    }
                 </div>
             )
         }
@@ -151,46 +135,45 @@ function ConfirmPurchase({
                             <span>Connect Wallet</span>
                         </button>
                     ) : (
-                        <div>
-                                {paymentMadeAmount > 0 && Number(maxAmount) - paymentMadeAmount === 0 ?
-                                (
-                                    <button
-                                        onClick={requestRefund}
-                                        disabled={refunding}
-                                        className="bg-primary/90 hover:bg-primary w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                    >
-                                        {refunding ? (
-                                            <Preloader
-                                                use={Oval}
-                                                size={24}
-                                                strokeWidth={8}
-                                                strokeColor="#FFF"
-                                                duration={800}
-                                            />
-                                        ) : (
-                                            'Request Refund'
-                                        )}
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={onConfirm}
-                                        disabled={loading || paymentMadeAmount === maxAmount}
-                                        className="bg-primary/90 hover:bg-primary w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                    >
-                                        {loading ? (
-                                            <Preloader
-                                                use={Oval}
-                                                size={24}
-                                                strokeWidth={8}
-                                                strokeColor="#FFF"
-                                                duration={800}
-                                            />
-                                        ) : (
-                                            'Confirm Purchase'
-                                        )}
-                                    </button>
-                                )}
-
+                        <div className="space-y-5">
+                            {paymentMadeAmount > 0 && (
+                                <button
+                                    onClick={requestRefund}
+                                    disabled={refunding}
+                                    className="border border-white/90 hover:border-white w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                >
+                                    {refunding ? (
+                                        <Preloader
+                                            use={Oval}
+                                            size={24}
+                                            strokeWidth={8}
+                                            strokeColor="#FFF"
+                                            duration={800}
+                                        />
+                                    ) : (
+                                        'Request Refund'
+                                    )}
+                                </button>
+                            )}
+                            {!isRefundPeriod && (
+                                <button
+                                    onClick={onConfirm}
+                                    disabled={loading}
+                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                >
+                                    {loading ? (
+                                        <Preloader
+                                            use={Oval}
+                                            size={24}
+                                            strokeWidth={8}
+                                            strokeColor="#FFF"
+                                            duration={800}
+                                        />
+                                    ) : (
+                                        'Confirm Purchase'
+                                    )}
+                                </button>)
+                            }
                         </div>
                     )}
 

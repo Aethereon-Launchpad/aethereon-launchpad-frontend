@@ -13,7 +13,10 @@ function Navbar() {
   const { login, authenticated, logout, user, ready } = usePrivy();
   // const { connect, isConnecting, error } = useConnect();
   const links = [
-    { title: "Launchpad", link: "/launchpad" },
+    {
+      title: "Launchpad",
+      link: "/launchpad"
+    },
     {
       title: "Staking & Farming",
       link: "/stake-farm",
@@ -25,6 +28,10 @@ function Navbar() {
     {
       title: "Dashboard",
       link: "/dashboard",
+    },
+    {
+      title: "Lock & Stake",
+      link: "/lock-stake",
     }
   ];
 
@@ -52,7 +59,7 @@ function Navbar() {
         ))}
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
-        <Link to="/join-ido"  className="hidden xl:flex items-center space-x-[5px]">
+        <Link to="/join-ido" className="hidden xl:flex items-center space-x-[5px]">
           <img src="/ido.svg" alt="" />
           <p>Join IDO</p>
         </Link>

@@ -23,7 +23,7 @@ function Access() {
           </div>
 
           <button
-            onClick={() => navigation("/dynamic-rewards")}
+            onClick={() => navigation("/lock-stake")}
             className="bg-primary  w-[222px] h-[45px] mt-[10px] text-white flex items-center justify-center space-x-[5px]"
           >
             <span>Lock Token</span>

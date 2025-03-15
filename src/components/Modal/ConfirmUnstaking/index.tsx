@@ -14,7 +14,8 @@ interface ConfirmUnstakingProps {
     nextRewardTime: number;
     lockAmount: number;
     rewardAmount: number | string;
-    lastStakeTime: number
+    lastStakeTime: number;
+    lockStake?: boolean;
 }
 
 function ConfirmUnstaking({
@@ -27,10 +28,11 @@ function ConfirmUnstaking({
     nextRewardTime,
     lockAmount,
     rewardAmount,
-    lastStakeTime
+    lastStakeTime,
+    lockStake = false
 }: ConfirmUnstakingProps) {
     const { authenticated, login } = usePrivy();
-    const [unstake, setUnstake] = useState<boolean>(false)
+    const [unstake, setUnstake] = useState<boolean>(!lockStake)
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -39,7 +41,7 @@ function ConfirmUnstaking({
 
                 <div className="space-y-4">
                     <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20 space-y-2">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between flex-wrap">
                             <div>
                                 <p className="text-[#C4C4C4] text-sm mb-1" title="This is when your rewards have reached full maturity">Last Stake Date:</p>
                                 <p className="text-white text-3xl font-bold">
@@ -55,7 +57,7 @@ function ConfirmUnstaking({
                         </div>
                         <p className="text-[#C4C4C4] text-sm mb-1">Rewards:</p>
                         <p className="text-white text-3xl font-bold">
-                            {rewardAmount} <span className="text-primary">{rewardsTokenSymbol}</span>
+                            {Number(rewardAmount).toFixed(3)} <span className="text-primary">{rewardsTokenSymbol}</span>
                         </p>
                     </div>
 
@@ -78,16 +80,18 @@ function ConfirmUnstaking({
                     </div>
                 </div>
 
-                <div className="space-x-2 flex items-center my-3">
-                    <label htmlFor="unstake" className="text-xl">Unstake</label>
-                    <input
-                        type="checkbox"
-                        id="unstake"
-                        checked={unstake}
-                        className="h-5 w-5 accent-primary rounded border-2 border-primary/50 focus:ring-primary focus:ring-offset-2 focus:ring-2 transition-all duration-200 cursor-pointer"
-                        onChange={(e) => setUnstake(e.target.checked)}
-                    />
-                </div>
+                {!lockStake && (
+                    <div className="space-x-2 flex items-center my-3">
+                        <label htmlFor="unstake" className="text-xl">Unstake</label>
+                        <input
+                            type="checkbox"
+                            id="unstake"
+                            checked={unstake}
+                            className="h-5 w-5 accent-primary rounded border-2 border-primary/50 focus:ring-primary focus:ring-offset-2 focus:ring-2 transition-all duration-200 cursor-pointer"
+                            onChange={(e) => setUnstake(e.target.checked)}
+                        />
+                    </div>)
+                }
 
                 <div className="mt-8 space-y-3">
                     {!authenticated ? (
@@ -114,7 +118,7 @@ function ConfirmUnstaking({
                                         duration={800}
                                     />
                                 ) : (
-                                    `Withdraw Rewards ${unstake ? "& Unstake" : ""}`
+                                    `${unstake ? "Unstake" : "Withdraw Rewards"}`
                                 )}
                             </button>
                         </>

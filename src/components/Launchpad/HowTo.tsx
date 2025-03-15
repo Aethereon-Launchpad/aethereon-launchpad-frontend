@@ -26,7 +26,7 @@ function HowTo() {
                     </div>
                     <div>
                         <p className="text-[18px] lg:text-[24px] font-[500]">Lock $DRX</p>
-                        <p className="text-[14px] leading-[15px] font-[400]">Lock $DRX Tokens in Staking Pool to enter <br className="hidden lg:block" /> Subscription Tier System</p>
+                        <p className="text-[14px] leading-[15px] font-[400]">Lock $DRX Tokens to enter <br className="hidden lg:block" /> Subscription Tier System</p>
                     </div>
                 </div>
                 <div className="flex items-start space-x-[10px]">
@@ -35,7 +35,7 @@ function HowTo() {
                     </div>
                     <div>
                         <p className="text-[18px] lg:text-[24px] font-[500]">Participate in the launches,</p>
-                        <p className="text-[14px] leading-[15px] font-[400]">Buy and selUsers that are whitelisted via the Rank <br className="hidden lg:block" /> Badge system will get to participate in the launch <br className="hidden lg:block" /> popular currencies and keep track of them. </p>
+                        <p className="text-[14px] leading-[15px] font-[400]">Buyers that are verified via the Rank <br className="hidden lg:block" /> Badge system will get to participate in the launch <br className="hidden lg:block" /> popular currencies and keep track of them. </p>
                     </div>
                 </div>
             </div>

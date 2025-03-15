@@ -8,12 +8,18 @@ interface UsePresaleReturn {
     refetch: () => Promise<void>; // Add refetch function to return type
 }
 
+interface UsePresaleOptions {
+    polling?: boolean;
+}
+
 /**
  * Custom hook for handling presale data
  * @param {`0x${string}` | null} id - Optional presale address to fetch specific data
+ * @param {UsePresaleOptions} options - Options object with polling configuration
  * @returns {UsePresaleReturn} Object containing loading state, error, and data
  */
-export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
+export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOptions): UsePresaleReturn {
+    const { polling = true } = options || {};
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<{ message: string }>({ message: "" });
     const [data, setData] = useState<any[] | any>([]);
@@ -25,40 +31,43 @@ export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
                 // Fetch single presale data if ID is provided
                 result = await getPresaleDataByAddress(id);
                 if (result) {
-                    const response = await fetch(result.metadataURI as string, {
-                        headers: {
-                            "X-Master-Key": "$2b$10$PjHjTea8i.l7eowYv.06HOljwmxG/y2RiI7ruhUVr6LJBcA3abVq2",
-                            "X-Access-Key": "$2a$10$uNs7S5lYHo7PjziwmscVIehwIi66ZN3mhSaNOoLiTehdxo/LYBVoy"
+                    try {
+                        const response = await fetch(result.metadataURI as string);
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log(data)
+                            result = {
+                                ...result,
+                                presaleInfo: data
+                            };
+                        } else {
+                            console.error('Failed to fetch presale info:', response.statusText);
                         }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        result = {
-                            ...result,
-                            presaleInfo: data.record
-                        };
-                    } else {
-                        console.error('Failed to fetch presale info:', response.statusText);
+                    } catch (err) {
+                        console.error('Error fetching metadata:', err);
                     }
                 }
             } else {
                 // Fetch all presale data if no ID is provided
                 result = await getAllPresaleData();
-                result = await Promise.all(result.map(async (presale) => {
-                    const response = await fetch(presale.metadataURI as string, {
-                        headers: {
-                            "X-Master-Key": "$2b$10$PjHjTea8i.l7eowYv.06HOljwmxG/y2RiI7ruhUVr6LJBcA3abVq2",
-                            "X-Access-Key": "$2a$10$uNs7S5lYHo7PjziwmscVIehwIi66ZN3mhSaNOoLiTehdxo/LYBVoy"
+                result = await Promise.all(result.map(async (presale, index) => {
+                    // Add delay based on index (2 seconds between each request)
+                    await new Promise(resolve => setTimeout(resolve, index * 2000));
+
+                    try {
+                        const response = await fetch(presale.metadataURI as string);
+                        if (response.ok) {
+                            const data = await response.json();
+                            return {
+                                ...presale,
+                                presaleInfo: data
+                            };
+                        } else {
+                            console.error('Failed to fetch presale info:', response.statusText);
+                            return presale;
                         }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return {
-                            ...presale,
-                            presaleInfo: data.record
-                        };
-                    } else {
-                        console.error('Failed to fetch presale info:', response.statusText);
+                    } catch (err) {
+                        console.error('Error fetching metadata:', err);
                         return presale;
                     }
                 }));
@@ -75,14 +84,19 @@ export function usePresale(id?: `0x${string}` | null): UsePresaleReturn {
         // Initial fetch
         fetchData();
 
-        // Set up polling every 10 seconds
-        const interval = setInterval(fetchData, 10000);
+        // Set up polling every 10 seconds if enabled
+        let interval: NodeJS.Timeout;
+        if (polling) {
+            interval = setInterval(fetchData, 10000);
+        }
 
         // Cleanup interval on unmount
         return () => {
-            clearInterval(interval);
+            if (interval) {
+                clearInterval(interval);
+            }
         };
-    }, [id]);
+    }, [id, polling]);
 
     return {
         loading,

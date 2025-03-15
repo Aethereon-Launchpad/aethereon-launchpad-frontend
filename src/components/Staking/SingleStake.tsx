@@ -338,6 +338,10 @@ function SingleStake() {
         toast("User Rejected the Request")
         return;
       }
+      if (error.message.includes("not_reward_timestamp")) {
+        toast("Not yet reward date")
+        return;
+      }
       toast.error(unstake ? "Failed to Unstake Tokens" : "Failed to Withdraw Rewards")
     } finally {
       setIsStaking(false)

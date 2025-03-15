@@ -13,7 +13,7 @@ import { CountdownTimer } from "../Countdown";
 //   whitelistStatus: boolean;
 // }
 
-function SaleCard({ presale }: any) {
+function SaleCardAdmin({ presale }: any) {
   const navigation = useNavigate();
 
   // Check if presale is undefined or not loaded
@@ -51,9 +51,16 @@ function SaleCard({ presale }: any) {
               <p className="text-[28px] font-[500] text-[#FAFAFA]">
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
-              <Link to={`/launchpad/${presale.id}`} className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
-                {presale.isPrivateSale ? "Private Sale" : "Public Sale"}
-              </Link>
+              <div className="flex flex-col gap-y-3">
+                <Link target="_blank" to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
+                  View Project Page
+                </Link>
+                <Link to={`/admin/dashboard/presales/fund/${presale.id}`}
+                  target="_blank"
+                  className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
+                  Fund Project
+                </Link>
+              </div>
             </div>
             <div className="h-[49px] w-[49px]  rounded-full">
               <img src={presale?.presaleInfo?.images?.logo} alt="" />
@@ -74,7 +81,7 @@ function SaleCard({ presale }: any) {
                 Sale Starts In
               </p>
               <div className="bg-primary w-[64px] h-[2px]" />
-              <CountdownTimer time={presale.startTime} endTime={presale.endTime} key={'sdsdsds'} />
+              <CountdownTimer time={presale.startTime} endTime={presale.endTime} key={'12345'} />
             </div>
             <div className="flex space-x-[10px] items-center justify-between ">
               <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">
@@ -87,12 +94,12 @@ function SaleCard({ presale }: any) {
             </div>
           </div>
         </div>
-        <div onClick={() => navigation(`/launchpad/${presale.id}`)} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
-          View Project
-        </div>
+        <Link to={`/admin/dashboard/presales/manage/${presale.id}`} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
+          Manage Project
+        </Link>
       </div>
     </div>
   );
 }
 
-export default SaleCard;
+export default SaleCardAdmin;
