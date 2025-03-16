@@ -33,3 +33,29 @@ input[type="number"] {
 .debug {
   border: 1px solid red;
 }
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #17043b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5325a9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b3bbf;
+}
+
+/* Firefox Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5325a9 #17043b;
+}

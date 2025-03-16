@@ -20,7 +20,8 @@ import erc20Abi from "../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
-
+import { useLockStake } from '../../hooks/web3/useLockStake';
+import { getTokenBalance } from '../../utils/web3/actions';
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -40,6 +41,7 @@ export default function IDOComponent() {
     const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Purchase Successful");
     const [purchaseAmount, setPurchaseAmount] = useState<number>(0);
     const { user, login, authenticated } = usePrivy();
+    const { data: lockStake, error: lockStakeError, loading: lockStakeLoading } = useLockStake({ polling: true, userAddress: user?.wallet?.address as `0x${string}` })
     const [refunding, setRefunding] = useState<boolean>(false);
     const [isSaleOver, setIsSaleOver] = useState<boolean>(false);
     const [isRefundPeriod, setIsRefundPeriod] = useState<boolean>(false);
@@ -110,9 +112,18 @@ export default function IDOComponent() {
         }
     }, [data?.presaleInfo?.description_md]);
 
-    function PresaleStatus({ startTime, endTime }: { startTime: number, endTime: number }) {
+    function PresaleStatus({ startTime, endTime, delay }: { startTime: number, endTime: number, delay: number }) {
         const startTimeUnix = startTime * 1000
         const endTimeUnix = endTime * 1000
+        const delayPeriod = (Number(endTime) + Number(delay)) * 1000
+
+
+        if (isAfter(new Date(), new Date(endTimeUnix)) && isBefore(new Date(), new Date(delayPeriod))) {
+            return (
+                <div className="bg-yellow-700/80 p-[3px_8px] w-fit text-[12px] rounded-[5px]">
+                    <p className='text-yellow-300'>Refund Period</p>
+                </div>)
+        }
 
         if (isAfter(new Date(), new Date(endTimeUnix))) {
             return (
@@ -134,6 +145,7 @@ export default function IDOComponent() {
                     <p className='text-blue-300'>Upcoming Sale</p>
                 </div>)
         }
+
 
         return null
     }
@@ -161,8 +173,8 @@ export default function IDOComponent() {
         }, [data])
 
         return (
-            <div className="mt-[15px] flex flex-col items-start space-y-[3px] w-[80%]">
-                <p>Progress ({progress.toFixed(2)}%) {"--------->"} {target} </p>
+            <div className="mt-[15px] flex flex-col items-start space-y-3 w-full">
+                <p className='w-full flex items-center justify-between'>Progress ({progress.toFixed(2)}%) <span>{"--------->"}</span> <span>{target}</span> </p>
                 <div className="h-[10px] w-full rounded-full bg-white">
                     <div style={{ width: `${progress}%` }} className="h-full bg-primary rounded-full"></div>
                 </div>
@@ -174,7 +186,7 @@ export default function IDOComponent() {
         )
     }
 
-    if (loading) {
+    if (loading || lockStakeLoading) {
         return (
             <div className="flex justify-center items-center h-[200px]">
                 <Preloader
@@ -188,10 +200,10 @@ export default function IDOComponent() {
         );
     }
 
-    if (error.message) {
+    if (error.message || lockStakeError.message) {
         return (
             <div className="flex items-center justify-center">
-                <h3 className="text-red-600 text-xl">{error.message}</h3>
+                <h3 className="text-red-600 text-xl">{error.message || lockStakeError.message}</h3>
             </div>
         )
     }
@@ -236,6 +248,13 @@ export default function IDOComponent() {
             }
 
             const purchaseAmountArg = ethers.parseUnits(purchaseAmount.toString(), 18);
+            const tokenBalance = await getTokenBalance(data.paymentToken.id as `0x${string}`, user?.wallet?.address as `0x${string}`);
+
+            if (Number(purchaseAmount) > Number(tokenBalance)) {
+                toast(`You don't have enough ${data.paymentToken.symbol}`)
+                setPurchasing(false)
+                return;
+            }
 
             // Approve Token Spending
             async function approveTokenSpending() {
@@ -432,13 +451,50 @@ export default function IDOComponent() {
                 toast("Can't withdraw before claim is started")
                 return;
             }
+            if (error.message.includes("no token to be withdrawn")) {
+                toast("No Token to Claim")
+                return;
+            }
             toast('Withdrawal Failed, please try again later')
         } finally {
             setRefunding(false)
         }
     }
 
-    console.log(data.cliffPeriod)
+    function returnMultiplier(amount: number) {
+        let multiplier = "1x";
+
+        if (amount >= 50000) {
+            multiplier = "3.5x";
+        } else if (amount >= 15000) {
+            multiplier = "3x";
+        } else if (amount >= 10000) {
+            multiplier = "2.5x";
+        } else if (amount >= 5000) {
+            multiplier = "2x";
+        } else if (amount >= 1000) {
+            multiplier = "1.5x";
+        }
+
+        return multiplier;
+    }
+
+    function getBadgeInfo(amount: number) {
+        if (amount >= 50000) {
+            return { name: "Obsidian Vanguard", image: "./obs.svg" };
+        } else if (amount >= 15000) {
+            return { name: "Titanium Pioneer", image: "./titan.svg" };
+        } else if (amount >= 10000) {
+            return { name: "Steel Forgemaster", image: "./steel.svg" };
+        } else if (amount >= 5000) {
+            return { name: "Iron Miner", image: "./iron.svg" };
+        } else if (amount >= 1000) {
+            return { name: "Copper Miner", image: "./pickaxe.svg" };
+        }
+        return { name: "No Badge", image: "" };
+    }
+
+    const badgeInfo = getBadgeInfo(lockStake?.userData?.amountStaked || 0);
 
     return (
         <div className='p-[40px_20px] flex flex-col-reverse gap-[40px] lg:flex-row items-start lg:p-[40px] font-grotesk text-white space-y-5'>
@@ -660,15 +716,20 @@ export default function IDOComponent() {
             <div className="p-[30px_20px] bg-[#000027] rounded-[10px] col-span-1 relative min-w-fit md:min-w-[450px] space-y-3">
 
                 <div className="flex items-center justify-between">
-                    <PresaleStatus startTime={data.startTime} endTime={data.endTime} />
+                    <PresaleStatus startTime={data.startTime} endTime={data.endTime} delay={Number(data.withdrawDelay)} />
                 </div>
 
-                <div className='flex justify-between items-center'>
+                <div className='flex justify-between items-center flex-wrap'>
                     <div className="mt-[10px] items-start flex flex-col space-x-[5px]">
                         {isBefore(new Date(), new Date(data.startTime * 1000)) ? (
                             <>
                                 <p className='text-primary text-[12px]'>Sale starts in</p>
                                 <PresaleCountdownTimer time={data.startTime} />
+                            </>
+                        ) : isAfter(new Date(), new Date(data.endTime * 1000)) && isBefore(new Date(), new Date((Number(data.endTime) + Number(data.withdrawDelay)) * 1000)) ? (
+                            <>
+                                <p className='text-primary text-[12px]'>Refund period ends in</p>
+                                <PresaleCountdownTimer time={Number(data.endTime) + Number(data.withdrawDelay)} />
                             </>
                         ) : (
                             <>
@@ -700,6 +761,16 @@ export default function IDOComponent() {
                         <p>Total Raised</p>
                         <div className="bg-primary w-[20%] h-[2px]" />
                         <span>{data.totalPaymentReceived ? data.totalPaymentReceived : 0} {data.paymentToken.symbol} Raised</span>
+                    </div>
+                    <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
+                        <p>Badge</p>
+                        <div className="bg-primary w-[20%] h-[2px]" />
+                        <p>{badgeInfo.name}</p>
+                    </div>
+                    <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
+                        <p>Multiplier</p>
+                        <div className="bg-primary w-[20%] h-[2px]" />
+                        <p>{returnMultiplier(lockStake?.userData?.amountStaked)}</p>
                     </div>
                 </div>
                 <>

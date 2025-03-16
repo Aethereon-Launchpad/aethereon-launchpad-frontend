@@ -1,12 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWallets, usePrivy } from "@privy-io/react-auth";
-
+import { FiHome, FiDatabase, FiLock, FiShoppingCart } from "react-icons/fi";
 function Layout({ children }: { children: ReactNode }) {
     const { wallets } = useWallets();
     const { login, authenticated } = usePrivy();
     const navigate = useNavigate();
+    const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
     const ADMIN_WALLET: `0x${string}` = "0x426DcF053185c099cbE05dcb23775544bbEe16d6"
 
     // useEffect(() => {
@@ -42,24 +43,26 @@ function Layout({ children }: { children: ReactNode }) {
                 )}
             </div>
             <nav className="p-6 border-b border-gray-800">
-                <ul className="flex space-x-6">
+                <div className="md:hidden flex justify-end">
+                    <button
+                        onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+                        className="text-primary focus:outline-none"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+                <ul className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:flex space-x-6`}>
                     <li>
-                        <a href="/admin/dashboard" className="text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
+                        <a href="/admin/dashboard" className="flex items-center text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
+                            <FiHome className="mr-2" />
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/admin/dashboard/staking-pool" className="text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
-                            Staking Pools
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/dashboard/lock-stake" className="text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
-                            Lock & Stake
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/dashboard/presales" className="text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
+                        <a href="/admin/dashboard/presales" className="flex items-center text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
+                            <FiShoppingCart className="mr-2" />
                             Presales
                         </a>
                     </li>
