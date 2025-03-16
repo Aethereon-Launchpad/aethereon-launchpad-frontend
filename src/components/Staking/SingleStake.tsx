@@ -362,6 +362,7 @@ function SingleStake() {
           <ManageStaking
             stakingPoolAddress={id as `0x${string}`}
             onClose={() => setManageStakingModal(false)}
+            userAddress={user?.wallet?.address as `0x${string}`}
           />
         )
       }

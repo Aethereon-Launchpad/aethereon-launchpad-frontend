@@ -74,7 +74,7 @@ function SaleCard({ presale }: any) {
                 Sale Starts In
               </p>
               <div className="bg-primary w-[64px] h-[2px]" />
-              <CountdownTimer time={presale.startTime} endTime={presale.endTime} key={'sdsdsds'} />
+              <CountdownTimer time={presale.startTime} endTime={presale.endTime} delayTime={Number(presale.endTime) + Number(presale.withdrawDelay)} key={'sdsdsds'} />
             </div>
             <div className="flex space-x-[10px] items-center justify-between ">
               <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">

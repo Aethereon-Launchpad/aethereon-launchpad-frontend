@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { differenceInDays, differenceInHours, differenceInMinutes, isBefore } from 'date-fns';
 
-export function CountdownTimer({ time, endTime }: { time: string, endTime: string }) {
+export function CountdownTimer({ time, endTime, delayTime }: { time: string, endTime: string, delayTime: number }) {
     const calculateTimeLeft = () => {
         // Convert time to milliseconds (assuming it's in seconds)
         const startTime = parseInt(time) * 1000;
@@ -40,6 +40,13 @@ export function CountdownTimer({ time, endTime }: { time: string, endTime: strin
 
     const startTimeUnix = parseInt(time) * 1000;
     const endTimeUnix = parseInt(endTime) * 1000;
+    const delayTimeUnix = delayTime * 1000;
+    const now = Date.now();
+
+    // Check if we're in refund period (after endTime but before delayTime)
+    if (isBefore(new Date(endTimeUnix), new Date(now)) && isBefore(new Date(now), new Date(delayTimeUnix))) {
+        return <p className='text-white'>Refund Period</p>
+    }
 
     if (isBefore(new Date(startTimeUnix), new Date()) && isBefore(new Date(endTimeUnix), new Date())) {
         return <p className='text-white'>Sale is Over</p>
@@ -57,10 +64,10 @@ export function CountdownTimer({ time, endTime }: { time: string, endTime: strin
     );
 }
 
-export function PresaleCountdownTimer({ time }: { time: string }) {
+export function PresaleCountdownTimer({ time }: { time: string | number }) {
     const calculateTimeLeft = () => {
         // Convert time to milliseconds (assuming it's in seconds)
-        const startTime = parseInt(time) * 1000;
+        const startTime = parseInt(time as string) * 1000;
         const now = Date.now();
 
         // Ensure startTime is in the future

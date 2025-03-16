@@ -27,7 +27,7 @@ function Reward() {
         const totalAmountStaked = await getStakingPower(stakingPools, user.wallet.address as `0x${string}`);
         const totalAmountRewards = await getTotalRewards(stakingPools, user.wallet.address as `0x${string}`)
         setStakingPower(totalAmountStaked);
-        setTotalRewards(totalAmountRewards);
+        setTotalRewards(Number(totalAmountRewards).toFixed(5));
       } catch (error) {
         toast('Failed to Retrieve dashboard data... Please try again later')
       } finally {

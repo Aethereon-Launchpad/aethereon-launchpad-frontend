@@ -3,7 +3,7 @@ import ERC20ABI from "../../abis/ERC20.json";
 import { publicClient as client } from "../../config";
 import { ethers } from "ethers";
 
-const stakeLock = "0x038F96Bf2318f2719E2C10e4e7075d591a620B8e"
+const stakeLock = "0xA694F36757a3C1A4b9bD335460E1D5F826a9a016"
 
 export const getLockAndStake = async () => {
     const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
