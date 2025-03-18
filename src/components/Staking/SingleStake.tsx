@@ -166,6 +166,13 @@ function SingleStake() {
     const decimals = await getTokenDecimals(data.stakingPool.stakeToken.id)
     const stakeAmountArg = ethers.parseUnits(stakeAmount.toString(), decimals);
     const balanceOfStakeToken = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address);
+    const tokenBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address)
+
+    if (Number(stakeAmount) > Number(tokenBalance)) {
+      toast(`Insufficient ${data.stakingPool.stakeToken.symbol} Balance`)
+      setIsStaking(false)
+      return;
+    }
 
     if (stakeAmount === 0) {
       toast("Set stake amount")
