@@ -77,12 +77,6 @@ function SaleCardCompleted({ presale }: any) {
                 {presale.isSoftCapReached ? 'Success' : 'Failed'}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#ACBBCC]">Ended</span>
-              <span className="text-white">
-                {format(new Date(Number(presale.endTime) * 1000), "dd/MM/yyyy")}
-              </span>
-            </div>
           </div>
         </div>
         <div onClick={() => navigation(`/launchpad/${presale.id}`)} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
