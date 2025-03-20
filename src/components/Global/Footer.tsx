@@ -10,7 +10,7 @@ function Footer() {
     },
     {
       name: "Staking & Farming",
-      link: "/stake-farm",
+      link: "/staking-pool",
     },
     {
       name: "Governance",
