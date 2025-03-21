@@ -74,7 +74,7 @@ export default function AdminDashboardPage() {
                     </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <DashboardCard title="Admin" value={adminAddress} />
+                    {/* <DashboardCard title="Admin" value={adminAddress} /> */}
                     <DashboardCard title="No of Staking Pools" value={noOfStakingPools} />
                     <DashboardCard title="No of Presales" value={data.length} />
                     <DashboardCard title="No Of Voting Slots" value={1} />

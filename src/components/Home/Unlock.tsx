@@ -14,60 +14,53 @@ function Unlock() {
         <div className="mt-[10px] lg:mt-0 w-full text-white h-full lg:w-[60%]  grid lg:grid-cols-2">
           <div className="p-[20px] bg-[#00000047] h-fit rounded-[10px]">
             <p className="border-l-[4px] pl-[10px] text-white font-[500] text-[18px] lg:text-[24px] border-l-primary">
-              Launch New Tokens Securely
+              Your Gateway to Token Launches
             </p>
             <p className="text-[#C4C4C4] text-[15px] lg:text-[17px] mt-[10px]">
-              DerHex enables projects to securely launch their tokens through
-              Initial DEX Offerings (IDO). With multi-chain support,
-              whitelisting, and built-in vesting, we ensure safe, structured
-              token sales for both projects and investors.
+              Launch your project with confidence using our secure IDO platform. We provide multi-chain support, whitelisting, and vesting solutions to protect both creators and investors.
             </p>
-
             <div className="mt-[5px]">
               <p className="text-[18px] lg:text-[28px]">3,969</p>
-              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">New Tokens</p>
+              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Successful Launches</p>
             </div>
           </div>
           <div className="p-[20px] bg-[#00000047] h-fit rounded-[10px]">
             <p className="border-l-[4px] pl-[10px] text-white font-[500] text-[18px] lg:text-[24px] border-l-primary">
-            Stake Tokens, Earn Rewards
+              Grow Your Crypto Portfolio
             </p>
             <p className="text-[#C4C4C4] text-[15px] lg:text-[17px] mt-[10px]">
-            Stake your $HEX tokens or provide liquidity to earn rewards and gain access to exclusive token sales. Choose between flexible or fixed staking options to suit your strategy.
+              Maximize your returns with our flexible staking options. Earn rewards and gain exclusive access to promising new projects while maintaining control over your investments.
             </p>
-
             <div className="mt-[5px]">
               <p className="text-[18px] lg:text-[28px]">3,969</p>
-              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Stake Tokens and rewards</p>
+              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Active Stakers</p>
             </div>
           </div>
           <div className="p-[20px] bg-[#00000047] h-fit rounded-[10px]">
             <p className="border-l-[4px] pl-[10px] text-white font-[500] text-[18px] lg:text-[24px] border-l-primary">
-            Shape the Future with Your Vote
+              Be Part of the Decision-Making
             </p>
             <p className="text-[#C4C4C4] text-[15px] lg:text-[17px] mt-[10px]">
-            DerHex enables projects to securely launch their tokens through Initial DEX Offerings (IDO). With multi-chain support, whitelisting, and built-in vesting, we ensure safe, structured token sales for both projects and investors.
+              Your voice matters. Participate in governance votes to shape the future of the platform and influence the direction of innovative blockchain projects.
             </p>
-
             <div className="mt-[5px]">
               <p className="text-[18px] lg:text-[28px]">3,969</p>
-              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Transactions per second</p>
+              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Community Votes</p>
             </div>
           </div>
           <div className="p-[20px] bg-[#00000047] h-fit rounded-[10px]">
             <p className="border-l-[4px] pl-[10px] text-white font-[500] text-[18px] lg:text-[24px] border-l-primary">
-            Track and Manage Your Investments
+              Smart Investment Management
             </p>
             <p className="text-[#C4C4C4] text-[15px] lg:text-[17px] mt-[10px]">
-            The DerHex user dashboard provides a comprehensive overview of token holdings, staking rewards, and participation in token sales. Stay informed with real-time updates on upcoming projects, transaction history, and performance metrics.
+              Stay in control with our intuitive dashboard. Track your portfolio, monitor staking rewards, and analyze your investment performance in real-time.
             </p>
-
             <div className="mt-[5px]">
               <p className="text-[18px] lg:text-[28px]">3,969</p>
-              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Transactions per second</p>
+              <p className="uppercase text-[#C4C4C4] text-[14px] lg:text-[16px]">Active Users</p>
             </div>
           </div>
-         
+
         </div>
       </div>
     </div>

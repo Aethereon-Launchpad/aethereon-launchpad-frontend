@@ -71,7 +71,7 @@ function Reward() {
           </div>
           <p className="font-[500] text-[32px] mt-[20px]">Total Rewards</p>
           <p>The "Total Rewards" metric provides users with a clear view of the amount of available rewards from staking pools</p>
-          <p className="text-[40px] font-[600]]">{totalRewards}</p>
+          <p className="text-[40px] font-[600]]">{Number(totalRewards).toFixed(3)}</p>
         </div>
         <div className="p-[20px] border rounded-[10px] border-primary">
           <div className="flex items-center justify-between">
@@ -82,7 +82,7 @@ function Reward() {
           </div>
           <p className="font-[500] mt-[20px] text-[32px]">Staking Power</p>
           <p>The "Total Staked" metric provides users with a clear view of the amount they've currently invested in staking pools</p>
-          <p className="text-[40px] font-[600]]">{stakingPower}</p>
+          <p className="text-[40px] font-[600]]">{Number(stakingPower).toFixed(3)}</p>
         </div>
 
       </div>

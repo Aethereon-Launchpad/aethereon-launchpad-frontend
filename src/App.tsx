@@ -32,9 +32,9 @@ function App() {
       <Route path='/launchpad/:id' element={<IDO />} />
       <Route path='/explore' element={<Explore />} />
       <Route path='/join-ido' element={<Ido />} />
-      <Route path='/stake-farm' element={<Staking />} />
-      <Route path='/stake-farm/:id' element={<Single />} />
-      <Route path='/stake-farm/new' element={<NewPool />} />
+      <Route path='/staking-pool' element={<Staking />} />
+      <Route path='/staking-pool/:id' element={<Single />} />
+      <Route path='/staking-pool/new' element={<NewPool />} />
       <Route path='/dashboard' element={<Dashboard />} />
       <Route path='/governance' element={<Governance />} />
       <Route path='/leaderboard' element={<Leaderboard />} />

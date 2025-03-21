@@ -34,6 +34,7 @@ function JoinedPool() {
   useEffect(() => {
     async function loadData() {
       if (!user?.wallet?.address) {
+        console.log("No Wallet Address")
         return;
       }
 
@@ -43,6 +44,7 @@ function JoinedPool() {
         console.log(participatingPools)
         setStakingPools(participatingPools);
       } catch (error) {
+        console.error(error)
         toast('Failed to retreive data... Please try again later')
       } finally {
         setLoading(false)
@@ -72,7 +74,7 @@ function JoinedPool() {
 
   return (
     <div className="mt-[20px] p-[40px_20px] flex items-center justify-center lg:p-[40px] font-space text-white">
-      <div className="w-full lg:w-[85%]">
+      <div className="w-full">
         <div className="flex flex-col lg:flex-row items-center justify-between">
           <div>
             <p className="font-[700] text-[28px] lg:text-[40px] leading-[35px] lg:leading-[45px]">
@@ -119,7 +121,13 @@ function JoinedPool() {
                       Token Fees
                     </th>
                     <th scope="col" className="px-6 py-3 min-w-[210px]">
-                      Reward Type
+                      Reward Token
+                    </th>
+                    <th>
+                      Available Rewards
+                    </th>
+                    <th>
+                      Total Staked
                     </th>
                   </tr>
                 </thead>
@@ -129,7 +137,7 @@ function JoinedPool() {
                       className={`${index % 2 === 0 ? "bg-[#190E3080]" : "bg-transparent"
                         } cursor-pointer`}
                       key={item.id}
-                      onClick={() => navigate(`/stake-farm/${item.id}`)}
+                      onClick={() => navigate(`/staking-pool/${item.id}`)}
                     >
                       <th
                         scope="row"
@@ -147,21 +155,23 @@ function JoinedPool() {
                           />
                         </span>
                       </th>
-                      <td className="px-6 py-4 min-w-[210px]">{item.apyRate}% APY</td>
-                      <td className="px-6 py-4 min-w-[210px]">
+                      <td className="px-6 py-4 min-w-fit">{item.apyRate}% APY</td>
+                      <td className="px-6 py-4 min-w-fit">
                         {`${noOfDays(item.withdrawalIntervals)} Days`}
                       </td>
-                      <td className="px-6 py-4 min-w-[210px]">Recurring Rewards</td>
-                      <td className="px-6 py-4 min-w-[210px]">
+                      <td className="px-6 py-4 min-w-fit">Recurring Rewards</td>
+                      <td className="px-6 py-4 min-w-fit">
                         <div>
                           Entry Fee: {item.stakeFeePercentage}% | <br /> Exit Fee: {item.withdrawalFeePercentage}%
                         </div>
                       </td>
-                      <td className="px-6 py-4 min-w-[210px]">
+                      <td className="px-6 py-4 min-w-fit">
                         <div>
                           Primary Reward: {item.stakeToken.symbol}  | <br /> Bonus Reward: {item.rewardToken.symbol}
                         </div>
                       </td>
+                      <td className="px-6 py-4 min-w-fit">{item.totalStaked} {item.stakeToken.symbol} </td>
+                      <td className="px-6 py-4 min-w-fit">{item.totalRewardable} {item.rewardToken.symbol}</td>
                     </tr>
                   ))}
                 </tbody>

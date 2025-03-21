@@ -1,11 +1,12 @@
 // import React from 'react'
 import { useEffect, useState } from "react";
-import SaleCard from "../Global/SaleCard";
+import { Link } from "react-router-dom";
+import SaleCardCompleted from "../Global/SaleCardCompleted";
 import { usePresale } from "../../hooks/web3/usePresale";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
 
-function FeaturedIdo() {
+function CompletedIDO() {
   const { data, error, loading } = usePresale();
   const [filteredSales, setFilteredSales] = useState<[]>([]);
 
@@ -15,7 +16,7 @@ function FeaturedIdo() {
       const filtered = data.filter((presale: any) => {
         const startTime = Number(presale.startTime) * 1000;
         const endTime = (Number(presale.endTime) + Number(presale.withdrawDelay)) * 1000;
-        return isBefore(currentTime, endTime); // Show presales that haven't ended yet
+        return !isBefore(currentTime, endTime); // Show presales that haven't ended yet
       });
       setFilteredSales(filtered);
     }
@@ -44,7 +45,7 @@ function FeaturedIdo() {
         </svg>
         <h3 className="text-red-500 text-xl font-medium">Oops! Something went wrong</h3>
         <p className="text-gray-400 max-w-md">
-          We're having trouble loading the featured IDOs. Please try refreshing the page or check back later.
+          We're having trouble loading the completed IDOs. Please try refreshing the page or check back later.
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -59,26 +60,26 @@ function FeaturedIdo() {
   return (
     <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]">
       <div className="flex flex-col items-start text-white">
-        <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Featured Upcoming &<br /> Ongoing IDO Sales</p>
-        <p className="text-[14px] lg:text-[19px] text-[#A1A1AA]">
-          Don't Miss Out on the Next Big Project!
-        </p>
+        <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Completed<br /> IDO Sales</p>
       </div>
       <div className="w-full mx-auto">
         <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
           {filteredSales.length > 0 ? (
             filteredSales.map((presale: any, index: any) => (
-              <SaleCard key={index} presale={presale} />
+              <SaleCardCompleted key={index} presale={presale} />
             ))
           ) : (
             <div className="col-span-full text-center text-gray-400">
-              No upcoming or active IDOs at the moment
+              No completed IDOs at the moment
             </div>
           )}
         </div>
       </div>
+      <Link to="/explore" className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px] w-fit mx-auto">
+        View All IDOs
+      </Link>
     </div>
   );
 }
 
-export default FeaturedIdo;
+export default CompletedIDO;

@@ -143,7 +143,18 @@ function PoolForm() {
       }
 
       const fee: string = await getStakingPoolFactoryFee();
+      
+      // Get wallet balance
+      const balance = await publicClient.getBalance({
+        address: account
+      });
 
+      // Compare balance with required fee
+      if (balance < BigInt(fee)) {
+        toast(`Insufficient SONIC balance. You need at least ${Number(fee) / 1e18} SONIC to create a staking pool`);
+        setLoading(false);
+        return;
+      }
 
       const { request, result } = await publicClient.simulateContract({
         address: StakingPoolFactoryCA,
@@ -168,7 +179,7 @@ function PoolForm() {
       console.log(hash, result);
 
       toast.success("Successfully Created New Staking Pool")
-      navigate("/stake-farm")
+      navigate("/staking-pool")
     } catch (err: any) {
       console.error("Staking Pool Error", err);
       toast.error("Creating Staking Pool Failed")

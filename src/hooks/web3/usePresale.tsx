@@ -35,7 +35,7 @@ export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOption
                         const response = await fetch(result.metadataURI as string);
                         if (response.ok) {
                             const data = await response.json();
-                            console.log(data)
+                            
                             result = {
                                 ...result,
                                 presaleInfo: data

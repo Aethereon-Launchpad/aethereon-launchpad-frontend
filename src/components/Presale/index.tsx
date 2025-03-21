@@ -22,6 +22,7 @@ import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import { useLockStake } from '../../hooks/web3/useLockStake';
 import { getTokenBalance } from '../../utils/web3/actions';
+import { usePageTitleIDO } from '../../hooks/utils';
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -51,11 +52,18 @@ export default function IDOComponent() {
     const [loadingInfo, setLoadingInfo] = useState<boolean>(true)
     const [markdownContent, setMarkdownContent] = useState(``);
 
+    usePageTitleIDO(`Join ${data?.presaleInfo?.projectName} IDO` || "Presale")
+
+    useEffect(() => {
+        // Scroll to top when component mounts
+        window.scrollTo(0, 0);
+    }, []);
+
     async function getPaymentMade() {
         setLoadingInfo(true)
         if (!user?.wallet?.address) {
-            toast("Connect Wallet")
-            login();
+            // toast("Connect Wallet")
+            // login();
             return;
         }
         try {
@@ -179,8 +187,8 @@ export default function IDOComponent() {
                     <div style={{ width: `${progress}%` }} className="h-full bg-primary rounded-full"></div>
                 </div>
                 <div className='flex justify-between w-full'>
-                    <p className='text-primary text-[12px] font-semibold'>{Number(softCap).toFixed(0)} {data.paymentToken.symbol} </p>
-                    <p className='text-primary text-[12px] font-semibold'>{Number(hardCap).toFixed(0)} {data.paymentToken.symbol} </p>
+                    <p className='text-primary text-[12px] font-semibold'>{Number(softCap).toLocaleString()} {data.paymentToken.symbol} </p>
+                    <p className='text-primary text-[12px] font-semibold'>{Number(hardCap).toLocaleString()} {data.paymentToken.symbol} </p>
                 </div>
             </div>
         )
@@ -207,6 +215,8 @@ export default function IDOComponent() {
             </div>
         )
     }
+
+    console.log(data)
 
     function copyAddress(address: `0x${string}`) {
         navigator.clipboard.writeText(address)
@@ -614,6 +624,13 @@ export default function IDOComponent() {
                                         )}
                                     </li>)
                                 }
+                                <li className='flex justify-between'>
+                                    <span className='text-gray-300'>Refund Period</span>
+                                    <span className='font-medium'>
+                                        {Number(data.withdrawDelay) / 86400}
+                                        {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
+                                    </span>
+                                </li>
                             </ul>
                         </div>
 
@@ -622,11 +639,11 @@ export default function IDOComponent() {
                             <ul className='space-y-3'>
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>Soft Cap</span>
-                                    <span className='font-medium'>{Number(data.softCap).toFixed(0)} {data.saleToken.symbol}</span>
+                                    <span className='font-medium'>{Number(data.softCap).toLocaleString()} {data.paymentToken.symbol}</span>
                                 </li>
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>Hard Cap</span>
-                                    <span className='font-medium'>{Number(data.hardCap).toFixed(0)} {data.saleToken.symbol}</span>
+                                    <span className='font-medium'>{Number(data.hardCap).toLocaleString()} {data.paymentToken.symbol}</span>
                                 </li>
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>Min Payment</span>
@@ -635,13 +652,6 @@ export default function IDOComponent() {
                                 <li className='flex justify-between'>
                                     <span className='text-gray-300'>Max Payment</span>
                                     <span className='font-medium'>{Number(data.maxTotalPayment).toFixed(0)}</span>
-                                </li>
-                                <li className='flex justify-between'>
-                                    <span className='text-gray-300'>Refund Period</span>
-                                    <span className='font-medium'>
-                                        {Number(data.withdrawDelay) / 86400}
-                                        {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
-                                    </span>
                                 </li>
                                 <li className='flex justify-between items-center'>
                                     <span className='text-gray-300'>Mainnet Contract</span>
@@ -760,7 +770,7 @@ export default function IDOComponent() {
                     <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
                         <p>Total Raised</p>
                         <div className="bg-primary w-[20%] h-[2px]" />
-                        <span>{data.totalPaymentReceived ? data.totalPaymentReceived : 0} {data.paymentToken.symbol} Raised</span>
+                        <span>{data.totalPaymentReceived ? Number(data.totalPaymentReceived).toLocaleString() : 0} {data.paymentToken.symbol} Raised</span>
                     </div>
                     <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
                         <p>Badge</p>
@@ -782,7 +792,7 @@ export default function IDOComponent() {
                                         onClick={handleClaim}
                                         disabled={claimableAmount === 0 ? true : false}
                                     >
-                                        {claimableAmount === 0 ? "You have no tokens to claim" : `Claim Tokens ${Number(claimableAmount).toFixed(3)} ${data.saleToken.symbol}`}
+                                        {claimableAmount === 0 ? "You have no tokens to claim" : `Claim Tokens ${Number(claimableAmount).toLocaleString()} ${data.saleToken.symbol}`}
                                     </button>
                                 ) : (
                                     <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500] mt-10 transition-all duration-700 hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:hover:scale-100" onClick={() => {

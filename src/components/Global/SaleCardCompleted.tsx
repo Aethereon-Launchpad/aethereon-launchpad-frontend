@@ -3,7 +3,7 @@ import { CountdownTimer } from "../Countdown";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 
 
-function SaleCardAdmin({ presale }: any) {
+function SaleCardCompleted({ presale }: any) {
   const navigation = useNavigate();
 
   if (!presale) {
@@ -33,7 +33,7 @@ function SaleCardAdmin({ presale }: any) {
           alt={presale?.presaleInfo?.projectName}
         />
         <div className="absolute top-0 right-0 bg-[#291254] px-4 py-1 rounded-bl-lg text-white">
-          {presale.isPrivateSale ? "Private Sale" : "Public Sale"}
+          {presale.isPrivateSale ? "Whitelist Sale" : "Public Sale"}
         </div>
       </div>
 
@@ -111,6 +111,10 @@ function SaleCardAdmin({ presale }: any) {
                   delayTime={Number(presale.endTime) + Number(presale.withdrawDelay)}
                 />
               </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Participants</span>
+                <span className="text-white">{presale.purchaserCount ? presale.purchaserCount : 0}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -119,11 +123,11 @@ function SaleCardAdmin({ presale }: any) {
           onClick={() => navigation(`/launchpad/${presale.id}`)}
           className="w-full bg-primary hover:bg-primary/90 transition-all mt-6 text-white py-3 uppercase flex items-center justify-center cursor-pointer max-h-[35px]"
         >
-          Join Now
+          View Sale
         </button>
       </div>
     </div>
   );
 }
 
-export default SaleCardAdmin;
+export default SaleCardCompleted;

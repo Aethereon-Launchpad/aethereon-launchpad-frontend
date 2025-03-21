@@ -19,7 +19,7 @@ function Navbar() {
     },
     {
       title: "Staking & Farming",
-      link: "/stake-farm",
+      link: "/staking-pool",
     },
     {
       title: "Governance",

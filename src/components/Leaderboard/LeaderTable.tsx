@@ -17,41 +17,36 @@ function LeaderTable() {
         <div className="bg-[#0C0718] space-x-[8px] p-[5px_10px] rounded-[8px] flex items-center w-full lg:w-fit justify-center mt-[10px] lg:mt-0">
           <button
             onClick={() => setTab(0)}
-            className={`${
-              tab === 0 ? "bg-[#1A073E]" : ""
-            }  p-[4px_10px] rounded-[8px]`}
+            className={`${tab === 0 ? "bg-[#1A073E]" : ""
+              }  p-[4px_10px] rounded-[8px]`}
           >
             1h
           </button>
           <button
             onClick={() => setTab(1)}
-            className={`${
-              tab === 1 ? "bg-[#1A073E]" : ""
-            }  p-[4px_10px] rounded-[8px]`}
+            className={`${tab === 1 ? "bg-[#1A073E]" : ""
+              }  p-[4px_10px] rounded-[8px]`}
           >
             6h
           </button>
           <button
             onClick={() => setTab(2)}
-            className={`${
-              tab === 2 ? "bg-[#1A073E]" : ""
-            }  p-[4px_10px] rounded-[8px]`}
+            className={`${tab === 2 ? "bg-[#1A073E]" : ""
+              }  p-[4px_10px] rounded-[8px]`}
           >
             24h
           </button>
           <button
             onClick={() => setTab(3)}
-            className={`${
-              tab === 3 ? "bg-[#1A073E]" : ""
-            }  p-[4px_10px] rounded-[8px]`}
+            className={`${tab === 3 ? "bg-[#1A073E]" : ""
+              }  p-[4px_10px] rounded-[8px]`}
           >
             7d
           </button>
           <button
             onClick={() => setTab(4)}
-            className={`${
-              tab === 4 ? "bg-[#1A073E]" : ""
-            }  p-[4px_10px] rounded-[8px]`}
+            className={`${tab === 4 ? "bg-[#1A073E]" : ""
+              }  p-[4px_10px] rounded-[8px]`}
           >
             30d
           </button>
@@ -84,10 +79,9 @@ function LeaderTable() {
           <tbody className="mt-[20px]">
             {items.map((item, index) => (
               <tr
-                // onClick={()=> navigate("/stake-farm/dvbtnyu")}
-                className={`${
-                  index % 2 === 0 ? "bg-[#190E3080]" : "bg-transparent"
-                } cursor-pointer`}
+                // onClick={()=> navigate("/staking-pool/dvbtnyu")}
+                className={`${index % 2 === 0 ? "bg-[#190E3080]" : "bg-transparent"
+                  } cursor-pointer`}
                 key={item.id}
               >
                 <th
