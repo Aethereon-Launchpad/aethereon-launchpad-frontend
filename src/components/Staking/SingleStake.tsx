@@ -66,8 +66,11 @@ function SingleStake() {
 
   const [manageStakingModal, setManageStakingModal] = useState<boolean>(false)
 
+
   useEffect(() => {
-    loadUpData();
+    if (authenticated) {
+      loadUpData();
+    }
   }, [authenticated]);
 
   async function loadUpData() {
@@ -92,12 +95,6 @@ function SingleStake() {
 
     // Use the passed data or fall back to state
     const poolData = stakingPoolData || data;
-
-    if (!authenticated) {
-      login();
-      toast("Connect Wallet")
-      return;
-    }
 
     try {
       if (!poolData?.stakingPool?.stakeToken?.id) {
@@ -167,7 +164,7 @@ function SingleStake() {
     const stakeAmountArg = ethers.parseUnits(stakeAmount.toString(), decimals);
     const balanceOfStakeToken = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address);
     const tokenBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address)
-
+    console.log("running handle stake")
     if (Number(stakeAmount) > Number(tokenBalance)) {
       toast(`Insufficient ${data.stakingPool.stakeToken.symbol} Balance`)
       setIsStaking(false)
@@ -269,6 +266,34 @@ function SingleStake() {
     }
   }
 
+  if (!authenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center">
+        <div className="bg-[#291254] rounded-[20px] p-8 max-w-[500px] w-full">
+          <img
+            src="/icons/staking/money.svg"
+            alt=""
+            className="w-[80px] h-[80px] mx-auto mb-6"
+          />
+          <h2 className="text-[25px] font-[700] text-white mb-4">
+            Start Earning Rewards
+          </h2>
+          <p className="text-[16px] text-gray-300 mb-8">
+            Join our staking pool to earn rewards and increase your IDO Power. Link your wallet to get started.
+          </p>
+          <button
+            onClick={login}
+            className="bg-primary p-[8px_20px] font-[500] text-[20px] text-white rounded-full flex items-center justify-center space-x-[5px] w-full hover:bg-primary/90 transition-all"
+          >
+            <IoWalletSharp className="text-[20px] mr-2" />
+            <span>Connect Wallet</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+
   if (startUpLoading || loadingStakingPool) {
     return (
       <div className="flex justify-center items-center h-[200px]">
@@ -287,6 +312,7 @@ function SingleStake() {
   if (stakingPoolError.message) {
     return <div className="text-red-500 text-center">Error loading staking pool: {stakingPoolError.message}</div>;
   }
+
 
   function confirmStake() {
     if (stakeAmount === 0) {
@@ -370,6 +396,7 @@ function SingleStake() {
             stakingPoolAddress={id as `0x${string}`}
             onClose={() => setManageStakingModal(false)}
             userAddress={user?.wallet?.address as `0x${string}`}
+            refetch={loadUpData}
           />
         )
       }
@@ -454,8 +481,8 @@ function SingleStake() {
           </div>
 
           <div className="mt-[40px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
-            <p>Token Type</p>
-            <p>Utility and Governance Token**</p>
+            <p>Total Staked</p>
+            <p>{data.stakingPool.totalStaked} {data.stakingPool.stakeToken.symbol}</p>
             <p>APY Rates</p>
             <p>{data.stakingPool.apyRate}%**</p>
             <p>Vesting Period </p>

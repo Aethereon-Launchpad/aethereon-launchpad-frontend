@@ -1,102 +1,126 @@
-// import React from 'react'
-
 import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom'
-import { format } from "date-fns";
 import { CountdownTimer } from "../Countdown";
+import { Preloader, ThreeDots } from 'react-preloader-icon';
 
-// interface SaleCardProps {
-//   img: string;
-//   projectName: string;
-//   projectDescription: string;
-//   saleStartTime: number;
-//   whitelistStatus: boolean;
-// }
 
 function SaleCardAdmin({ presale }: any) {
   const navigation = useNavigate();
 
-  // Check if presale is undefined or not loaded
   if (!presale) {
-    return <div>Loading...</div>; // Display a loading message or spinner
+    return (
+      <div className="flex justify-center items-center h-[200px]">
+        <Preloader
+          use={ThreeDots}
+          size={60}
+          strokeWidth={6}
+          strokeColor="#5325A9"
+          duration={2000}
+        />
+      </div>
+    );
   }
 
-  console.log(presale);
+  const totalRaised = parseFloat(presale.totalPaymentReceived || "0");
+  const hardCap = parseFloat(presale.hardCap || "0");
+  const progress = (totalRaised / hardCap) * 100;
 
   return (
-    <div className=" rounded-[10px] overflow-hidden relative bg-[#27272A] transition-all hover:scale-105 duration-1000">
-      <div className="h-[150px] w-full border-b">
+    <div className="rounded-[10px] overflow-hidden relative bg-[#27272A] transition-all hover:scale-105 duration-1000">
+      <div className="h-[150px] w-full border-b relative">
         <img
           src={presale?.presaleInfo?.images?.bg}
           className="h-full w-full object-cover"
-          alt=""
+          alt={presale?.presaleInfo?.projectName}
         />
+        <div className="absolute top-0 right-0 bg-[#291254] px-4 py-1 rounded-bl-lg text-white">
+          {presale.isPrivateSale ? "Private Sale" : "Public Sale"}
+        </div>
       </div>
 
-      <div className="absolute top-[8.8rem] w-[80px] left-0 h-[25px] bg-[#291254] z-0">
+      <div className="absolute top-[8.8rem] w-[80px] left-0 h-[25px] bg-[#291254] z-0" />
+      <div className="h-[88px] w-[88px] rounded-full absolute top-[100px] left-[20px] z-20 border-[#291254] border-[7px] bg-black p-3">
+        <img src={presale?.presaleInfo?.images?.logo} className="h-full w-full object-contain" alt="" />
+      </div>
 
-      </div>
-      <div className="h-[88px] w-[88px] rounded-full absolute top-[100px] left-[20px] z-20  border-[#291254] border-[7px] bg-black p-3">
-        <img src={presale?.presaleInfo?.images?.logo} className="h-full w-full" alt="" />
-      </div>
       <div className="w-full">
-        <div className=" text-white w-full items-center flex justify-end">
+        <div className="text-white w-full items-center flex justify-end">
           <p className="bg-[#291254] uppercase text-[14px] p-[5px_20px] rounded-bl-[5px]">
-            Refundable ido
+            Refundable IDO
           </p>
         </div>
-        <div className="p-[10px_20px] mt-[10px]">
+
+        <div className="p-[20px] mt-[10px]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[28px] font-[500] text-[#FAFAFA]">
                 {presale?.presaleInfo?.projectName || "Unknown Project"}
               </p>
-              <div className="flex flex-col gap-y-3">
-                <Link target="_blank" to={`/launchpad/${presale.id}`} className="text-[#A1A1AA] underline max-w-full" title={presale?.presaleInfo?.description}>
-                  View Project Page
-                </Link>
-                <Link to={`/admin/dashboard/presales/fund/${presale.id}`}
-                  target="_blank"
-                  className="text-primary underline max-w-full" title={presale?.presaleInfo?.description}>
-                  Fund Project
-                </Link>
-              </div>
-            </div>
-            <div className="h-[49px] w-[49px]  rounded-full">
-              <img src={presale?.presaleInfo?.images?.logo} alt="" />
             </div>
           </div>
-          <div className="mt-[10px] flex flex-col w-full space-y-[5px]">
-            <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">
-                Token Sale Date
-              </p>
-              <div className="bg-primary w-[64px]  h-[2px]" />
-              <p className="text-[14px] flex-1 text-end text-[#FAFAFA]" title={format(new Date(Number(presale.startTime) * 1000), "dd/MM/yyyy")}>
-                {format(new Date(Number(presale.startTime) * 1000), "dd/MM/yyyy")}
-              </p>
+
+          {/* Countdown Timer Section */}
+          {/* <div className="mt-4 flex space-x-[10px] items-center justify-between">
+            <p className="text-[#ACBBCC] text-start flex-1 text-[14px]">
+              Sale Starts In
+            </p>
+            <div className="bg-primary w-[64px] h-[2px]" />
+            <PresaleCountdownTimer time={presale.startTime} />
+          </div> */}
+
+          <div className="mt-6 space-y-4">
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-[#ACBBCC]">Progress</span>
+                <span className="text-white">{progress.toFixed(2)}%</span>
+              </div>
+              <div className="h-2 w-full bg-[#3F3F46] rounded-full">
+                <div
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                  className="h-full bg-primary rounded-full transition-all"
+                />
+              </div>
             </div>
-            <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] text-start flex-1 text-[14px]">
-                Sale Starts In
-              </p>
-              <div className="bg-primary w-[64px] h-[2px]" />
-              <CountdownTimer time={presale.startTime} endTime={presale.endTime} delayTime={Number(presale.endTime) + Number(presale.withdrawDelay)} key={'12345'} />
-            </div>
-            <div className="flex space-x-[10px] items-center justify-between ">
-              <p className="text-[#ACBBCC] flex-1 text-start text-[14px]">
-                Ticker
-              </p>
-              <div className="bg-primary w-[64px]  h-[2px]" />
-              <p className="text-[14px] flex-1 text-end text-[#FAFAFA]">
-                {presale?.saleToken?.symbol}
-              </p>
+
+            {/* Sale Details */}
+            <div className="grid gap-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Raised</span>
+                <span className="text-white">
+                  {totalRaised.toLocaleString()} {presale.paymentToken?.symbol} / {hardCap.toLocaleString()} {presale.paymentToken?.symbol}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Token Price</span>
+                <span className="text-white">
+                  ${presale.salePrice}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Refund Period</span>
+                <span className="text-white">
+                  {Number(Number(presale.withdrawDelay) / 86400).toFixed(0)}
+                  {Number(presale.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Status</span>
+                <CountdownTimer
+                  time={presale.startTime}
+                  endTime={presale.endTime}
+                  delayTime={Number(presale.endTime) + Number(presale.withdrawDelay)}
+                />
+              </div>
             </div>
           </div>
         </div>
-        <Link to={`/admin/dashboard/presales/manage/${presale.id}`} className="bg-[#5325A9] mt-[20px] text-white h-[35px] uppercase flex items-center justify-center cursor-pointer">
-          Manage Project
-        </Link>
+
+        <button
+          onClick={() => navigation(`/launchpad/${presale.id}`)}
+          className="w-full bg-primary hover:bg-primary/90 transition-all mt-6 text-white py-3 uppercase flex items-center justify-center cursor-pointer max-h-[35px]"
+        >
+          Join Now
+        </button>
       </div>
     </div>
   );

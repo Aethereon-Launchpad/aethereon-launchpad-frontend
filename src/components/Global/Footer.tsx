@@ -22,11 +22,15 @@ function Footer() {
     },
     {
       name: "Community",
-      link: "/lunchpad",
+      link: "/launchpad",
     },
     {
       name: "Customer Support",
       link: "/support",
+    },
+    {
+      name: "Documentation",
+      link: "https://timmyweb3.notion.site/DerHex-Documentation-1ba6e8fffcc5801b8a9dc1d73e7b15f9?pvs=4",
     },
     {
       name: "Terms and Condition",
@@ -100,7 +104,7 @@ function Footer() {
             <p className="text-[16px] font-[600] lg:text-[20px]">Help</p>
             <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
               {footerLinks.slice(5, 9).map((link, index) => (
-                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
+                <Link className="text-[14px] lg:text-[16px]" target="_blank" to={link.link} key={index}>
                   {link.name}
                 </Link>
               ))}

@@ -4,26 +4,31 @@ import Access from '../components/Launchpad/Access'
 import Funded from '../components/Launchpad/Funded'
 import HowTo from '../components/Launchpad/HowTo'
 import LaunchHero from '../components/Launchpad/LaunchHero'
-// import Multichain from '../components/Launchpad/Multichain'
+import Multichain from '../components/Launchpad/Multichain'
 import Secure from '../components/Launchpad/Secure'
 import StakingBadge from '../components/Launchpad/StakingBadge'
 import Trusted from '../components/Launchpad/Trusted'
-import UpcomingIdo from '../components/Launchpad/UpcomingIdo'
+// import UpcomingIdo from '../components/Launchpad/UpcomingIdo'
+import FeaturedIdo from '../components/Home/FeaturedIdo'
 import Layout from '../layout'
+import CompletedIDO from '../components/Home/CompletedIDO'
+import FAQ from '../components/Home/FAQ'
 
 function Launchpad() {
   return (
     <Layout>
-        <LaunchHero/>
-          <Trusted/>
-          <Secure/>
-        {/* <Funded/> */}
-        <HowTo/>
-        <UpcomingIdo/>
-        <StakingBadge/>
-        <Access/>
-        {/* <Multichain/> */}
-        <Subscribe/>
+      <LaunchHero />
+      <HowTo />
+      <StakingBadge />
+      {/* <Trusted /> */}
+      <Secure />
+      {/* <Funded/> */}
+      <FeaturedIdo />
+      <CompletedIDO />
+      <Access />
+      {/* <Multichain/> */}
+      <FAQ />
+      <Subscribe />
     </Layout>
   )
 }

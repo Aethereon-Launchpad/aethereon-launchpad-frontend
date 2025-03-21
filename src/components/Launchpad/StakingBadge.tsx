@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function StakingBadge() {
   return (
     <div className="mt-[40px] font-space lg:p-[40px] p-[40px_20px]">
-      <p className="text-[25px] lg:text-[40px] text-white">Staking Badge System & Benefits</p>
+      <p className="text-[25px] lg:text-[40px] text-white">Stake Lock Badge System & Benefits</p>
       <div className="grid lg:grid-cols-3 mt-[20px] gap-[20px] lg:gap-[40px]">
         <div className="h-fit flex flex-col justify-between bg-[#000027] overflow-hidden rounded-[10px] text-white">
           <div className="p-[20px]">

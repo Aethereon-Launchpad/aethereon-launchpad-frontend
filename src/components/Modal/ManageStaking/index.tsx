@@ -8,14 +8,23 @@ import { createWalletClient, custom } from "viem";
 import stakingPoolAbi from "../../../abis/StakingPool.json";
 import { ethers } from "ethers";
 import { toast } from "react-hot-toast";
+import { getTokenBalance } from "../../../utils/web3/actions";
 
 interface ManageStakingProps {
     stakingPoolAddress: `0x${string}`;
     onClose: () => void;
     userAddress: `0x${string}`;
+    refetch: () => void;
 }
 
-export default function ManageStaking({ stakingPoolAddress, onClose, userAddress }: ManageStakingProps) {
+const createViemWalletClient = () => {
+    return createWalletClient({
+        chain: sonicTestnet,
+        transport: custom(window.ethereum)
+    });
+};
+
+export default function ManageStaking({ stakingPoolAddress, onClose, userAddress, refetch }: ManageStakingProps) {
     const [loading, setLoading] = useState(true);
     const [poolData, setPoolData] = useState<any>(null);
     const [input, setInput] = useState<string | number>(0.00);
@@ -24,6 +33,8 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
     const [rewardAmount, setRewardAmount] = useState<string>("0");
     const [newFeeReceiver, setNewFeeReceiver] = useState<string>("");
     const [isProcessing, setIsProcessing] = useState(false);
+
+    const { user } = usePrivy();
 
     useEffect(() => {
         async function fetchData() {
@@ -39,12 +50,6 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
         fetchData();
     }, [stakingPoolAddress]);
 
-    const createViemWalletClient = () => {
-        return createWalletClient({
-            chain: sonicTestnet,
-            transport: custom(window.ethereum)
-        });
-    };
 
     const handleAddReward = async () => {
         setIsProcessing(true);
@@ -52,7 +57,15 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
 
+            const tokenBalance = await getTokenBalance(poolData.stakingPool.rewardToken.id, userAddress);
+
             const amount = ethers.parseUnits(rewardAmount, poolData.stakingPool.rewardToken.decimals);
+
+            if (Number(amount) > Number(tokenBalance)){
+                toast("Not enough balance")
+                setIsProcessing(false)
+                return;
+            }
 
             const { request } = await publicClient.simulateContract({
                 address: stakingPoolAddress,
@@ -65,6 +78,7 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             const hash = await walletClient.writeContract(request);
             await publicClient.waitForTransactionReceipt({ hash });
             toast.success("Rewards added successfully!");
+            await refetch();
         } catch (error) {
             console.error("Error adding rewards:", error);
             toast.error("Failed to add rewards");
@@ -90,6 +104,7 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             const hash = await walletClient.writeContract(request);
             await publicClient.waitForTransactionReceipt({ hash });
             toast.success("Rewards drained successfully!");
+            await refetch();
         } catch (error) {
             console.error("Error draining rewards:", error);
             toast.error("Failed to drain rewards");

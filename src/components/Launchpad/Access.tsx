@@ -16,7 +16,7 @@ function Access() {
               Dynamic Rewards Staking
             </p>
             <p className="text-[16px] mt-[5px] font-[400]">
-              Earn more rewards the longer you{" "}
+              Earn more rewards the more you{" "}
               <br className="hidden lg:block" />
               stake your tokens!
             </p>

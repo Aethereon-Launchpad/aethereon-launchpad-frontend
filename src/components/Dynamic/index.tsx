@@ -92,9 +92,9 @@ function Dynamic() {
       <div className="flex justify-center items-center h-[200px]">
         <Preloader
           use={ThreeDots}
-          size={60}
+          size={24}
           strokeWidth={6}
-          strokeColor="#5325A9"
+          strokeColor="#FFFFFF"
           duration={2000}
         />
       </div>
@@ -142,28 +142,39 @@ function Dynamic() {
         )
 
         console.log(allowance);
-        // Check if allowance is less than stake amount
-        if (Number(allowance) < stakeAmount) {
-          // Allow Contract to Spend
-          const { request } = await publicClient.simulateContract({
-            address: data.stakeLock.stakeToken.id,
-            account,
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [data.stakeLock.id, stakeAmountArg]  // Changed to approve staking pool contract
-          })
+        try {
+          // Check if allowance is less than stake amount
+          if (Number(allowance) < stakeAmount) {
+            // Allow Contract to Spend
+            const { request } = await publicClient.simulateContract({
+              address: data.stakeLock.stakeToken.id,
+              account,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [data.stakeLock.id, stakeAmountArg]  // Changed to approve staking pool contract
+            })
 
-          // Run Approval
-          const txHash = await walletClient.writeContract(request);
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          const receipt = await publicClient.getTransactionReceipt({
-            hash: txHash
-          })
-          return receipt
-        }
+            // Run Approval
+            const txHash = await walletClient.writeContract(request);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            const receipt = await publicClient.getTransactionReceipt({
+              hash: txHash
+            })
+            return receipt
+          }
 
-        return {
-          status: "success"
+          return {
+            status: "success"
+          }
+
+        } catch (error: any) {
+          console.error(error.message)
+          if (error.message.includes("User rejected the request")) {
+            toast("User Rejected the Request")
+            return;
+          }
+        } finally {
+          setIsStaking(false);
         }
       }
     }
@@ -216,7 +227,7 @@ function Dynamic() {
     const [account] = await walletClient.getAddresses();
 
     if (unstake === false) {
-      if (Number(data?.userData?.ewards) === 0) {
+      if (Number(data?.userData?.rewards) === 0) {
         toast("No Rewards Available")
         return;
       }
@@ -266,115 +277,248 @@ function Dynamic() {
 
   console.log(data)
 
+  function returnMultiplier(amount: number) {
+    let multiplier = "1x";
+    if (amount >= 50000) {
+      multiplier = "3.5x";
+    } else if (amount >= 15000) {
+      multiplier = "3x";
+    } else if (amount >= 10000) {
+      multiplier = "2.5x";
+    } else if (amount >= 5000) {
+      multiplier = "2x";
+    } else if (amount >= 1000) {
+      multiplier = "1.5x";
+    }
+    return multiplier;
+  }
+
+  function getBadgeInfo(amount: number) {
+    if (amount >= 50000) {
+      return { name: "Obsidian Vanguard", image: "./obs.svg" };
+    } else if (amount >= 15000) {
+      return { name: "Titanium Pioneer", image: "./titan.svg" };
+    } else if (amount >= 10000) {
+      return { name: "Steel Forgemaster", image: "./steel.svg" };
+    } else if (amount >= 5000) {
+      return { name: "Iron Miner", image: "./iron.svg" };
+    } else if (amount >= 1000) {
+      return { name: "Copper Miner", image: "./pickaxe.svg" };
+    }
+    return { name: "No Badge", image: "" };
+  }
+
+  const badgeInfo = getBadgeInfo(data?.userData?.amountStaked || 0);
+  const currentMultiplier = returnMultiplier(data?.userData?.amountStaked || 0);
+
   return (
-    <div className="flex flex-col font-space p-[40px_20px] text-white items-center justify-center">
-      <TxReceipt
-        visible={showTxModal}
-        onClose={() => setShowTxModal(false)}
-        title={txReceiptTitle}
-        txHash={txHash}
-      />
-      {openConfirmStaking && (
-        <ConfirmStakingModal
-          stakeAmount={stakeAmount}
-          tokenSymbol={data.stakeLock.stakeToken.symbol}
-          onConfirm={handleStake}
-          onClose={() => {
-            setOpenConfirmStaking(false)
-            setIsStaking(false)
-          }}
-          loading={isStaking}
-          APY={data.stakeLock.apyRate}
-        />
-      )}
-      {
-        openConfirmUnstaking && (
+    <div className="flex flex-col font-space text-white">
+      {/* Hero Section with Background */}
+      <div className="relative overflow-hidden hero-bg">
+        <div className="h-[400px] w-[400px] top-0 absolute rounded-full left-[-10%] blur-[40px] bg-[#8949FF33]"></div>
+        <div className="h-[500px] w-[500px] top-0 absolute rounded-full right-[-10%] blur-[40px] bg-[#8949FF33]"></div>
+
+        {/* Header Content */}
+        <div className="w-full lg:w-[80%] mx-auto text-center py-16 px-4">
+          <h1 className="text-[30px] lg:text-[70px] font-[500] leading-[35px] lg:leading-[75px] text-center">
+            Boost Your Presale Rewards with <br className="hidden lg:block" />
+            Staking Multipliers
+          </h1>
+          <p className="text-[15px] text-center lg:text-[22px] mt-[10px] lg:mt-[5px] text-gray-300">
+            The more you stake in this pool, the higher your presale reward multiplier!
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto w-full px-4 py-8 space-y-8">
+        {/* User Stats Cards */}
+        {authenticated && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Current Badge */}
+            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+              <div className="flex items-center space-x-3 mb-4">
+                {badgeInfo.image && (
+                  <img src={badgeInfo.image} alt={badgeInfo.name} className="w-12 h-12" />
+                )}
+                <div>
+                  <h3 className="text-xl font-bold">{badgeInfo.name}</h3>
+                  <p className="text-gray-400">Current Badge</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Current Multiplier */}
+            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+              <div className="text-center">
+                <span className="text-4xl font-bold text-primary block mb-2">{currentMultiplier}</span>
+                <p className="text-gray-400">Current Multiplier</p>
+              </div>
+            </div>
+
+            {/* Amount Staked */}
+            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+              <div className="text-center">
+                <span className="text-4xl font-bold block mb-2">{data?.userData?.amountStaked || 0}</span>
+                <p className="text-gray-400">Total Staked DRX</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Staking Interface */}
+        <div className="bg-[#000027] p-8 rounded-xl shadow-lg">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Column - Staking Input */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Amount to Stake</label>
+                <div className="relative group">
+                  <input
+                    type="number"
+                    value={stakeAmount}
+                    onChange={(e) => handleSetAmount(Number(e.target.value))}
+                    className="w-full bg-[#1A1A1A] rounded-lg p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                    placeholder="Enter amount"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                    <span className="text-gray-400">DRX</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Target Multiplier</label>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMultiplierDropdown(!showMultiplierDropdown)}
+                    className="w-full bg-[#1A1A1A] rounded-lg p-4 text-left flex items-center justify-between hover:bg-[#252525] transition-colors"
+                  >
+                    <span>{multiplier}</span>
+                    <FaChevronDown className={`transition-transform duration-300 ${showMultiplierDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showMultiplierDropdown && (
+                    <div className="absolute w-full mt-2 bg-[#1A1A1A] rounded-lg shadow-xl z-10 border border-primary/20">
+                      {multiplierOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => handleMultiplierSelect(option.value)}
+                          className="w-full p-4 text-left hover:bg-primary hover:text-white transition-all flex justify-between items-center"
+                        >
+                          <span>{option.value}</span>
+                          <span className="text-sm text-gray-400">Min: {option.minAmount} DRX</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Estimated Rewards */}
+              <div className="bg-[#1A1A1A] p-6 rounded-lg border border-primary/20">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-400">Estimated Rewards</p>
+                    <p className="text-2xl font-bold mt-1">{estimatedRewards} DRX</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-400">APY</p>
+                    <p className="text-xl font-bold text-primary">{data?.stakeLock?.apyRate}%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Action Buttons */}
+            <div className="flex flex-col justify-center space-y-4">
+              {!authenticated ? (
+                <button
+                  onClick={login}
+                  className="w-full bg-primary text-white p-4 rounded-lg flex items-center justify-center space-x-3 hover:bg-primary/90 transition-all text-lg font-medium"
+                >
+                  <IoWalletSharp className="text-xl" />
+                  <span>Connect Wallet</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setOpenConfirmStaking(true)}
+                    disabled={isStaking || stakeAmount <= 0}
+                    className="w-full bg-primary text-white p-4 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+                  >
+                    {isStaking ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>Processing</span>
+                        <Preloader
+                          use={ThreeDots}
+                          size={24}
+                          strokeWidth={6}
+                          strokeColor="#FFFFFF"
+                          duration={2000}
+                        />
+                      </div>
+                    ) : (
+                      'Stake DRX'
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setOpenConfirmUnstaking(true)}
+                    disabled={isStaking || !data?.userData?.amountStaked}
+                    className="w-full border-2 border-primary text-primary p-4 rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+                  >
+                    {isStaking ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>Processing</span>
+                        <Preloader
+                          use={ThreeDots}
+                          size={24}
+                          strokeWidth={6}
+                          strokeColor="#FFFFFF"
+                          duration={2000}
+                        />
+                      </div>
+                    ) : (
+                      'Unstake DRX'
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Modals */}
+        {openConfirmStaking && (
+          <ConfirmStakingModal
+            onClose={() => setOpenConfirmStaking(false)}
+            onConfirm={handleStake}
+            stakeAmount={stakeAmount}
+            loading={isStaking}
+            APY={data.stakeLock.apyRate}
+            tokenSymbol="DRX"
+          />
+        )}
+        {openConfirmUnstaking && (
           <ConfirmUnstaking
             tokenSymbol={data.stakeLock.stakeToken.symbol}
-            onConfirm={handleWithdraw}
-            onClose={() => {
-              setOpenConfirmUnstaking(false)
-              setIsStaking(false)
-            }}
+            onConfirm={() => handleWithdraw(false)}
+            onClose={() => setOpenConfirmUnstaking(false)}
             loading={isStaking}
             APY={data.stakeLock.apyRate}
             rewardsTokenSymbol={data.stakeLock.rewardToken.symbol}
-            lockAmount={data?.userData?.amountStaked}
             nextRewardTime={data.userData.nextRewardTime}
-            rewardAmount={data?.userData?.rewards}
+            lockAmount={data.userData.amountStaked}
+            rewardAmount={data.userData.rewards}
             lastStakeTime={data.userData.lastStakeTime}
             lockStake={true}
           />
-        )
-      }
-      <p className="text-[30px] lg:text-[70px] font-[500] leading-[35px] lg:leading-[75px] text-center">
-        Boost Your Presale Rewards with <br className="hidden lg:block" />
-        Staking Multipliers
-      </p>
-      <p className="text-[15px] text-center lg:text-start  lg:text-[22px] mt-[10px] lg:mt-[5px]">
-        The more you stake in this pool, the higher your presale reward multiplier!
-      </p>
+        )}
 
-      <img src="./unlock.svg" className="mt-[5px]" alt="" />
-
-      <div className="mt-[40px] lg:mt-[20px] w-full lg:w-[50%] grid lg:grid-cols-3 gap-[20px]">
-        <div className="lg:col-span-2 relative">
-          <label>Lock Amount : {data?.userData?.amountStaked} DRX</label>
-
-          <input type="number" step={0.01} className="cursor-pointer mt-[5px] h-[50px] w-full outline-none bg-transparent border rounded-[6px] flex items-center justify-between px-[10px] text-center" value={stakeAmount} onChange={(e) => handleSetAmount(Number(e.target.value))} />
-        </div>
-        <div className="flex flex-col justify-center items-center relative">
-          <p>Presale Multiplier Bonus</p>
-          <div
-            className="cursor-pointer mt-[5px] h-[50px] w-full outline-none bg-transparent border rounded-[6px] flex items-center justify-center px-[10px] relative"
-            onClick={() => setShowMultiplierDropdown(!showMultiplierDropdown)}
-          >
-            {multiplier}
-            <FaChevronDown className="absolute right-2" />
-            {showMultiplierDropdown && (
-              <div className="absolute top-full mt-1 w-full bg-white text-black rounded-[6px] border shadow-lg z-10">
-                {multiplierOptions.map((option) => (
-                  <div
-                    key={option.value}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleMultiplierSelect(option.value)}
-                  >
-                    {option.value}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="lg:col-span-2">
-          <p>Lock Period</p>
-          <span className="cursor-pointer mt-[5px] h-[50px] w-full outline-none bg-transparent border rounded-[6px] flex items-center justify-center px-[10px]">{Number(data.stakeLock.withdrawalIntervals) / (24 * 60 * 60)} Days</span>
-        </div>
-        <div className="">
-          <p>Estimated Rewards</p>
-          <span className="cursor-pointer mt-[5px] h-[50px] w-full outline-none bg-transparent border rounded-[6px] flex items-center justify-center px-[10px] relative">
-            {estimatedRewards ? estimatedRewards : ""} DRX
-          </span>
-        </div>
-        {
-          !authenticated ? (
-            <button className="bg-primary flex items-center col-span-3 space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={login}>
-              <IoWalletSharp className="text-[14px] lg:text-[16px] " />
-              <p className="text-[14px] lg:text-[16px]">Connect Wallet to Join</p>
-            </button>
-          ) : (
-            <>
-              {(data?.userData?.amountStaked > 0 || data?.userData?.rewards > 0) && <button className="bg-transparent border-primary border-2 lg:col-span-3 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] min-w-full justify-center font-[500]" onClick={() => setOpenConfirmUnstaking(true)}>
-                <p className="text-[14px] lg:text-[16px]">Withdraw</p>
-              </button>}
-              <button className="bg-primary lg:col-span-3 text-white font-[500] items-center justify-center h-[50px] rounded-[8px] min-w-full"
-                onClick={() => setOpenConfirmStaking(true)}
-              >
-                Lock My Stake
-              </button>
-            </>
-          )
-        }
+        <TxReceipt
+          visible={showTxModal}
+          onClose={() => setShowTxModal(false)}
+          txHash={txHash}
+          title={txReceiptTitle}
+        />
       </div>
     </div>
   );

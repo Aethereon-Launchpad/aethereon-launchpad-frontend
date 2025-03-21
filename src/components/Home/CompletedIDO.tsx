@@ -70,7 +70,7 @@ function CompletedIDO() {
             ))
           ) : (
             <div className="col-span-full text-center text-gray-400">
-              No upcoming or active IDOs at the moment
+              No completed IDOs at the moment
             </div>
           )}
         </div>

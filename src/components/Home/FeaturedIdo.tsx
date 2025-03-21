@@ -59,7 +59,7 @@ function FeaturedIdo() {
   return (
     <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]">
       <div className="flex flex-col items-start text-white">
-        <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Featured Upcoming<br /> IDO Sales</p>
+        <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Featured Upcoming &<br /> Ongoing IDO Sales</p>
         <p className="text-[14px] lg:text-[19px] text-[#A1A1AA]">
           Don't Miss Out on the Next Big Project!
         </p>
