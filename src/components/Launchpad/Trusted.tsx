@@ -1,6 +1,8 @@
 // import React from 'react'
 
+
 function Trusted() {
+
   return (
     <div>
       <div className="flex font-space flex-col items-center justify-center py-[40px]">
@@ -9,20 +11,21 @@ function Trusted() {
         </p>
         <div className="flex flex-col lg:flex-row items-center space-y-[30px] lg:space-y-0 lg:space-x-[50px] mt-[20px]">
           <div className="flex flex-col items-center text-white">
-            <p className="font-[700] leading-[45px] text-[40px]">$75M+</p>
-            <p>Total Raised</p>
+            <p className="font-[700] leading-[45px] text-[40px]">8.5x</p>
+            <p>ATH AVG
+              ROI</p>
           </div>
           <div className="flex flex-col items-center text-white">
-            <p className="font-[700] leading-[45px] text-[40px]">$1.5B+</p>
-            <p>Total FDV (Fully Diluted Valuation)</p>
+            <p className="font-[700] leading-[45px] text-[40px]">{20}+</p>
+            <p>Completed IDOs</p>
           </div>
           <div className="flex flex-col items-center text-white">
-            <p className="font-[700] leading-[45px] text-[40px]">200K</p>
-            <p>Whitelisted Users</p>
+            <p className="font-[700] leading-[45px] text-[40px]">10+</p>
+            <p>Giveaways</p>
           </div>
           <div className="flex flex-col items-center text-white">
-            <p className="font-[700] leading-[45px] text-[40px]">950K</p>
-            <p>Connected Wallets</p>
+            <p className="font-[700] leading-[45px] text-[40px]">12%</p>
+            <p>Supply Staked</p>
           </div>
         </div>
       </div>

@@ -53,7 +53,7 @@ function Reward() {
           duration={2000}
         />
       </div>
-    );
+    );w
   }
 
 

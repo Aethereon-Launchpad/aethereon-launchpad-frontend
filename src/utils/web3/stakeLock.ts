@@ -2,6 +2,8 @@ import LockStakeABI from "../../abis/StakeLock.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import { publicClient as client } from "../../config";
 import { ethers } from "ethers";
+import { getTotalSupply } from "./actions";
+import { parseAbiItem } from "viem";
 
 const stakeLock = "0xA694F36757a3C1A4b9bD335460E1D5F826a9a016"
 
