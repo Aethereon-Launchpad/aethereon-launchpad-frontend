@@ -13,8 +13,10 @@ import FeaturedIdo from '../components/Home/FeaturedIdo'
 import Layout from '../layout'
 import CompletedIDO from '../components/Home/CompletedIDO'
 import FAQ from '../components/Home/FAQ'
+import { usePageTitle } from '../hooks/utils'
 
 function Launchpad() {
+  usePageTitle("Discover and Invest in Early-Stage Blockchain Projects")
   return (
     <Layout>
       <LaunchHero />
