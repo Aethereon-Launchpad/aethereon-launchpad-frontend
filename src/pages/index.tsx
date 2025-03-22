@@ -20,7 +20,7 @@ function Home() {
     <Layout>
       <HomeHero />
       <Trusted />
-      <Unlock />
+      {/* <Unlock /> */}
       <HowTo />
       <FeaturedIdo />
       <CompletedIDO />

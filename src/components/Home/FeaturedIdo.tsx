@@ -38,7 +38,7 @@ function FeaturedIdo() {
   if (error.message) {
     console.error("Featured IDO Error:", error.message);
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
+      <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center" id="upcomingido">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -57,7 +57,7 @@ function FeaturedIdo() {
   }
 
   return (
-    <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]">
+    <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]" id="upcomingido">
       <div className="flex flex-col items-start text-white">
         <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Featured Upcoming &<br /> Ongoing IDO Sales</p>
         <p className="text-[14px] lg:text-[19px] text-[#A1A1AA]">
