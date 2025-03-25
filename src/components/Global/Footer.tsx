@@ -30,7 +30,7 @@ function Footer() {
     },
     {
       name: "Documentation",
-      link: "https://timmyweb3.notion.site/DerHex-Documentation-1ba6e8fffcc5801b8a9dc1d73e7b15f9?pvs=4",
+      link: "https://derhex.notion.site/DerHex-Documentation-1ba6e8fffcc5804bbe21e858fdf7361a?pvs=4",
     },
     {
       name: "Terms of Service",
