@@ -30,15 +30,23 @@ function Footer() {
     },
     {
       name: "Documentation",
-      link: "https://timmyweb3.notion.site/DerHex-Documentation-1ba6e8fffcc5801b8a9dc1d73e7b15f9?pvs=4",
+      link: "https://derhex.notion.site/DerHex-Documentation-1ba6e8fffcc5804bbe21e858fdf7361a?pvs=4",
     },
     {
-      name: "Terms and Condition",
-      link: "/terms",
+      name: "Terms of Service",
+      link: "/terms-of-service",
     },
     {
       name: "Privacy Policy",
-      link: "/privacy",
+      link: "/privacy-policy",
+    },
+    {
+      name: "Cookies Policy",
+      link: "/cookies-policy",
+    },
+    {
+      name: "Disclaimer",
+      link: "/disclaimer",
     },
     {
       name: "Contact",
@@ -86,7 +94,7 @@ function Footer() {
         <div>
           <img src="/derhex-logo.svg" className="h-[26px] lg:h-[38px]" alt="" />
           <p className="w-full lg:w-[50%] text-[14px] lg:text-[16px] mt-[15px] lg:mt-[25px]">
-            Derhex Pad is a leading decentralized fundraising platform on @soniclabs, incubating the next generation of web3 startups, fueled by $D & $S
+            Derhex Pad is a leading decentralized fundraising platform on @soniclabs, incubating the next generation of web3 startups, fueled by $D & $S
           </p>
         </div>
         <div className="grid gap-[30px] lg:gap-0 lg:grid-cols-3">

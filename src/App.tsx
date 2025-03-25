@@ -1,5 +1,3 @@
-
-
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages'
 import Launchpad from './pages/launchpad'
@@ -22,6 +20,10 @@ import AdminManagePresales from './pages/admin/dashboard/presale'
 import AdminPresaleManageID from "./pages/admin/dashboard/presale/manage"
 import FundPresale from "./pages/presale/fund";
 import CashPresale from "./pages/presale/cash";
+import PrivacyPolicy from './pages/legal/PrivacyPolicy'
+import TermsOfService from './pages/legal/TermsOfService'
+import CookiesPolicy from './pages/legal/CookiesPolicy'
+import Disclaimer from './pages/legal/Disclaimer'
 
 function App() {
 
@@ -48,6 +50,10 @@ function App() {
       <Route path='/admin/dashboard/presales/:id' element={<AdminManagePresales />} />
       <Route path='/admin/dashboard/presales/fund/:id' element={<FundPresale />} />
       <Route path='/admin/dashboard/presales/cash/:id' element={<CashPresale />} />
+      <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+      <Route path='/terms-of-service' element={<TermsOfService />} />
+      <Route path='/cookies-policy' element={<CookiesPolicy />} />
+      <Route path='/disclaimer' element={<Disclaimer />} />
     </Routes>
   )
 }
