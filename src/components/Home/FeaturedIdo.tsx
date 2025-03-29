@@ -15,7 +15,7 @@ function FeaturedIdo() {
       const filtered = data.filter((presale: any) => {
         const startTime = Number(presale.startTime) * 1000;
         const endTime = (Number(presale.endTime) + Number(presale.withdrawDelay)) * 1000;
-        return isBefore(currentTime, endTime); // Show presales that haven't ended yet
+        return isBefore(currentTime, endTime) && !presale.isPrivateSale; // Show presales that haven't ended yet
       });
       setFilteredSales(filtered);
     }

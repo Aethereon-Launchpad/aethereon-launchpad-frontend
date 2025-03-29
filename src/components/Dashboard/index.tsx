@@ -73,38 +73,55 @@ function DashComp() {
       </p>
 
       <div className="mt-[20px]">
-
+        {!authenticated ? (
+          <button 
+            className="relative p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white flex items-center space-x-[5px] overflow-hidden group-button"
+            onClick={login}
+          >
+            <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+            <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+            <span className="relative flex items-center">
+              <span>Connect Wallet</span>
+              <FaArrowCircleRight className="text-white ml-2" />
+            </span>
+          </button>
+        ) : (
+          <button 
+            className="relative p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white flex items-center space-x-[5px] overflow-hidden group-button"
+            onClick={logout}
+          >
+            <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+            <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+            <span className="relative flex items-center">
+              <span className="truncate max-w-[100px]">{user?.wallet?.address}</span>
+              <span className="truncate max-w-[100px] hover:block hidden">Disconnect</span>
+              <FaArrowCircleRight className="text-white ml-2" />
+            </span>
+          </button>
+        )}
       </div>
 
-      {!authenticated ? (
-        <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]" onClick={login}>
-          <span>Connect Wallet</span>
-          <FaArrowCircleRight className="text-white" />
-        </button>
-      ) : (
-        <button className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px] hover:bg-red-500 transition-all duration-1000" onClick={logout}>
-          <span className="truncate max-w-[100px] ">{user?.wallet?.address}</span>
-          <span className="truncate max-w-[100px] hover:block hidden">Disconnect</span>
-          <FaArrowCircleRight className="text-white" />
-        </button>
-      )}
-
-      <div className="border border-primary p-[20px] lg:p-[40px] w-full  xl:w-[50%] rounded-[10px] mt-[80px] flex flex-col items-center justify-center">
-        <p className="text-[63px] leading-[60px] text-primary">{data?.userData?.amountStaked}</p>
-        <p className="text-[14px]">Total IDO Power</p>
-        <p>Presale Multiplier : {returnMultiplier(data?.userData?.amountStaked)}</p>
-        <div className="flex items-center space-x-[10px] mt-[10px]">
-          {badgeInfo.image && <img src={badgeInfo.image} alt={badgeInfo.name} className="w-[24px] h-[24px]" />}
-          <p>Badge: {badgeInfo.name}</p>
+      <div className="relative p-[20px] lg:p-[40px] w-full xl:w-[50%] mt-[80px] flex flex-col items-center justify-center overflow-hidden group">
+        <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+        <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+        <div className="relative text-center">
+          <p className="text-[63px] leading-[60px] text-primary">{data?.userData?.amountStaked}</p>
+          <p className="text-[14px] text-white">Total IDO Power</p>
+          <p className="text-white">Presale Multiplier : {returnMultiplier(data?.userData?.amountStaked)}</p>
+          <div className="flex items-center space-x-[10px] mt-[10px] justify-center">
+            {badgeInfo.image && <img src={badgeInfo.image} alt={badgeInfo.name} className="w-[24px] h-[24px]" />}
+            <p className="text-white">Badge: {badgeInfo.name}</p>
+          </div>
+          {!authenticated && (
+            <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
+              <p className="text-center">
+                You do not have any connected wallets yet{" "}
+                <br className="hidden lg:block" /> Connect your wallet
+                so that you can be part of our IDOs
+              </p>
+            </div>
+          )}
         </div>
-        {!authenticated && (
-          <div className="bg-[#291254] text-white p-[20px] lg:p-[20px_40px] mt-[20px] rounded-[10px]">
-            <p className="text-center">
-              You do not have any connected wallets yet{" "}
-              <br className="hidden lg:block" /> Connect your wallet
-              so that you can be part of our IDOs
-            </p>
-          </div>)}
       </div>
     </div>
   );

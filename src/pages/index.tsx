@@ -13,6 +13,10 @@ import CompletedIDO from "../components/Home/CompletedIDO"
 import { usePageTitle } from "../hooks/utils"
 import StakingCTA from "../components/Home/StakingCTA"
 import FAQ from "../components/Home/FAQ"
+import Access from "../components/Launchpad/Access"
+import StakingBadge from "../components/Launchpad/StakingBadge"
+import SupportedBy from "../components/Home/SupportedBy"
+import CompletedGiveaways from "../components/Giveaways/CompletedGiveaway"
 
 function Home() {
   usePageTitle("Discover and Invest in Early-Stage Blockchain Projects")
@@ -20,13 +24,17 @@ function Home() {
     <Layout>
       <HomeHero />
       <Trusted />
+      <SupportedBy />
       {/* <Unlock /> */}
       <HowTo />
+      <StakingBadge />
       <FeaturedIdo />
       <CompletedIDO />
       <Guaranteed />
+      <CompletedGiveaways />
       <StakingCTA />
       <Community />
+      <Access />
       <FAQ />
       <Subscribe />
     </Layout>

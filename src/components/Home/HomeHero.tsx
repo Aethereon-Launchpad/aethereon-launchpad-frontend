@@ -21,33 +21,50 @@ function HomeHero() {
           <p className="text-[40px] lg:text-[70px] font-[700] leading-[45px] lg:leading-[75px]">The Future of Token <br className="hidden lg:block" /> Launches</p>
           <p className="text-[18px] lg:text-[22px] leading-[25px] lg:leading-[27px] mt-[5px] lg:mt-[10px]">Discover, Invest, and Empower the Next <br className="hidden lg:block" /> Big Blockchain Giants – Join Early, Earn Rewards, Shape the Future</p>
           <div className="flex flex-wrap gap-3">
-            <Link to="#upcomingido" className="border-2 border-primary hover:bg-primary transition-all duration-300 p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]">
-              <span>Upcoming IDOs</span>
-              <FaArrowCircleRight className="text-white ml-2" />
+            <Link
+              to="#upcomingido"
+              className="relative px-6 py-2 mt-[20px] font-[500] text-[20px] text-white flex items-center justify-center overflow-hidden group"
+            >
+              <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+              <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+              <span className="relative">Upcoming IDOs</span>
             </Link>
-            <Link to="/lock-stake" className="border-2 border-primary hover:bg-primary transition-all duration-300 p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]">
-              <span>Stake $DRX</span>
-              <FaArrowCircleRight className="text-white ml-2" />
+            <Link
+              to="/lock-stake"
+              className="relative px-6 py-2 mt-[20px] font-[500] text-[20px] text-white flex items-center justify-center overflow-hidden group"
+            >
+              <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+              <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+              <span className="relative">Stake $DRX</span>
             </Link>
-            <Link to="https://t.me/+SZiyw7ZP9gliM2Fk" target="_blank" className="border-2 border-primary hover:bg-primary transition-all duration-300 p-[8px_20px] mt-[20px] font-[500] text-[20px] text-white rounded-full flex items-center space-x-[5px]">
-              <span>Get Notified</span>
-              <FaArrowCircleRight className="text-white ml-2" />
+            <Link
+              to="https://t.me/+SZiyw7ZP9gliM2Fk"
+              target="_blank"
+              className="relative px-6 py-2 mt-[20px] font-[500] text-[20px] text-white flex items-center justify-center overflow-hidden group"
+            >
+              <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+              <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+              <span className="relative">Get Notified</span>
             </Link>
           </div>
-          <div className="flex items-center space-x-[10px] mt-[20px] border-2 border-primary max-w-fit p-3 rounded-full hover:cursor-pointer duration-300 transition-all hover:bg-primary">
-            <div className="flex items-center -space-x-1.5">
-              {chains.map((chain, index) => {
-                return (
-                  <img
-                    src={chain}
-                    alt=""
-                    key={index}
-                    className="w-[25px] h-[25px] object-contain hover:scale-110 transition-transform duration-200 filter brightness-0 invert p-1"
-                  />
-                )
-              })}
+          <div className="relative px-6 py-2 mt-[20px] w-fit font-[500] text-[20px] text-white flex items-center justify-center overflow-hidden group">
+            <span className="absolute inset-0 w-[full] h-full bg-primary clip-path-polygon"></span>
+            <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+            <div className="relative flex items-center space-x-[10px]">
+              <div className="flex items-center -space-x-1.5">
+                {chains.map((chain, index) => {
+                  return (
+                    <img
+                      src={chain}
+                      alt=""
+                      key={index}
+                      className="w-[25px] h-[25px] object-contain hover:scale-110 transition-transform duration-200 filter brightness-0 invert p-1"
+                    />
+                  )
+                })}
+              </div>
+              <p className="text-xl">Supported Blockchains</p>
             </div>
-            <p className="text-xl">Supported Blockchains</p>
           </div>
         </div>
         <div className="mt-[40px] lg:mt-0 flex items-center justify-end">

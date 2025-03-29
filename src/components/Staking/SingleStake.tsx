@@ -390,16 +390,14 @@ function SingleStake() {
         title={txReceiptTitle}
         txHash={txHash}
       />
-      {
-        manageStakingModal && (
-          <ManageStaking
-            stakingPoolAddress={id as `0x${string}`}
-            onClose={() => setManageStakingModal(false)}
-            userAddress={user?.wallet?.address as `0x${string}`}
-            refetch={loadUpData}
-          />
-        )
-      }
+      {manageStakingModal && (
+        <ManageStaking
+          stakingPoolAddress={id as `0x${string}`}
+          onClose={() => setManageStakingModal(false)}
+          userAddress={user?.wallet?.address as `0x${string}`}
+          refetch={loadUpData}
+        />
+      )}
       {showModal && (
         <ConfirmStakingModal
           stakeAmount={stakeAmount}
@@ -413,106 +411,146 @@ function SingleStake() {
           APY={data.stakingPool.apyRate}
         />
       )}
-      {
-        showUnstakeModal && (
-          <ConfirmUnstaking
-            tokenSymbol={data.stakingPool.stakeToken.symbol}
-            onConfirm={handleWithdraw}
-            onClose={() => {
-              setShowUnstakeModal(false)
-              setIsStaking(false)
-            }}
-            loading={isStaking}
-            APY={data.stakingPool.apyRate}
-            rewardsTokenSymbol={data.stakingPool.rewardToken.symbol}
-            lockAmount={staked}
-            nextRewardTime={nextRewardTime}
-            rewardAmount={rewardAmount}
-            lastStakeTime={lastStakeTime}
-          />
-        )
-      }
-      <div className="w-full lg:w-[60%] border border-primary p-[20px] lg:p-[40px] rounded-lg">
-        <div className="flex items-center justify-center relative">
-          <div className="items-center flex justify-center space-x-[10px]">
-            {coinGeckoData?.image?.thumb ? (<img src={coinGeckoData.image.thumb} className="h-[50px] w-[50px] rounded-full border" alt="" />) :
-              <div className="h-[50px] w-[50px] rounded-full border flex items-center justify-center">?</div>}
-            <p className="text-[24px] font-[700]">{data.stakingPool.stakeToken.name}</p>
-          </div>
-          <div className="flex items-center space-x-[5px] absolute right-0 top-0">
-            <p className="text-[#D4D4D4]">Status</p>
-            {!paused ? (
-              <p className="bg-[#02C35B]/15 text-[#23E33E] text-[14px] rounded-[5px] p-[2px_8px] text-center">
-                Live
-              </p>
-            ) : (
-              <p className="bg-red-500/15 text-red-500 text-[14px] rounded-[5px] p-[2px_8px] text-center">
-                Paused
-              </p>
-            )}
-          </div>
-        </div>
-        <form className="my-[20px] flex items-center w-full justify-center">
-          <input className="text-primary text-[63px] text-center bg-transparent outline-none border-none" type="number" step={0.01} value={stakeAmount.toFixed(2)} onChange={(e) => setStakeAmount(Number(e.target.value))} min={0} />
-        </form>
-        <div className="">
-          <div className="flex items-center justify-between">
-            <p className="text-white text-[16px] mb-[5px]">Lock Amount: {staked}</p>
-            <p className="text-white text-[14px] mb-[5px]">Balance {balance}</p>
-          </div>
-          <div className="bg-[#291254] mt-[20px] rounded-[8px] space-x-[10px] text-white p-[8px] flex items-center hover:cursor-pointer">
-            <GoAlert className="text-[25px] lg:text-[20px]" />
-            <p className="text-[12px] lg:text-[14px] leading-[16px] truncate" title={coinGeckoData?.description?.en || "..."}>
-              {/* <span>$HEX is the native token of DerHex, designed to facilitate
-                staking, governance, and access to exclusive token sales.</span> */}
-              {coinGeckoData?.description?.en || "..."}
-            </p>
-          </div>
-          <div className="mt-[40px]">
-            <p className="uppercase text-[14px] text-[#A1A1AA]">Staking Summary</p>
-            <div className="mt-[20px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
-              <p>Current Price</p>
-              <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$???**"}.</p>
-              <p>Market Cap</p>
-              <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$???"} </p>
-              <p>Total Supply</p>
-              <p>{totalSupply ? new Intl.NumberFormat('en-US').format(Number(totalSupply)) : 0} (${data.stakingPool.stakeToken.symbol})</p>
+      {showUnstakeModal && (
+        <ConfirmUnstaking
+          tokenSymbol={data.stakingPool.stakeToken.symbol}
+          onConfirm={handleWithdraw}
+          onClose={() => {
+            setShowUnstakeModal(false)
+            setIsStaking(false)
+          }}
+          loading={isStaking}
+          APY={data.stakingPool.apyRate}
+          rewardsTokenSymbol={data.stakingPool.rewardToken.symbol}
+          lockAmount={staked}
+          nextRewardTime={nextRewardTime}
+          rewardAmount={rewardAmount}
+          lastStakeTime={lastStakeTime}
+        />
+      )}
+      <div className="relative w-full lg:w-[60%] p-[20px] lg:p-[40px] overflow-hidden group border border-primary/50">
+        {/* <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+        <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300 border border-primary"></span> */}
+
+        <div className="relative">
+          <div className="flex items-center justify-center relative">
+            <div className="items-center flex justify-center space-x-[10px]">
+              {coinGeckoData?.image?.thumb ? (
+                <img src={coinGeckoData.image.thumb} className="h-[50px] w-[50px] rounded-full border" alt="" />
+              ) : (
+                <div className="h-[50px] w-[50px] rounded-full border flex items-center justify-center">?</div>
+              )}
+              <p className="text-[24px] font-[700]">{data.stakingPool.stakeToken.name}</p>
+            </div>
+            <div className="flex items-center space-x-[5px] absolute right-0 top-0">
+              <p className="text-[#D4D4D4]">Status</p>
+              {!paused ? (
+                <p className="bg-[#02C35B]/15 text-[#23E33E] text-[14px] rounded-[5px] p-[2px_8px] text-center">
+                  Live
+                </p>
+              ) : (
+                <p className="bg-red-500/15 text-red-500 text-[14px] rounded-[5px] p-[2px_8px] text-center">
+                  Paused
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="mt-[40px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
-            <p>Total Staked</p>
-            <p>{data.stakingPool.totalStaked} {data.stakingPool.stakeToken.symbol}</p>
-            <p>APY Rates</p>
-            <p>{data.stakingPool.apyRate}%**</p>
-            <p>Vesting Period </p>
-            <p> {noOfDays(data.stakingPool.withdrawalIntervals)} days</p>
+          <form className="my-[20px] flex items-center w-full justify-center">
+            <input
+              className="text-primary text-[63px] text-center bg-transparent outline-none border-none"
+              type="number"
+              step={0.01}
+              value={stakeAmount.toFixed(2)}
+              onChange={(e) => setStakeAmount(Number(e.target.value))}
+              min={0}
+            />
+          </form>
+
+          <div className="">
+            <div className="flex items-center justify-between">
+              <p className="text-white text-[16px] mb-[5px]">Lock Amount: {staked}</p>
+              <p className="text-white text-[14px] mb-[5px]">Balance {balance}</p>
+            </div>
+            <div className="bg-[#291254] mt-[20px] rounded-[8px] space-x-[10px] text-white p-[8px] flex items-center hover:cursor-pointer">
+              <GoAlert className="text-[25px] lg:text-[20px]" />
+              <p className="text-[12px] lg:text-[14px] leading-[16px] truncate" title={coinGeckoData?.description?.en || "..."}>
+                {coinGeckoData?.description?.en || "..."}
+              </p>
+            </div>
+
+            <div className="mt-[40px]">
+              <p className="uppercase text-[14px] text-[#A1A1AA]">Staking Summary</p>
+              <div className="mt-[20px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
+                <p>Current Price</p>
+                <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$???**"}.</p>
+                <p>Market Cap</p>
+                <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$???"} </p>
+                <p>Total Supply</p>
+                <p>{totalSupply ? new Intl.NumberFormat('en-US').format(Number(totalSupply)) : 0} (${data.stakingPool.stakeToken.symbol})</p>
+              </div>
+            </div>
+
+            <div className="mt-[40px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
+              <p>Total Staked</p>
+              <p>{data.stakingPool.totalStaked} {data.stakingPool.stakeToken.symbol}</p>
+              <p>APY Rates</p>
+              <p>{data.stakingPool.apyRate}%**</p>
+              <p>Vesting Period </p>
+              <p> {noOfDays(data.stakingPool.withdrawalIntervals)} days</p>
+            </div>
           </div>
-        </div>
-        {
-          !authenticated ? (
-            <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={login}>
-              <IoWalletSharp className="text-[14px] lg:text-[16px]" />
-              <p className="text-[14px] lg:text-[16px]">Connect Wallet to Join</p>
+
+          {!authenticated ? (
+            <button
+              className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
+              onClick={login}
+            >
+              <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+              <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
+              <span className="relative flex items-center justify-center gap-2">
+                <IoWalletSharp className="text-[14px] lg:text-[16px]" />
+                <span>Connect Wallet to Join</span>
+              </span>
             </button>
           ) : (
             <div className="space-y-5">
-              {
-                stakingPoolOwner.toLowerCase() === user?.wallet?.address?.toLowerCase() && (
-                  <button onClick={() => setManageStakingModal(true)} className="bg-transparent border-secondary border-2 text-bold text-secondary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]">
-                    Manage Staking Pool
-                  </button>
-                )
-              }
-              {(staked > 0 || rewardAmount > 0) && <button className="bg-transparent border-primary border-2 text-bold text-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] mt-[40px] w-full justify-center font-[500]" onClick={unstakeConfirm}>
-                <p className="text-[14px] lg:text-[16px]">Withdraw</p>
-              </button>}
-              <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] w-full justify-center font-[500] mt-10" onClick={confirmStake}>
-                <p className="text-[14px] lg:text-[16px]">Confirm Stake</p>
+              {/* Secondary Button - Manage Staking Pool */}
+              {stakingPoolOwner.toLowerCase() === user?.wallet?.address?.toLowerCase() && (
+                <button
+                  className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
+                  onClick={() => setManageStakingModal(true)}
+                >
+                  <span className="absolute inset-0 w-full h-full bg-secondary clip-path-polygon"></span>
+                  <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
+                  <span className="relative">Manage Staking Pool</span>
+                </button>
+              )}
+
+              {/* Primary Button - Withdraw */}
+              {(staked > 0 || rewardAmount > 0) && (
+                <button
+                  className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
+                  onClick={unstakeConfirm}
+                >
+                  <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+                  <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
+                  <span className="relative">Withdraw</span>
+                </button>
+              )}
+
+              {/* Primary Button - Confirm Stake */}
+              <button
+                className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
+                onClick={confirmStake}
+              >
+                <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+                <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
+                <span className="relative">Confirm Stake</span>
               </button>
             </div>
-          )
-        }
+          )}
+        </div>
       </div>
     </div>
   )

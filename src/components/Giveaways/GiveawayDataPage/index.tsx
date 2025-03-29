@@ -1,28 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { usePresale } from '../../hooks/web3/usePresale';
+import { usePresale } from '../../../hooks/web3/usePresale';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import { differenceInDays, differenceInMinutes, differenceInHours, isBefore, isAfter } from 'date-fns';
-import { FaTwitter, FaTelegramPlane, FaDiscord, FaCopy } from "react-icons/fa";
-import { PresaleCountdownTimer } from '../Countdown';
+import {
+    isBefore,
+    isAfter,
+    format
+} from 'date-fns';
+import {
+    FaTwitter,
+    FaTelegramPlane,
+    FaDiscord,
+    FaCopy
+} from 'react-icons/fa';
+import { PresaleCountdownTimer } from '../../Countdown';
 import { toast } from 'react-hot-toast';
-import TxReceipt from '../Modal/TxReceipt';
-import PresaleABI from "../../abis/Presale.json";
-import { sonicTestnet } from "../../config/chain";
-import { publicClient } from "../../config";
+import TxReceipt from '../../Modal/TxReceipt';
+import PresaleABI from "../../../abis/Presale.json";
+import { sonicTestnet } from "../../../config/chain";
+import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
-import ConfirmPurchase from '../Modal/ConfirmPurchase';
+import ConfirmClaim from '../../Modal/ConfirmClaim';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
-import { getTokenAllowance } from '../../utils/web3/actions';
-import { getClaimableTokensAmount, paymentMade } from '../../utils/web3/presale';
-import erc20Abi from "../../abis/ERC20.json";
+import { getTokenAllowance } from '../../../utils/web3/actions';
+import { getClaimableTokensAmount, paymentMade } from '../../../utils/web3/presale';
+import erc20Abi from "../../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
-import { useLockStake } from '../../hooks/web3/useLockStake';
-import { getTokenBalance } from '../../utils/web3/actions';
-import { usePageTitleIDO } from '../../hooks/utils';
+import { useLockStake } from '../../../hooks/web3/useLockStake';
+import { getTokenBalance } from '../../../utils/web3/actions';
+import { usePageTitleGiveaway } from '../../../hooks/utils';
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -32,10 +41,10 @@ const createViemWalletClient = () => {
 };
 
 
-export default function IDOComponent() {
+export default function GiveawaySelected() {
     const { id } = useParams<{ id: `0x${string}` }>();
     const { data, error, loading, refetch } = usePresale(id)
-    const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(false);
+    const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(true);
     const [purchasing, setPurchasing] = useState<boolean>(false)
     const [txHash, setTxHash] = useState<`0x${string}`>("0x")
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
@@ -52,7 +61,7 @@ export default function IDOComponent() {
     const [loadingInfo, setLoadingInfo] = useState<boolean>(true)
     const [markdownContent, setMarkdownContent] = useState(``);
 
-    usePageTitleIDO(`Join ${data?.presaleInfo?.projectName} IDO` || "Presale")
+    usePageTitleGiveaway(`${data?.presaleInfo?.projectName} Airdrop` || "Airdrop")
 
     useEffect(() => {
         // Scroll to top when component mounts
@@ -83,7 +92,7 @@ export default function IDOComponent() {
         const startTimeUnix = data.startTime * 1000 || 0;
         const endTimeUnix = data.endTime * 1000 || 0;
 
-        // Checks if Sale is Over
+        // Checks if Giveaway is Over
         if (isAfter(new Date(), new Date(endTimeUnix))) {
             setIsSaleOver(true)
         }
@@ -136,21 +145,21 @@ export default function IDOComponent() {
         if (isAfter(new Date(), new Date(endTimeUnix))) {
             return (
                 <div className="bg-red-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-red-300'>Sale is Over</p>
+                    <p className='text-red-300'>Giveaway is Over</p>
                 </div>)
         }
 
         if (isAfter(new Date(), new Date(startTimeUnix)) && isBefore(new Date(), new Date(endTimeUnix))) {
             return (
                 <div className="bg-green-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-green-300'>Sale in Progress</p>
+                    <p className='text-green-300'>Giveaway in Progress</p>
                 </div>)
         }
 
         if (isBefore(new Date(), new Date(startTimeUnix))) {
             return (
                 <div className="bg-blue-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-blue-300'>Upcoming Sale</p>
+                    <p className='text-blue-300'>Upcoming Giveaway</p>
                 </div>)
         }
 
@@ -334,11 +343,11 @@ export default function IDOComponent() {
                         return;
                     }
                     if (error.message.includes("sale over")) {
-                        toast("Sale is Over!")
+                        toast("Giveaway is Over!")
                         return
                     }
                     if (error.message.includes("sale has not begun")) {
-                        toast('Sale has not started yet')
+                        toast('Giveaway has not started yet')
                         return
                     }
                     if (error.message.includes("must stake to participate in private sale")) {
@@ -401,7 +410,7 @@ export default function IDOComponent() {
                 return;
             }
             if (error.message.includes("sale has been cashed already")) {
-                toast("Sale has been cashed already")
+                toast("Giveaway has been cashed already")
                 return;
             }
             if (error.message.includes("cannot use emergency withdrawal after regular withdrawal")) {
@@ -526,108 +535,19 @@ export default function IDOComponent() {
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                             <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Presale Details</h3>
+                                <h3 className='text-xl font-semibold mb-4 text-primary'>Airdrop Details</h3>
                                 <ul className='space-y-3'>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>IDO Type</span>
-                                        <span className='font-medium'>Refundable sale</span>
+                                        <span className='text-gray-300'>Start Date</span>
+                                        <span className='font-medium'>{format(new Date(data.startTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
-                                        <span className='font-medium text-gray-300'>Sale Access</span>
-                                        <span className='text-primary underline'>{data.isPrivateSale ? "Private Sale" : "Public Sale"}</span>
+                                        <span className='text-gray-300'>End Date</span>
+                                        <span className='font-medium'>{format(new Date(data.endTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Sale Period</span>
-                                        <span className='font-medium'>
-                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000))}
-                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000)) === 1 ? " day" : " days"}
-                                        </span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Ticker</span>
-                                        <span className='font-medium'>{data.saleToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Token Price</span>
-                                        <span className='font-medium'>${data.salePrice} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    {data.linearVestingEndTime !== 0 && (
-                                        <li className='flex justify-between'>
-                                            <span className='text-gray-300'>Linear Vesting End</span>
-                                            <span className='font-medium'>
-                                                {data.linearVestingEndTime && data.linearVestingEndTime > 0 ? (
-                                                    new Date(data.linearVestingEndTime * 1000).toLocaleDateString('en-GB', {
-                                                        day: '2-digit',
-                                                        month: '2-digit',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })
-                                                ) : (
-                                                    <span className='text-gray-400'>TBA</span>
-                                                )}
-                                            </span>
-                                        </li>)}
-                                    {data.cliffPeriod.length > 0 && (
-                                        <li className='flex flex-col'>
-                                            <span className='text-gray-300 mb-2'>Cliff Vesting Periods</span>
-                                            {data.cliffPeriod &&
-                                                Array.isArray(data.cliffPeriod) &&
-                                                data.cliffPeriod.length > 0 &&
-                                                data.cliffPeriod[0].length > 0 ? (
-                                                <div className='space-y-2'>
-                                                    {data.cliffPeriod.map((period: any, index: number) => (
-                                                        period.length > 0 && (
-                                                            <div key={index} className='flex justify-between'>
-                                                                <span className='text-gray-400'>
-                                                                    {new Date(period.claimTime * 1000).toLocaleDateString('en-GB', {
-                                                                        day: '2-digit',
-                                                                        month: '2-digit',
-                                                                        year: 'numeric',
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit'
-                                                                    })}
-                                                                </span>
-                                                                <span className='font-medium'>
-                                                                    {period.pct}%
-                                                                </span>
-                                                            </div>
-                                                        )
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <span className='text-gray-400'>TBA</span>
-                                            )}
-                                        </li>)
-                                    }
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Refund Period</span>
-                                        <span className='font-medium'>
-                                            {Number(data.withdrawDelay) / 86400}
-                                            {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Investment Details</h3>
-                                <ul className='space-y-3'>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Soft Cap</span>
-                                        <span className='font-medium'>{Number(data.softCap).toLocaleString()} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Hard Cap</span>
-                                        <span className='font-medium'>{Number(data.hardCap).toLocaleString()} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Min Payment</span>
-                                        <span className='font-medium'>{Number(data.minTotalPayment).toFixed(0)}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Max Payment</span>
-                                        <span className='font-medium'>{Number(data.maxTotalPayment).toFixed(0)}</span>
+                                        <span className='text-gray-300'>Total Reward</span>
+                                        <span className='font-medium'>{data.presaleInfo?.totalReward.toLocaleString()} {data.saleToken.symbol}</span>
                                     </li>
                                     <li className='flex justify-between items-center'>
                                         <span className='text-gray-300'>Mainnet Contract</span>
@@ -723,7 +643,7 @@ export default function IDOComponent() {
                         <div className="mt-[10px] items-start flex flex-col space-x-[5px]">
                             {isBefore(new Date(), new Date(data.startTime * 1000)) ? (
                                 <>
-                                    <p className='text-primary text-[12px]'>Sale starts in</p>
+                                    <p className='text-primary text-[12px]'>Giveaway starts in</p>
                                     <PresaleCountdownTimer time={data.startTime} />
                                 </>
                             ) : isAfter(new Date(), new Date(data.endTime * 1000)) && isBefore(new Date(), new Date((Number(data.endTime) + Number(data.withdrawDelay)) * 1000)) ? (
@@ -733,7 +653,7 @@ export default function IDOComponent() {
                                 </>
                             ) : (
                                 <>
-                                    <p className='text-primary text-[12px]'>Sale ends in</p>
+                                    <p className='text-primary text-[12px]'>Giveaway ends in</p>
                                     <PresaleCountdownTimer time={data.endTime} />
                                 </>
                             )}
@@ -749,24 +669,14 @@ export default function IDOComponent() {
                     </div>
 
                     {/* Progress Bar */}
-                    <PresaleProgress
+                    {/* <PresaleProgress
                         totalPaymentReceived={data.totalPaymentReceived}
                         hardCap={data.hardCap}
                         softCap={data.softCap}
-                    />
+                    /> */}
 
                     {/* Stats */}
                     <div className="w-full">
-                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
-                            <p>Participants</p>
-                            <span className="bg-primary w-[20%] h-[2px]" />
-                            <p>{data.purchaserCount ? data.purchaserCount : 0} Investors Participated.</p>
-                        </div>
-                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
-                            <p>Total Raised</p>
-                            <div className="bg-primary w-[20%] h-[2px]" />
-                            <span>{data.totalPaymentReceived ? Number(data.totalPaymentReceived).toLocaleString() : 0} {data.paymentToken.symbol} Raised</span>
-                        </div>
                         <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
                             <p>Badge</p>
                             <div className="bg-primary w-[20%] h-[2px]" />
@@ -782,7 +692,7 @@ export default function IDOComponent() {
                     {/* Action Buttons */}
                     {authenticated ? (
                         <>
-                            {pastRefundPeriod ? (
+                            {pastRefundPeriod && (
                                 <button
                                     className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
                                     onClick={handleClaim}
@@ -795,24 +705,6 @@ export default function IDOComponent() {
                                             ? "You have no tokens to claim"
                                             : `Claim Tokens ${Number(claimableAmount).toLocaleString()} ${data.saleToken.symbol}`
                                         }
-                                    </span>
-                                </button>
-                            ) : (
-                                <button
-                                    className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
-                                    onClick={() => {
-                                        if (isBefore(new Date(), new Date(data.startTime * 1000))) {
-                                            toast("Sale hasn't started yet");
-                                            return;
-                                        }
-                                        setShowPaymentConfirmModal(true);
-                                        setPurchaseAmount(Number(data.minTotalPayment));
-                                    }}
-                                >
-                                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
-                                    <span className="relative">
-                                        {isRefundPeriod ? "Request Refund" : "Buy Tokens"}
                                     </span>
                                 </button>
                             )}
@@ -832,31 +724,6 @@ export default function IDOComponent() {
                     )}
                 </div>
             </div>
-
-            {/* Modals */}
-            {
-                showPaymentConfirmModal && (
-                    <ConfirmPurchase
-                        onClose={() => setShowPaymentConfirmModal(false)}
-                        onConfirm={handlePayment}
-                        purchaseAmount={purchaseAmount}
-                        loading={purchasing}
-                        claimableAmount={claimableAmount}
-                        handleClaim={handleClaim}
-                        id={id as string}
-                        maxAmount={data.maxTotalPayment}
-                        minAmount={data.minTotalPayment}
-                        requestRefund={requestRefund}
-                        refunding={refunding}
-                        isCashed={data.cashed}
-                        isSaleOver={isSaleOver}
-                        isRefundPeriod={isRefundPeriod}
-                        isPastRefundPeriod={pastRefundPeriod}
-                        setPurchaseAmount={setPurchaseAmount}
-                        tokenSymbol={data.paymentToken.symbol}
-                    />
-                )
-            }
 
 
             <TxReceipt

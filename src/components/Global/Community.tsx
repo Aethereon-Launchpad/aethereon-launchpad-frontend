@@ -14,9 +14,13 @@ function Community() {
         It's time to join the thousands of creators,{" "}
         <br className="hidden lg:block" /> artists, and developers using Sonic.
       </p>
-      <button className="bg-[#5325A9] flex items-center space-x-[10px] mt-[15px] rounded-[8px] text-white p-[8px_25px]">
-        <FaDiscord />
-        <span>Join Our Discord</span>
+      <button className="relative px-6 py-2 flex items-center space-x-[10px] mt-[15px] text-white overflow-hidden group">
+        <span className="absolute inset-0 w-full h-full bg-[#5325A9] clip-path-polygon"></span>
+        <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+        <span className="relative flex items-center space-x-[10px]">
+          <FaDiscord />
+          <span>Join Our Discord</span>
+        </span>
       </button>
     </div>
   );

@@ -13,6 +13,7 @@ import Leaderboard from './pages/leaderboard'
 import SeasonalStaking from './pages/seasonal-staking'
 import PresaleCreator from './pages/presale/create'
 import IDO from './pages/ido'
+import GiveAwayById from './pages/giveaways/id'
 import AdminAuthScreen from './pages/admin'
 import Ido from './pages/ido'
 import AdminDashboardPage from './pages/admin/dashboard'
@@ -24,14 +25,18 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy'
 import TermsOfService from './pages/legal/TermsOfService'
 import CookiesPolicy from './pages/legal/CookiesPolicy'
 import Disclaimer from './pages/legal/Disclaimer'
+import Giveaways from './pages/giveaways';
+
 
 function App() {
 
   return (
     <Routes>
       <Route path='/' element={<Home />} />
+      <Route path='/giveaways' element={<Giveaways />} />
       <Route path='/launchpad' element={<Launchpad />} />
       <Route path='/launchpad/:id' element={<IDO />} />
+      <Route path='/giveaways/:id' element={<GiveAwayById />} />
       <Route path='/explore' element={<Explore />} />
       <Route path='/join-ido' element={<Ido />} />
       <Route path='/staking-pool' element={<Staking />} />

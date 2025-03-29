@@ -16,7 +16,7 @@ function CompletedIDO() {
       const filtered = data.filter((presale: any) => {
         const startTime = Number(presale.startTime) * 1000;
         const endTime = (Number(presale.endTime) + Number(presale.withdrawDelay)) * 1000;
-        return !isBefore(currentTime, endTime); // Show presales that haven't ended yet
+        return !isBefore(currentTime, endTime) && presale.isPrivateSale; // Show presales that haven't ended yet
       });
       setFilteredSales(filtered);
     }
@@ -63,7 +63,7 @@ function CompletedIDO() {
         <p className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">Completed<br /> IDO Sales</p>
       </div>
       <div className="w-full mx-auto">
-        <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3  xl:grid-cols-4 mt-[40px]">
+        <div className="grid gap-[40px] sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 mt-[40px]">
           {filteredSales.length > 0 ? (
             filteredSales.map((presale: any, index: any) => (
               <SaleCardCompleted key={index} presale={presale} />
@@ -75,8 +75,13 @@ function CompletedIDO() {
           )}
         </div>
       </div>
-      <Link to="/explore" className="text-[#FAFAFA] mt-[50px] rounded-full border border-[#98AAC033] p-[8px_20px] w-fit mx-auto">
-        View All IDOs
+      <Link
+        to="/explore"
+        className="relative text-[#FAFAFA] mt-[50px] p-[8px_20px] w-fit mx-auto overflow-hidden group-button"
+      >
+        <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+        <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+        <span className="relative">View All IDOs</span>
       </Link>
     </div>
   );
