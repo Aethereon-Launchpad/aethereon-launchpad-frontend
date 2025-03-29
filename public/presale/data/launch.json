@@ -1,8 +1,9 @@
 {
-  "projectName": "Derhex",
-  "description": "Derhex is a multi-protocol bridge enabling seamless cross-chain swaps using Chainlink, LayerZero, Wormhole, and Axelar.",
+  "projectName": "Sunami",
+  "description": "Sunami is a multi-protocol bridge enabling seamless cross-chain swaps using Chainlink, LayerZero, Wormhole, and Axelar.",
   "description_md": "https://timmyisanerd.github.io/project_info.MD",
-  "website": "https://derhex.io",
+  "documentation": "derhex.com",
+  "website": "https://sunami.trade",
   "socials": {
     "twitter": "https://twitter.com/derhex",
     "telegram": "https://t.me/derhex",
@@ -19,22 +20,29 @@
     "logo": "https://derhex.com/derhex-logo-sm.svg",
     "bg": "https://derhex.com/hero-der.svg"
   },
-  //   "fundraising": {
-  //     "softCap": "500000",
-  //     "hardCap": "2000000",
-  //     "presalePrice": "0.05",
-  //     "listingPrice": "0.08",
-  //     "acceptedCurrency": "USDT",
-  //     "liquidityAllocationPercentage": 60,
-  //     "platformFeePercentage": 2
-  //   },
-  //   "timeline": {
-  //     "startTime": 1714564800,
-  //     "endTime": 1717243200,
-  //     "vestingStart": 1719835200,
-  //     "cliffPeriod": 60,
-  //     "vestingDuration": 180
-  //   },
+  "fundraising": {
+    "softCap": "500000",
+    "hardCap": "2000000",
+    "presalePrice": "0.05",
+    "listingPrice": "0.08",
+    "acceptedCurrency": "USDT",
+    "liquidityAllocationPercentage": 60,
+    "platformFeePercentage": 2
+  },
+  "hiddenData": {
+    "startTime": "TBA",
+    "endTime": "TBA",
+    "IMC": "TBA",
+    "totalIMC": "TBA",
+    "fdv": "TBA",
+    "giveaway": "TBA",
+    "totalReward": "TBA"
+  },
+  "tokenlaunch": {
+    "blockscan": "https://basescan.org/address/0x4837b18a6d7aF6159c8665505B90a2ed393255E0",
+    "cmc": "https://coinmarketcap.com/currencies/derhex",
+    "coingecko": "https://www.coingecko.com/en/coins/derhex"
+  },
   "team": [
     {
       "name": "John Doe",
@@ -62,5 +70,12 @@
       "auditor": "CertiK",
       "reportUrl": "https://certik.com/projects/derhex"
     }
-  ]
+  ],
+  "whitepaper": "https://derhex.com/whitepaper.pdf",
+  "tokenomics": "https://derhex.com/tokenomics.pdf",
+  "imc": 380000,
+  "totalImc": 1000000,
+  "fdv": 12000000,
+  "giveaway": true,
+  "totalReward": 3000000
 }

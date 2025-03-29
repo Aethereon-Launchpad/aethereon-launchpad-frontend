@@ -62,31 +62,39 @@ function Reward() {
   return (
     <div className="p-[40px_20px] lg:p-[40px] font-space text-white flex items-center justify-center">
       <div className="w-full xl:w-[70%] grid lg:grid-cols-2 gap-[40px]">
-        <div className="p-[20px] border rounded-[10px] border-primary">
-          <div className="flex items-center justify-between">
-            <div className="h-[50px] w-[50px] border rounded-full">
-              <img src="./avatar.svg" alt="" />
+        {[
+          {
+            icon: "./avatar.svg",
+            layer: "./layer.svg",
+            title: "Total Rewards",
+            description: "The 'Total Rewards' metric provides users with a clear view of the amount of available rewards from staking pools",
+            value: totalRewards
+          },
+          {
+            icon: "./avatar.svg",
+            layer: "./layer.svg",
+            title: "Staking Power",
+            description: "The 'Total Staked' metric provides users with a clear view of the amount they've currently invested in staking pools",
+            value: stakingPower
+          }
+        ].map((card, index) => (
+          <div key={index} className="relative p-[20px] overflow-hidden group">
+            <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="h-[50px] w-[50px] border rounded-full">
+                  <img src={card.icon} alt="" />
+                </div>
+                <img src={card.layer} alt="" />
+              </div>
+              <p className="font-[500] text-[32px] mt-[20px]">{card.title}</p>
+              <p>{card.description}</p>
+              <p className="text-[40px] font-[600]">{Number(card.value).toFixed(3)}</p>
             </div>
-            <img src="./layer.svg" alt="" />
           </div>
-          <p className="font-[500] text-[32px] mt-[20px]">Total Rewards</p>
-          <p>The "Total Rewards" metric provides users with a clear view of the amount of available rewards from staking pools</p>
-          <p className="text-[40px] font-[600]]">{Number(totalRewards).toFixed(3)}</p>
-        </div>
-        <div className="p-[20px] border rounded-[10px] border-primary">
-          <div className="flex items-center justify-between">
-            <div className="h-[50px] w-[50px] border rounded-full">
-              <img src="./avatar.svg" alt="" />
-            </div>
-            <img src="./layer.svg" alt="" />
-          </div>
-          <p className="font-[500] mt-[20px] text-[32px]">Staking Power</p>
-          <p>The "Total Staked" metric provides users with a clear view of the amount they've currently invested in staking pools</p>
-          <p className="text-[40px] font-[600]]">{Number(stakingPower).toFixed(3)}</p>
-        </div>
-
+        ))}
       </div>
-
     </div>
   )
 }

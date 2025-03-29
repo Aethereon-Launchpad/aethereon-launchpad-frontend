@@ -11,3 +11,9 @@ export function usePageTitleIDO(title: string) {
         document.title = `${title} on DerHex Launchpad`;
     }, [title]);
 }
+
+export function usePageTitleGiveaway(title: string) {
+    useEffect(() => {
+        document.title = `${title} | DerHex`;
+    }, [title]);
+}

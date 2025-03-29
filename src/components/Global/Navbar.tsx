@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IoWalletSharp } from "react-icons/io5";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { LuPlus } from "react-icons/lu";
@@ -11,11 +11,16 @@ import toast from 'react-hot-toast';
 function Navbar() {
   const [show, setShow] = React.useState(false);
   const { login, authenticated, logout, user, ready } = usePrivy();
+  const location = useLocation();
   // const { connect, isConnecting, error } = useConnect();
   const links = [
     {
       title: "Launchpad",
-      link: "/launchpad"
+      link: "/"
+    },
+    {
+      title: "Giveaways",
+      link: "/giveaways"
     },
     {
       title: "Staking & Farming",
@@ -34,6 +39,13 @@ function Navbar() {
       link: "/lock-stake",
     }
   ];
+
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === path;
+    }
+    return location.pathname.includes(path);
+  };
 
   function handleWalletConnect() {
     if (authenticated) {
@@ -55,19 +67,39 @@ function Navbar() {
       </div>
       <div className="hidden xl:flex items-center text-[#848895] space-x-[20px]">
         {links.map((link, index) => (
-          <Link to={link.link} key={index}>{link.title}</Link>
+          <Link
+            to={link.link}
+            key={index}
+            className={`relative hover:text-white transition-colors duration-200 ${isActive(link.link)
+              ? "text-white after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-[2px] after:bg-primary after:shadow-[0_0_8px_2px_rgba(83,37,169,0.8)]"
+              : ""
+              }`}
+          >
+            {link.title}
+          </Link>
         ))}
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
-        <Link to="/join-ido" className="hidden xl:flex items-center space-x-[5px]">
+        <Link to="/explore" className="hidden xl:flex items-center space-x-[5px]">
           <img src="/ido.svg" alt="" />
           <p>Join IDO</p>
         </Link>
 
 
-        <button className="bg-primary flex items-center space-x-[5px] p-[10px] lg:p-[10px_20px] rounded-[8px] font-[500]" onClick={handleWalletConnect}>
-          <IoWalletSharp className="text-[12px] lg:text-[16px]" />
-          {authenticated ? <span className='truncate max-w-[100px]'>{user?.wallet?.address}</span> : <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>}
+        <button
+          className="relative px-6 py-2 font-[500] text-white flex items-center space-x-[5px] overflow-hidden group"
+          onClick={handleWalletConnect}
+        >
+          <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+          <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+          <span className="relative flex items-center space-x-[5px]">
+            <IoWalletSharp className="text-[12px] lg:text-[16px]" />
+            {authenticated ? (
+              <span className='truncate max-w-[100px]'>{user?.wallet?.address}</span>
+            ) : (
+              <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
+            )}
+          </span>
         </button>
 
         <button onClick={() => setShow(!show)} className="xl:hidden">
@@ -82,7 +114,15 @@ function Navbar() {
         </div>
         <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895] ">
           {links.map((link, index) => (
-            <Link onClick={() => setShow(!show)} className='text-[20px] text-primary font-[500]' to={link.link} key={index}>{link.title}</Link>
+            <Link
+              onClick={() => setShow(!show)}
+              className={`text-[20px] font-[500] ${isActive(link.link) ? "text-white" : "text-primary"
+                }`}
+              to={link.link}
+              key={index}
+            >
+              {link.title}
+            </Link>
           ))}
         </div>
 

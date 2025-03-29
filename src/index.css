@@ -59,3 +59,25 @@ input[type="number"] {
   scrollbar-width: thin;
   scrollbar-color: #5325a9 #17043b;
 }
+
+.clip-path-polygon {
+  clip-path: polygon(
+    0 0,
+    /* Top-left straight */ calc(100% - 10px) 0,
+    /* Top-right corner cut */ 100% 10px,
+    /* Top-right corner cut */ 100% 100%,
+    /* Bottom-right straight */ 10px 100%,
+    /* Bottom-left corner cut */ 0 calc(100% - 10px)
+      /* Bottom-left corner cut */
+  );
+}
+
+.clip-path-polygon-tall {
+  clip-path: polygon(
+    0 0,
+    /* Top-left */ 100% 0,
+    /* Top-right */ 100% 90%,
+    /* Angled cut start - lower down for taller elements */ 95% 100%,
+    /* Angled cut end - more gradual slope */ 0 100% /* Bottom-left */
+  );
+}

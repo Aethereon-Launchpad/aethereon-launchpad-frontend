@@ -4,7 +4,7 @@
 import { useNavigate } from "react-router-dom";
 
 function StakeHero() {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   return (
     <div className="relative overflow-hidden hero-bg font-space">
       {/* <img src="/der-rows.svg" className=" w-full h-[400px]" alt="" /> */}
