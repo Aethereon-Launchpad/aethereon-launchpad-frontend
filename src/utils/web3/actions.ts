@@ -126,7 +126,7 @@ export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
 export const getStakingPoolFactoryFee = async () => {
     try {
         const fee = await client.readContract({
-            address: "0x1446a9B64137B63e952e8860bf70142EB314E7bc",
+            address: "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123",
             abi: stakingPoolActionsABI,
             functionName: "fee"
         })
@@ -523,7 +523,7 @@ export const getVotingSlotByID = async (votingSlotAddress: `0x${string}`) => {
 }
 
 export const getAllStakingPoolAddress = async () => {
-    const stakingPoolFactory = "0x1446a9B64137B63e952e8860bf70142EB314E7bc"
+    const stakingPoolFactory = "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123"
 
     try {
         let addressList: `0x${string}`[] = []

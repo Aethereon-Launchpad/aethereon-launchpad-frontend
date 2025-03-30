@@ -121,7 +121,7 @@ function PoolForm() {
     setLoading(true)
     // await wallet.switchChain(sonic.id);
     try {
-      const StakingPoolFactoryCA = "0x1446a9B64137B63e952e8860bf70142EB314E7bc"
+      const StakingPoolFactoryCA = "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123"
       // Ensure all values are correctly formatted
       const formatPercentage = (value: number) => Math.round((value / 100) * 1e4);
       const formatRewardBasis = (value: number) => value * 24 * 60 * 60; // No of Days
@@ -143,7 +143,7 @@ function PoolForm() {
       }
 
       const fee: string = await getStakingPoolFactoryFee();
-      
+
       // Get wallet balance
       const balance = await publicClient.getBalance({
         address: account
