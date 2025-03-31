@@ -1,6 +1,6 @@
 {
-  "projectName": "Sunami",
-  "description": "Sunami is a multi-protocol bridge enabling seamless cross-chain swaps using Chainlink, LayerZero, Wormhole, and Axelar.",
+  "projectName": "Anubis",
+  "description": "Anubis is a powerful and intuitive trading bot designed to revolutionize your decentralized trading experience. Fully compatible with DexScreener, Anubis enables ",
   "description_md": "https://timmyisanerd.github.io/project_info.MD",
   "documentation": "derhex.com",
   "website": "https://sunami.trade",
@@ -17,7 +17,7 @@
     "contractAddress": "0xdEB561F9216576B41D6E67414c81Ff0fdbba5b46"
   },
   "images": {
-    "logo": "https://derhex.com/derhex-logo-sm.svg",
+    "logo": "https://www.anubistrade.xyz/_next/static/media/herobg.e1144f3d.svg",
     "bg": "https://derhex.com/hero-der.svg"
   },
   "fundraising": {
@@ -36,7 +36,8 @@
     "totalIMC": "TBA",
     "fdv": "TBA",
     "giveaway": "TBA",
-    "totalReward": "TBA"
+    "totalReward": "TBA",
+    "tokenPrice": "TBA"
   },
   "tokenlaunch": {
     "blockscan": "https://basescan.org/address/0x4837b18a6d7aF6159c8665505B90a2ed393255E0",
