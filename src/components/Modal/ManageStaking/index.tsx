@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { Preloader, Oval } from 'react-preloader-icon';
 import { getStakingPoolDataByAddress } from "../../../utils/web3/actions";
 import { usePrivy } from "@privy-io/react-auth";
-import { baseSepolia } from "../../../config/chain";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolAbi from "../../../abis/StakingPool.json";
 import { ethers } from "ethers";
 import { toast } from "react-hot-toast";
-import { getTokenBalance } from "../../../utils/web3/actions";
+import { getTokenBalance, getTokenAllowance } from "../../../utils/web3/actions";
+import erc20Abi from "../../../abis/ERC20.json";
 
 interface ManageStakingProps {
     stakingPoolAddress: `0x${string}`;
@@ -58,14 +59,33 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             const [account] = await walletClient.getAddresses();
 
             const tokenBalance = await getTokenBalance(poolData.stakingPool.rewardToken.id, userAddress);
-
             const amount = ethers.parseUnits(rewardAmount, poolData.stakingPool.rewardToken.decimals);
 
-            console.log(Number(rewardAmount), Number(tokenBalance));
             if (Number(rewardAmount) > Number(tokenBalance)) {
-                toast("Not enough balance")
-                setIsProcessing(false)
+                toast("Not enough balance");
+                setIsProcessing(false);
                 return;
+            }
+
+            // Check and approve allowance
+            const allowance = await getTokenAllowance(
+                poolData.stakingPool.rewardToken.id,
+                stakingPoolAddress,
+                userAddress
+            );
+
+            if (Number(allowance) < Number(amount)) {
+                // Approve token spending
+                const { request: approveRequest } = await publicClient.simulateContract({
+                    address: poolData.stakingPool.rewardToken.id,
+                    abi: erc20Abi,
+                    account,
+                    functionName: "approve",
+                    args: [stakingPoolAddress, amount]
+                });
+
+                const approveHash = await walletClient.writeContract(approveRequest);
+                await publicClient.waitForTransactionReceipt({ hash: approveHash });
             }
 
             const { request } = await publicClient.simulateContract({
@@ -93,13 +113,15 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
         try {
             const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
+            const rewardTokenAmount = await getTokenBalance(poolData.stakingPool.rewardToken.id, poolData.stakingPool.id);
+            const rewardTokenEther = ethers.parseUnits(rewardTokenAmount, poolData.stakingPool.rewardToken.decimals);
 
             const { request } = await publicClient.simulateContract({
                 address: stakingPoolAddress,
                 abi: stakingPoolAbi,
                 account,
-                functionName: "totalRewardDrain",
-                args: [userAddress]
+                functionName: "drainReward",
+                args: [rewardTokenEther, userAddress]
             });
 
             const hash = await walletClient.writeContract(request);

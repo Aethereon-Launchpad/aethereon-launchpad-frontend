@@ -7,11 +7,11 @@ import { isValidERC20, getTokenSymbol, getStakingPoolFactoryFee } from "../../ut
 import { Preloader, Oval } from 'react-preloader-icon';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import stakingPoolActionsABI from "../../abis/StakingPoolActions.json";
-import { baseSepolia } from "../../config/chain";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
-import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { useNavigate } from "react-router-dom";
+import { getContractAddress } from "../../utils/source";
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
@@ -121,7 +121,7 @@ function PoolForm() {
     setLoading(true)
     // await wallet.switchChain(sonic.id);
     try {
-      const StakingPoolFactoryCA = "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123"
+      const StakingPoolFactoryCA = getContractAddress("stakingPoolFactory")
       // Ensure all values are correctly formatted
       const formatPercentage = (value: number) => Math.round((value / 100) * 1e4);
       const formatRewardBasis = (value: number) => value * 24 * 60 * 60; // No of Days
@@ -179,9 +179,12 @@ function PoolForm() {
       console.log(hash, result);
 
       toast.success("Successfully Created New Staking Pool")
-      navigate("/staking-pool")
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      if (receipt && receipt.status === "success") {
+        navigate("/staking-pool")
+      }
     } catch (err: any) {
-      console.error("Staking Pool Error", err);
+      console.error("Staking Pool", err);
       toast.error("Creating Staking Pool Failed")
     } finally {
       setLoading(false)

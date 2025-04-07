@@ -25,10 +25,13 @@ function LaunchProject() {
         {/* Right Section with Features */}
         <div className="flex-1">
           <div className="space-y-4">
-            <Feature text="Powered by DerHex AI" />
-            <Feature text="Unique frictionless token sale process" />
-            <Feature text="Tier-1 marketing partners and support" />
-            <Feature text="Security audit, Pentest & Incident Response Powered by DerHex" />
+            <Feature text="Multi-chain support for maximum reach" />
+            <Feature text="Guaranteed refunds for investor protection" />
+            <Feature text="Comprehensive security audits and pentesting" />
+            <Feature text="Tier-1 marketing and community support" />
+            <Feature text="Decentralized governance integration" />
+            <Feature text="Flexible token vesting solutions" />
+            <Feature text="Seasonal staking challenges and rewards" />
           </div>
         </div>
       </div>
