@@ -20,7 +20,7 @@ function HomeHero() {
         <div>
           <p className="text-[40px] lg:text-[70px] font-[700] leading-[45px] lg:leading-[75px]">The Future of Token <br className="hidden lg:block" /> Launches</p>
           <p className="text-[18px] lg:text-[22px] leading-[25px] lg:leading-[27px] mt-[5px] lg:mt-[10px]">Discover, Invest, and Empower the Next <br className="hidden lg:block" /> Big Blockchain Giants – Join Early, Earn Rewards, Shape the Future</p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-x-3">
             <Link
               to="#upcomingido"
               className="relative px-6 py-2 mt-[20px] font-[500] text-[20px] text-white flex items-center justify-center overflow-hidden group"
@@ -63,7 +63,7 @@ function HomeHero() {
                   )
                 })}
               </div>
-              <p className="text-xl">Supported Blockchains</p>
+              <p className="text-base lg:text-xl">Supported Blockchains</p>
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ function HowTo() {
                     </button>
                 </div>
 
-                <div className="flex-1 grid grid-cols-2 gap-6">
+                <div className="flex-1 grid md:grid-cols-2  gap-6">
                     {[
                         {
                             icon: "./icons/steps/signup.svg",

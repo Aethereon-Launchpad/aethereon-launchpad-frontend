@@ -118,6 +118,26 @@ function ConfirmPurchase({
         getPaymentMade();
     }, [authenticated])
 
+
+    if (isRefundPeriod && paymentMadeAmount === 0) {
+        return (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                <div className="bg-[#17043B] border border-primary/50 rounded-2xl w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100 space-y-3">
+                    <h2 className="text-white text-2xl font-bold mb-6 text-center">Confirm Purchase</h2>
+                    <p className="text-white text-center">You have not made any payment for this presale</p>
+                    <button
+                        onClick={onClose}
+                        className="w-full py-2.5 text-[#C4C4C4] hover:text-white rounded-lg hover:bg-white/5 transition-colors duration-200"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
             <div className="bg-[#17043B] border border-primary/50 rounded-2xl w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100">

@@ -67,4 +67,4 @@ const SupportedBy = () => {
     );
 };
 
-export default React.memo(SupportedBy);
+export default SupportedBy
