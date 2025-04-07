@@ -54,7 +54,7 @@ function StakingBadge() {
               </p>
             </div>
             <Link
-              to="/dynamic-rewards"
+              to="/lock-stake"
               className="relative w-full py-[5px] mt-[30px] text-center overflow-hidden group-button text-white"
             >
               <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
