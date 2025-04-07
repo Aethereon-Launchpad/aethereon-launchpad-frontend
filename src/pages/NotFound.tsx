@@ -37,7 +37,7 @@ function NotFound() {
       transition: {
         duration: 3,
         repeat: Infinity,
-        repeatType: 'reverse'
+        repeatType: "reverse" as const
       }
     }
   };
