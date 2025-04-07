@@ -8,7 +8,7 @@ import { useLockStake } from "../../hooks/web3/useLockStake";
 import { usePrivy } from "@privy-io/react-auth";
 import { createWalletClient, custom } from 'viem';
 import { publicClient } from '../../config';
-import { baseSepolia } from '../../config/chain';
+import { baseSepolia } from 'viem/chains';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { IoWalletSharp } from "react-icons/io5";
 import { ethers } from 'ethers';
@@ -107,12 +107,16 @@ function Dynamic() {
   }
 
   async function handleStake() {
+    if(!user?.wallet?.address){
+      toast("Connect Wallet")
+      return;
+    }
     setIsStaking(true);
     const walletClient = createViemWalletClient();
     const [account] = await walletClient.getAddresses();
     const decimals = await getTokenDecimals(data.stakeLock.stakeToken.id)
     const stakeAmountArg = ethers.parseUnits(stakeAmount.toString(), decimals);
-    const balanceOfStakeToken = await getTokenBalance(data.stakeLock.stakeToken.id, user?.wallet?.address);
+    const balanceOfStakeToken = await getTokenBalance(data.stakeLock.stakeToken.id, user?.wallet?.address as `0x${string}`);
 
     if (stakeAmount === 0) {
       toast("Set stake amount")
