@@ -171,7 +171,7 @@ function JoinedPool() {
                         </div>
                       </td>
                       <td className="px-6 py-4 min-w-fit">{item.totalStaked} {item.stakeToken.symbol} </td>
-                      <td className="px-6 py-4 min-w-fit">{item.totalRewardable} {item.rewardToken.symbol}</td>
+                      <td className="px-6 py-4 min-w-fit">{Number(item.totalRewardable).toFixed(0)} {item.rewardToken.symbol}</td>
                     </tr>
                   ))}
                 </tbody>
