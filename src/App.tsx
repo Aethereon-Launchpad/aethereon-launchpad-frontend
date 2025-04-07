@@ -26,6 +26,11 @@ import TermsOfService from './pages/legal/TermsOfService'
 import CookiesPolicy from './pages/legal/CookiesPolicy'
 import Disclaimer from './pages/legal/Disclaimer'
 import Giveaways from './pages/giveaways';
+import GiveawayCreator from './pages/giveaways/create'
+import AdminManageGiveaways from './pages/admin/dashboard/giveaways'
+import AdminGiveawayManageID from './pages/admin/dashboard/giveaways/manage'
+import FundGiveaway from './pages/giveaways/fund'
+import NotFound from './pages/NotFound'
 
 
 function App() {
@@ -55,10 +60,17 @@ function App() {
       <Route path='/admin/dashboard/presales/:id' element={<AdminManagePresales />} />
       <Route path='/admin/dashboard/presales/fund/:id' element={<FundPresale />} />
       <Route path='/admin/dashboard/presales/cash/:id' element={<CashPresale />} />
+      <Route path='/admin/dashboard/giveaway/create' element={<GiveawayCreator />} />
+      <Route path='/admin/dashboard/giveaways' element={<AdminManageGiveaways />} />
+      <Route path='/admin/dashboard/giveaways/manage/:id' element={<AdminGiveawayManageID />} />
+      <Route path='/admin/dashboard/giveaways/:id' element={<AdminManageGiveaways />} />
+      <Route path='/admin/dashboard/giveaways/fund/:id' element={<FundGiveaway />} />
       <Route path='/privacy-policy' element={<PrivacyPolicy />} />
       <Route path='/terms-of-service' element={<TermsOfService />} />
       <Route path='/cookies-policy' element={<CookiesPolicy />} />
       <Route path='/disclaimer' element={<Disclaimer />} />
+      {/* 404 Page - This must be the last route */}
+      <Route path='*' element={<NotFound />} />
     </Routes>
   )
 }

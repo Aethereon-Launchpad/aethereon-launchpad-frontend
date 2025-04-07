@@ -3,16 +3,15 @@ import { useRef, useEffect, useState } from 'react';
 import React from 'react';
 
 const brands: string[] = [
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-bitmart.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-mexc.svg",
-    "https://finceptor.app/svg/partnerships/chainlink.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-kyberswap.svg",
-    "https://finceptor.app/svg/partnerships/supra-oracles.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-kucoin.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-coinmarketcap.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-pancakeswap.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-gateIo.svg",
-    "https://static.pad.chaingpt.org/images/trusted-websites/logo-bigget.svg"
+    "/icons/brands/logo-bitmart.svg",
+    "/icons/brands/logo-mexc.svg",
+    // "/icons/brands/logo-metamask.svg",
+    "/icons/brands/logo-kyberswap.svg",
+    "/icons/brands/logo-kucoin.svg",
+    "/icons/brands/logo-coinmarketcap.svg",
+    "/icons/brands/logo-pancakeswap.svg",
+    "/icons/brands/logo-gateIo.svg",
+    "/icons/brands/logo-bigget.svg"
 ]
 
 const SupportedBy = () => {

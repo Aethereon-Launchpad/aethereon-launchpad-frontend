@@ -8,7 +8,7 @@ import { PresaleCountdownTimer } from '../Countdown';
 import { toast } from 'react-hot-toast';
 import TxReceipt from '../Modal/TxReceipt';
 import PresaleABI from "../../abis/Presale.json";
-import { sonicTestnet } from "../../config/chain";
+import { baseSepolia } from 'viem/chains';
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import ConfirmPurchase from '../Modal/ConfirmPurchase';
@@ -26,15 +26,15 @@ import { usePageTitleIDO } from '../../hooks/utils';
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
 
 
 export default function IDOComponent() {
-    const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading, refetch } = usePresale(id)
+    const { id } = useParams<{ id: string }>();
+    const { data, error, loading, refetch } = usePresale(id, { polling: false })
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(false);
     const [purchasing, setPurchasing] = useState<boolean>(false)
     const [txHash, setTxHash] = useState<`0x${string}`>("0x")
@@ -67,8 +67,8 @@ export default function IDOComponent() {
             return;
         }
         try {
-            const amount = await paymentMade(id as `0x${string}`, user?.wallet?.address as `0x${string}`)
-            const claimAmount = await getClaimableTokensAmount(id as `0x${string}`, user.wallet.address as `0x${string}`)
+            const amount = await paymentMade(data.id as `0x${string}`, user?.wallet?.address as `0x${string}`)
+            const claimAmount = await getClaimableTokensAmount(data.id as `0x${string}`, user.wallet.address as `0x${string}`)
 
             setPaymentMadeAmount(amount)
             setClaimableAmount(claimAmount)
@@ -283,13 +283,13 @@ export default function IDOComponent() {
                             account,
                             abi: erc20Abi,
                             functionName: "approve",
-                            args: [data.id, purchaseAmountArg]  // Changed to approve staking pool contract
+                            args: [data.id, purchaseAmountArg]  // Changed to approve presale contract
                         })
 
                         // Run Approval
                         const txHash = await walletClient.writeContract(request);
                         await new Promise(resolve => setTimeout(resolve, 2000));
-                        const receipt = await publicClient.getTransactionReceipt({
+                        const receipt = await publicClient.waitForTransactionReceipt({
                             hash: txHash
                         })
                         return receipt
@@ -354,6 +354,7 @@ export default function IDOComponent() {
 
             }
         } catch (error) {
+            console.error(error);
             toast.error("Purchase Failed! Please Try Again Later")
         } finally {
             setPurchasing(false)
@@ -508,204 +509,8 @@ export default function IDOComponent() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-[40px_20px] lg:p-[40px] text-white">
-            {/* Left Column */}
-            <div className="space-y-8">
-                {/* Project Details */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-3"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
-                    <div className="relative space-y-6">
-                        <div>
-                            <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
-                                {data?.presaleInfo?.projectName}
-                            </p>
-                            <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
-                                Participate in the Future
-                            </p>
-                        </div>
-
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Presale Details</h3>
-                                <ul className='space-y-3'>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>IDO Type</span>
-                                        <span className='font-medium'>Refundable sale</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='font-medium text-gray-300'>Sale Access</span>
-                                        <span className='text-primary underline'>{data.isPrivateSale ? "Private Sale" : "Public Sale"}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Sale Period</span>
-                                        <span className='font-medium'>
-                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000))}
-                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000)) === 1 ? " day" : " days"}
-                                        </span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Ticker</span>
-                                        <span className='font-medium'>{data.saleToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Token Price</span>
-                                        <span className='font-medium'>${data.salePrice} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    {data.linearVestingEndTime !== 0 && (
-                                        <li className='flex justify-between'>
-                                            <span className='text-gray-300'>Linear Vesting End</span>
-                                            <span className='font-medium'>
-                                                {data.linearVestingEndTime && data.linearVestingEndTime > 0 ? (
-                                                    new Date(data.linearVestingEndTime * 1000).toLocaleDateString('en-GB', {
-                                                        day: '2-digit',
-                                                        month: '2-digit',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })
-                                                ) : (
-                                                    <span className='text-gray-400'>TBA</span>
-                                                )}
-                                            </span>
-                                        </li>)}
-                                    {data.cliffPeriod.length > 0 && (
-                                        <li className='flex flex-col'>
-                                            <span className='text-gray-300 mb-2'>Cliff Vesting Periods</span>
-                                            {data.cliffPeriod &&
-                                                Array.isArray(data.cliffPeriod) &&
-                                                data.cliffPeriod.length > 0 &&
-                                                data.cliffPeriod[0].length > 0 ? (
-                                                <div className='space-y-2'>
-                                                    {data.cliffPeriod.map((period: any, index: number) => (
-                                                        period.length > 0 && (
-                                                            <div key={index} className='flex justify-between'>
-                                                                <span className='text-gray-400'>
-                                                                    {new Date(period.claimTime * 1000).toLocaleDateString('en-GB', {
-                                                                        day: '2-digit',
-                                                                        month: '2-digit',
-                                                                        year: 'numeric',
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit'
-                                                                    })}
-                                                                </span>
-                                                                <span className='font-medium'>
-                                                                    {period.pct}%
-                                                                </span>
-                                                            </div>
-                                                        )
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <span className='text-gray-400'>TBA</span>
-                                            )}
-                                        </li>)
-                                    }
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Refund Period</span>
-                                        <span className='font-medium'>
-                                            {Number(data.withdrawDelay) / 86400}
-                                            {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Investment Details</h3>
-                                <ul className='space-y-3'>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Soft Cap</span>
-                                        <span className='font-medium'>{Number(data.softCap).toLocaleString()} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Hard Cap</span>
-                                        <span className='font-medium'>{Number(data.hardCap).toLocaleString()} {data.paymentToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Min Payment</span>
-                                        <span className='font-medium'>{Number(data.minTotalPayment).toFixed(0)}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Max Payment</span>
-                                        <span className='font-medium'>{Number(data.maxTotalPayment).toFixed(0)}</span>
-                                    </li>
-                                    <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300'>Mainnet Contract</span>
-                                        <span
-                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
-                                            onClick={() => copyAddress(data.saleToken.id)}
-                                        >
-                                            {data.saleToken.id.slice(0, 6)}...{data.saleToken.id.slice(-4)}
-                                            <FaCopy size={15} />
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* About Section */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
-                    <div className="relative">
-                        <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
-                            About {data?.presaleInfo?.projectName}
-                        </p>
-                        <div className='text-[15px] lg:text-[18px] mt-[20px]'>
-                            <p>{data?.presaleInfo?.description}</p>
-                            {data?.presaleInfo?.description_md && markdownContent && (
-                                <div className="markdown-content">
-                                    <ReactMarkdown>{markdownContent}</ReactMarkdown>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className='grid grid-cols-3 gap-x-5 my-10'>
-                            <div>
-                                <h3>Website</h3>
-                                <a className='text-primary' href={data?.presaleInfo?.website}>{data?.presaleInfo?.website}</a>
-                            </div>
-                            <div>
-                                <h3>Documents</h3>
-                                <a href={data?.presaleInfo?.website} className='text-primary'>Whitepaper</a>
-                            </div>
-                            <div>
-                                <img
-                                    src={data?.presaleInfo?.images?.logo}
-                                    className="h-[40px] w-full object-contain"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-
-                        <div >
-                            <h3>Social Media</h3>
-                            <div className="flex space-x-4 mt-6">
-                                {data?.presaleInfo?.socials?.twitter && (
-                                    <a href={data.presaleInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
-                                        <FaTwitter className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.presaleInfo?.socials?.telegram && (
-                                    <a href={data.presaleInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
-                                        <FaTelegramPlane className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.presaleInfo?.socials?.discord && (
-                                    <a href={data.presaleInfo.socials.discord} target="_blank" rel="noopener noreferrer">
-                                        <FaDiscord className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="relative p-8 overflow-hidden group h-fit">
+            {/* Right Column - Moved to top on mobile */}
+            <div className="relative p-8 overflow-hidden group h-fit order-1 lg:order-2">
                 <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
                 <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
                 <div className="relative space-y-6">
@@ -810,7 +615,7 @@ export default function IDOComponent() {
                                     }}
                                 >
                                     <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
+                                    <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
                                     <span className="relative">
                                         {isRefundPeriod ? "Request Refund" : "Buy Tokens"}
                                     </span>
@@ -833,6 +638,211 @@ export default function IDOComponent() {
                 </div>
             </div>
 
+            {/* Left Column - Moved to bottom on mobile */}
+            <div className="space-y-8 order-2 lg:order-1">
+                {/* Project Details */}
+                <div className="relative p-8 overflow-hidden group">
+                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-3"></span>
+                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                    <div className="relative space-y-6">
+                        <div>
+                            <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
+                                {data?.presaleInfo?.projectName}
+                            </p>
+                            <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
+                                Participate in the Future
+                            </p>
+                        </div>
+
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
+                                <h3 className='text-xl font-semibold mb-4 text-primary'>Presale Details</h3>
+                                <ul className='space-y-3'>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>IDO Type</span>
+                                        <span className='font-medium'>Refundable sale</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='font-medium text-gray-300'>Sale Access</span>
+                                        <span className='text-primary underline'>{data.isPrivateSale ? "Private Sale" : "Public Sale"}</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Sale Period</span>
+                                        <span className='font-medium'>
+                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000))}
+                                            {differenceInDays(new Date(data.endTime * 1000), new Date(data.startTime * 1000)) === 1 ? " day" : " days"}
+                                        </span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Ticker</span>
+                                        <span className='font-medium'>{data.saleToken.symbol}</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Token Price</span>
+                                        {isAfter(new Date(), new Date(data.startTime * 1000)) ? (
+                                            data.presaleInfo.hiddenData && data.presaleInfo.hiddenData.tokenPrice === "TBA" ? (
+                                                <span className='font-medium'>${data.salePrice} {data.paymentToken.symbol}</span>
+                                            ) : (
+                                                <span className='font-medium'>${data.salePrice} {data.paymentToken.symbol}</span>
+                                            )
+                                        ) : (
+                                            <span className='font-medium'>TBA</span>
+                                        )}
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
+                                <h3 className='text-xl font-semibold mb-4 text-primary'>Investment Details</h3>
+                                <ul className='space-y-3'>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Soft Cap</span>
+                                        <span className='font-medium'>{Number(data.softCap).toLocaleString()} {data.paymentToken.symbol}</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Hard Cap</span>
+                                        <span className='font-medium'>{Number(data.hardCap).toLocaleString()} {data.paymentToken.symbol}</span>
+                                    </li>
+                                    {data.presaleInfo.hiddenData && data.presaleInfo.hiddenData.totalIMC !== "TBA" && (
+                                        <li className='flex justify-between'>
+                                            <span className='text-gray-300'>Total IMC</span>
+                                            <span className='font-medium'>{Number(data.presaleInfo.hiddenData.totalIMC).toLocaleString()} {data.saleToken.symbol}</span>
+                                        </li>
+                                    )}
+                                    {isAfter(new Date(), new Date(data.startTime * 1000)) && (
+                                        <li className='flex justify-between items-center'>
+                                            <span className='text-gray-300'>Mainnet Contract</span>
+                                            <span
+                                                className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
+                                                onClick={() => copyAddress(data.saleToken.id)}
+                                            >
+                                                {data.saleToken.id.slice(0, 6)}...{data.saleToken.id.slice(-4)}
+                                                <FaCopy size={15} />
+                                            </span>
+                                        </li>
+                                    )}
+                                    {data.linearVestingEndTime !== 0 && (
+                                        <li className='flex justify-between'>
+                                            <span className='text-gray-300'>Linear Vesting End</span>
+                                            <span className='font-medium'>
+                                                {data.linearVestingEndTime && data.linearVestingEndTime > 0 ? (
+                                                    new Date(data.linearVestingEndTime * 1000).toLocaleDateString('en-GB', {
+                                                        day: '2-digit',
+                                                        month: '2-digit',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })
+                                                ) : (
+                                                    <span className='text-gray-400'>TBA</span>
+                                                )}
+                                            </span>
+                                        </li>)}
+                                    {data.cliffPeriod && data.cliffPeriod.length > 0 && (
+                                        <li className='flex flex-col'>
+                                            <span className='text-gray-300 mb-2'>Cliff Vesting Periods</span>
+                                            {data.cliffPeriod &&
+                                                Array.isArray(data.cliffPeriod) &&
+                                                data.cliffPeriod.length > 0 &&
+                                                data.cliffPeriod[0].length > 0 ? (
+                                                <div className='space-y-2'>
+                                                    {data.cliffPeriod.map((period: any, index: number) => (
+                                                        period.length > 0 && (
+                                                            <div key={index} className='flex justify-between'>
+                                                                <span className='text-gray-400'>
+                                                                    {new Date(period.claimTime * 1000).toLocaleDateString('en-GB', {
+                                                                        day: '2-digit',
+                                                                        month: '2-digit',
+                                                                        year: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
+                                                                </span>
+                                                                <span className='font-medium'>
+                                                                    {period.pct}%
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className='text-gray-400'>TBA</span>
+                                            )}
+                                        </li>)
+                                    }
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Refund Period</span>
+                                        <span className='font-medium'>
+                                            {Number(data.withdrawDelay) / 86400}
+                                            {Number(data.withdrawDelay) / 86400 === 1 ? " Day" : " Days"}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* About Section */}
+                <div className="relative p-8 overflow-hidden group">
+                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                    <div className="relative">
+                        <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
+                            About {data?.presaleInfo?.projectName}
+                        </p>
+                        <div className='text-[15px] lg:text-[18px] mt-[20px]'>
+                            <p>{data?.presaleInfo?.description}</p>
+                            {data?.presaleInfo?.description_md && markdownContent && (
+                                <div className="markdown-content">
+                                    <ReactMarkdown>{markdownContent}</ReactMarkdown>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className='grid grid-cols-3 gap-x-5 my-10'>
+                            <div>
+                                <h3>Website</h3>
+                                <a className='text-primary' href={data?.presaleInfo?.website}>{data?.presaleInfo?.website}</a>
+                            </div>
+                            <div>
+                                <h3>Documents</h3>
+                                <a href={data?.presaleInfo?.website} className='text-primary'>Whitepaper</a>
+                            </div>
+                            <div>
+                                <img
+                                    src={data?.presaleInfo?.images?.logo}
+                                    className="h-[40px] w-full object-contain"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+
+                        <div >
+                            <h3>Social Media</h3>
+                            <div className="flex space-x-4 mt-6">
+                                {data?.presaleInfo?.socials?.twitter && (
+                                    <a href={data.presaleInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
+                                        <FaTwitter className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                                {data?.presaleInfo?.socials?.telegram && (
+                                    <a href={data.presaleInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
+                                        <FaTelegramPlane className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                                {data?.presaleInfo?.socials?.discord && (
+                                    <a href={data.presaleInfo.socials.discord} target="_blank" rel="noopener noreferrer">
+                                        <FaDiscord className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Modals */}
             {
                 showPaymentConfirmModal && (
@@ -843,7 +853,7 @@ export default function IDOComponent() {
                         loading={purchasing}
                         claimableAmount={claimableAmount}
                         handleClaim={handleClaim}
-                        id={id as string}
+                        id={data.id as string}
                         maxAmount={data.maxTotalPayment}
                         minAmount={data.minTotalPayment}
                         requestRefund={requestRefund}
@@ -857,7 +867,6 @@ export default function IDOComponent() {
                     />
                 )
             }
-
 
             <TxReceipt
                 visible={showTxModal}

@@ -5,24 +5,61 @@ import votingSlotABI from "../../abis/VotingSlot.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
+import { createWalletClient, custom, WalletClient } from 'viem';
+import { baseSepolia } from 'viem/chains';
+import { getContractAddress } from '../source';
 
-export const isValidERC20 = async (tokenAddress: `0x${string}`) => {
-    try {
-        const supply = await client.readContract({
-            address: tokenAddress,
-            abi: ERC20ABI,
-            functionName: 'totalSupply'
-        });
-
-        if (supply === undefined) {
-            throw new Error("Invalid token address");
-        }
-        return true;
-    } catch (error: any) {
-        console.error(error.message);
-        throw new Error("Invalid ERC20 token");
+declare global {
+    interface Window {
+        ethereum?: any;
     }
 }
+
+export const createViemWalletClient = async (): Promise<WalletClient> => {
+    if (!window.ethereum) {
+        throw new Error('No ethereum provider found');
+    }
+
+    const walletClient = createWalletClient({
+        chain: baseSepolia,
+        transport: custom(window.ethereum)
+    });
+
+    return walletClient;
+};
+
+export const isValidERC20 = async (tokenAddress: string): Promise<boolean> => {
+    try {
+        // Check if the address is valid
+        if (!tokenAddress || tokenAddress.length !== 42 || !tokenAddress.startsWith('0x')) {
+            return false;
+        }
+
+        // Try to read basic ERC20 functions
+        await Promise.all([
+            client.readContract({
+                address: tokenAddress as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: 'name'
+            }),
+            client.readContract({
+                address: tokenAddress as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: 'symbol'
+            }),
+            client.readContract({
+                address: tokenAddress as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: 'decimals'
+            })
+        ]);
+
+        return true;
+    } catch (error) {
+        console.error('Invalid ERC20 token:', error);
+        return false;
+    }
+};
 
 export const getTokenSymbol = async (tokenAddress: `0x${string}`) => {
     try {
@@ -54,27 +91,30 @@ export const getTokenDecimals = async (tokenAddress: `0x${string}`) => {
     }
 }
 
-export const getTokenBalance = async (tokenAddress: `0x${string}`, userAddress: `0x${string}` | any) => {
+export const getTokenBalance = async (
+    tokenAddress: `0x${string}`,
+    walletAddress: `0x${string}`
+): Promise<string> => {
     try {
         const balance = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
-            functionName: "balanceOf",
-            args: [userAddress]
-        })
+            functionName: 'balanceOf',
+            args: [walletAddress]
+        });
 
         const decimals = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
-            functionName: "decimals"
-        })
-        const formattedBalance = ethers.formatUnits(balance as string, decimals as number);
-        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 5, maximumFractionDigits: 5 }).format(Number(formattedBalance)) || 0;
-    } catch (error: any) {
-        console.error(error.message)
-        throw new Error("Invalid ERC20 token");
+            functionName: 'decimals'
+        });
+
+        return (Number(balance) / Math.pow(10, Number(decimals))).toString();
+    } catch (error) {
+        console.error('Error getting token balance:', error);
+        throw new Error('Failed to get token balance');
     }
-}
+};
 
 export const getTokenAllowance = async (tokenAddress: `0x${string}`, spenderAddress: `0x${string}`, userWallet: `0x${string}`) => {
     try {
@@ -126,7 +166,7 @@ export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
 export const getStakingPoolFactoryFee = async () => {
     try {
         const fee = await client.readContract({
-            address: "0x1446a9B64137B63e952e8860bf70142EB314E7bc",
+            address: "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123",
             abi: stakingPoolActionsABI,
             functionName: "fee"
         })
@@ -523,7 +563,7 @@ export const getVotingSlotByID = async (votingSlotAddress: `0x${string}`) => {
 }
 
 export const getAllStakingPoolAddress = async () => {
-    const stakingPoolFactory = "0x1446a9B64137B63e952e8860bf70142EB314E7bc"
+    const stakingPoolFactory = "0x5AfecadDD2cAB1f1bF335a09bF95D9B0cB3B0123"
 
     try {
         let addressList: `0x${string}`[] = []

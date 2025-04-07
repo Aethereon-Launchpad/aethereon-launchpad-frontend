@@ -19,6 +19,9 @@ export default function Navbar() {
                         <Link to="/launchpad" className="text-gray-300 hover:text-primary transition-colors">
                             Launchpad
                         </Link>
+                        <Link to="/giveaway" className="text-gray-300 hover:text-primary transition-colors">
+                            Giveaway
+                        </Link>
                         <Link to="/staking-pool" className="text-gray-300 hover:text-primary transition-colors">
                             Staking
                         </Link>

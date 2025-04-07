@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAllPresaleData, getPresaleDataByAddress } from '../../utils/web3/presale'
+import { getAllPresaleData, getPresaleDataByAddress, getPresaleDataByProjectName } from '../../utils/web3/presale'
 
 interface UsePresaleReturn {
     loading: boolean;
@@ -10,6 +10,7 @@ interface UsePresaleReturn {
 
 interface UsePresaleOptions {
     polling?: boolean;
+    projectName?: string; // Add projectName option
 }
 
 /**
@@ -18,7 +19,7 @@ interface UsePresaleOptions {
  * @param {UsePresaleOptions} options - Options object with polling configuration
  * @returns {UsePresaleReturn} Object containing loading state, error, and data
  */
-export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOptions): UsePresaleReturn {
+export function usePresale(projectName?: string | null, options?: UsePresaleOptions, id?: `0x${string}` | null): UsePresaleReturn {
     const { polling = true } = options || {};
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<{ message: string }>({ message: "" });
@@ -27,7 +28,10 @@ export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOption
     const fetchData = async () => {
         try {
             let result;
-            if (id) {
+            if (projectName) {
+                // Fetch by project name if provided
+                result = await getPresaleDataByProjectName(projectName);
+            } else if (id) {
                 // Fetch single presale data if ID is provided
                 result = await getPresaleDataByAddress(id);
                 if (result) {
@@ -35,7 +39,6 @@ export function usePresale(id?: `0x${string}` | null, options?: UsePresaleOption
                         const response = await fetch(result.metadataURI as string);
                         if (response.ok) {
                             const data = await response.json();
-                            
                             result = {
                                 ...result,
                                 presaleInfo: data

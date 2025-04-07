@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { usePresale } from '../../../hooks/web3/usePresale';
+import { useGiveaway } from '../../../hooks/web3/useGiveaway';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import {
     isBefore,
@@ -16,34 +16,31 @@ import {
 import { PresaleCountdownTimer } from '../../Countdown';
 import { toast } from 'react-hot-toast';
 import TxReceipt from '../../Modal/TxReceipt';
-import PresaleABI from "../../../abis/Presale.json";
-import { sonicTestnet } from "../../../config/chain";
+import AirdropABI from "../../../abis/Airdrop.json";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
-import ConfirmClaim from '../../Modal/ConfirmClaim';
+// import ConfirmClaim from '../../Modal/ConfirmClaim';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
-import { getTokenAllowance } from '../../../utils/web3/actions';
-import { getClaimableTokensAmount, paymentMade } from '../../../utils/web3/presale';
-import erc20Abi from "../../../abis/ERC20.json";
+import { getClaimableTokens } from '../../../utils/web3/giveaway';
 import { IoWalletSharp } from "react-icons/io5";
-import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
 import { useLockStake } from '../../../hooks/web3/useLockStake';
-import { getTokenBalance } from '../../../utils/web3/actions';
 import { usePageTitleGiveaway } from '../../../hooks/utils';
+import { isWhitelisted } from '../../../utils/web3/giveaway';
+import { useGiveawayPeriods } from '../../../hooks/web3/useGiveawayPeriods';
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
 
 
 export default function GiveawaySelected() {
-    const { id } = useParams<{ id: `0x${string}` }>();
-    const { data, error, loading, refetch } = usePresale(id)
+    const { id } = useParams<{ id: string }>();
+    const { data, error, loading, refetch } = useGiveaway(id)
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(true);
     const [purchasing, setPurchasing] = useState<boolean>(false)
     const [txHash, setTxHash] = useState<`0x${string}`>("0x")
@@ -52,34 +49,43 @@ export default function GiveawaySelected() {
     const [purchaseAmount, setPurchaseAmount] = useState<number>(0);
     const { user, login, authenticated } = usePrivy();
     const { data: lockStake, error: lockStakeError, loading: lockStakeLoading } = useLockStake({ polling: true, userAddress: user?.wallet?.address as `0x${string}` })
-    const [refunding, setRefunding] = useState<boolean>(false);
-    const [isSaleOver, setIsSaleOver] = useState<boolean>(false);
-    const [isRefundPeriod, setIsRefundPeriod] = useState<boolean>(false);
-    const [pastRefundPeriod, setPastRefundPeriod] = useState<boolean>(false);
-    const [paymentMadeAmount, setPaymentMadeAmount] = useState<number>(0);
+
+    const [refunding, setProcessing] = useState<boolean>(false)
+    const {
+        isBeforeWhitelist,
+        isWhitelistPeriod,
+        isWithdrawDelayPeriod,
+        isClaimPeriod
+    } = useGiveawayPeriods(data);
+
+    const [isUserWhitelisted, setIsUserWhitelisted] = useState<boolean>(false);
+
+    // const [paymentMadeAmount, setPaymentMadeAmount] = useState<number>(0);
     const [claimableAmount, setClaimableAmount] = useState<number>(0);
     const [loadingInfo, setLoadingInfo] = useState<boolean>(true)
-    const [markdownContent, setMarkdownContent] = useState(``);
 
-    usePageTitleGiveaway(`${data?.presaleInfo?.projectName} Airdrop` || "Airdrop")
+
+
+    usePageTitleGiveaway(`${data?.giveawayInfo?.projectName} Airdrop` || "Airdrop")
 
     useEffect(() => {
         // Scroll to top when component mounts
         window.scrollTo(0, 0);
     }, []);
 
-    async function getPaymentMade() {
+    async function getInitData() {
         setLoadingInfo(true)
         if (!user?.wallet?.address) {
             // toast("Connect Wallet")
-            // login();
+            login();
             return;
         }
         try {
-            const amount = await paymentMade(id as `0x${string}`, user?.wallet?.address as `0x${string}`)
-            const claimAmount = await getClaimableTokensAmount(id as `0x${string}`, user.wallet.address as `0x${string}`)
+            console.debug(data.id, user.wallet.address)
+            const claimAmount = await getClaimableTokens(data.id as `0x${string}`, user.wallet.address as `0x${string}`)
+            const isWhitelistedAddress = await isWhitelisted(data.id as `0x${string}`, user?.wallet?.address as `0x${string}`)
 
-            setPaymentMadeAmount(amount)
+            setIsUserWhitelisted(isWhitelistedAddress);
             setClaimableAmount(claimAmount)
         } catch (error) {
             console.error(error)
@@ -89,74 +95,46 @@ export default function GiveawaySelected() {
     }
 
     useEffect(() => {
-        const startTimeUnix = data.startTime * 1000 || 0;
-        const endTimeUnix = data.endTime * 1000 || 0;
+        if (!data) {
+            console.log("No Data")
+            return
+        };
 
-        // Checks if Giveaway is Over
-        if (isAfter(new Date(), new Date(endTimeUnix))) {
-            setIsSaleOver(true)
-        }
+        console.log(data)
 
-        const delayPeriod = (data.endTime + (Number(data?.withdrawDelay) || 0)) * 1000;
+        getInitData();
 
-        // Past Refund Period is when current time is after endTime + withdrawDelay
-        if (isAfter(new Date(), new Date(delayPeriod))) {
-            setPastRefundPeriod(true)
-            console.log("Hello!")
-        }
-
-        // Refund Period is when current time is after endTime but before endTime + withdrawDelay
-        if (isAfter(new Date(), new Date(endTimeUnix)) && isBefore(new Date(), new Date(delayPeriod))) {
-            setIsRefundPeriod(true);
-        }
-
-        getPaymentMade();
+    }, [authenticated, data]);
 
 
-    }, [authenticated, data])
-
-    useEffect(() => {
-        if (data?.presaleInfo?.description_md) {
-            const fetchMarkdown = async () => {
-                try {
-                    const response = await axios.get(data.presaleInfo.description_md);
-                    setMarkdownContent(response.data);
-                } catch (error) {
-                    console.error('Error fetching markdown:', error);
-                }
-            };
-            fetchMarkdown();
-        }
-    }, [data?.presaleInfo?.description_md]);
-
-    function PresaleStatus({ startTime, endTime, delay }: { startTime: number, endTime: number, delay: number }) {
-        const startTimeUnix = startTime * 1000
-        const endTimeUnix = endTime * 1000
-        const delayPeriod = (Number(endTime) + Number(delay)) * 1000
+    function GiveawayStatus({ whitelistStartTime, whitelistEndTime, delay }: { whitelistStartTime: number, whitelistEndTime: number, delay: number }) {
+        const whitelistStartTimeUnix = whitelistStartTime * 1000
+        const whitelistEndTimeUnix = whitelistEndTime * 1000
+        const delayPeriod = (Number(whitelistEndTime) + Number(delay)) * 1000
 
 
-        if (isAfter(new Date(), new Date(endTimeUnix)) && isBefore(new Date(), new Date(delayPeriod))) {
+        if (isAfter(new Date(), new Date(whitelistEndTimeUnix)) && isBefore(new Date(), new Date(delayPeriod))) {
             return (
                 <div className="bg-yellow-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-yellow-300'>Refund Period</p>
+                    <p className='text-yellow-300'>Claim Period</p>
                 </div>)
         }
 
-        if (isAfter(new Date(), new Date(endTimeUnix))) {
+        if (isAfter(new Date(), new Date(whitelistEndTimeUnix))) {
             return (
                 <div className="bg-red-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-red-300'>Giveaway is Over</p>
+                    <p className='text-red-300'>Whitelist is Over</p>
                 </div>)
         }
 
-        if (isAfter(new Date(), new Date(startTimeUnix)) && isBefore(new Date(), new Date(endTimeUnix))) {
+        if (isAfter(new Date(), new Date(whitelistStartTimeUnix)) && isBefore(new Date(), new Date(whitelistEndTimeUnix))) {
             return (
                 <div className="bg-green-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-green-300'>Giveaway in Progress</p>
+                    <p className='text-green-300'>Whitelist in Progress</p>
                 </div>)
         }
 
-        if (isBefore(new Date(), new Date(startTimeUnix))) {
+        if (isBefore(new Date(), new Date(whitelistStartTimeUnix))) {
             return (
                 <div className="bg-blue-700/80 p-[3px_8px] w-fit text-[12px]">
                     <p className='text-blue-300'>Upcoming Giveaway</p>
@@ -167,41 +145,41 @@ export default function GiveawaySelected() {
         return null
     }
 
-    function PresaleProgress({ totalPaymentReceived, softCap, hardCap }: { totalPaymentReceived: number, softCap: number, hardCap: number }) {
-        const [progress, setProgress] = useState<number>(0);
-        const [target, setTarget] = useState<"Soft Cap" | "Hard Cap">("Soft Cap")
+    // function PresaleProgress({ totalPaymentReceived, softCap, hardCap }: { totalPaymentReceived: number, softCap: number, hardCap: number }) {
+    //     const [progress, setProgress] = useState<number>(0);
+    //     const [target, setTarget] = useState<"Soft Cap" | "Hard Cap">("Soft Cap")
 
-        console.log(totalPaymentReceived)
+    //     console.log(totalPaymentReceived)
 
-        useEffect(() => {
-            if (Number(totalPaymentReceived) < Number(softCap)) {
-                setTarget("Soft Cap");
-                const percentage = (Number(totalPaymentReceived) / Number(softCap)) * 100;
-                setProgress(percentage);
-            } else {
-                setTarget("Hard Cap");
-                const percentage = (Number(totalPaymentReceived) / Number(hardCap)) * 100;
-                if (percentage > 100) {
-                    setProgress(100)
-                    return;
-                }
-                setProgress(percentage);
-            }
-        }, [data])
+    //     useEffect(() => {
+    //         if (Number(totalPaymentReceived) < Number(softCap)) {
+    //             setTarget("Soft Cap");
+    //             const percentage = (Number(totalPaymentReceived) / Number(softCap)) * 100;
+    //             setProgress(percentage);
+    //         } else {
+    //             setTarget("Hard Cap");
+    //             const percentage = (Number(totalPaymentReceived) / Number(hardCap)) * 100;
+    //             if (percentage > 100) {
+    //                 setProgress(100)
+    //                 return;
+    //             }
+    //             setProgress(percentage);
+    //         }
+    //     }, [data])
 
-        return (
-            <div className="mt-[15px] flex flex-col items-start space-y-3 w-full">
-                <p className='w-full flex items-center justify-between'>Progress ({progress.toFixed(2)}%) <span>{"--------->"}</span> <span>{target}</span> </p>
-                <div className="h-[10px] w-full bg-white border border-primary/20">
-                    <div style={{ width: `${progress}%` }} className="h-full bg-primary"></div>
-                </div>
-                <div className='flex justify-between w-full'>
-                    <p className='text-primary text-[12px] font-semibold'>{Number(softCap).toLocaleString()} {data.paymentToken.symbol} </p>
-                    <p className='text-primary text-[12px] font-semibold'>{Number(hardCap).toLocaleString()} {data.paymentToken.symbol} </p>
-                </div>
-            </div>
-        )
-    }
+    //     return (
+    //         <div className="mt-[15px] flex flex-col items-start space-y-3 w-full">
+    //             <p className='w-full flex items-center justify-between'>Progress ({progress.toFixed(2)}%) <span>{"--------->"}</span> <span>{target}</span> </p>
+    //             <div className="h-[10px] w-full bg-white border border-primary/20">
+    //                 <div style={{ width: `${progress}%` }} className="h-full bg-primary"></div>
+    //             </div>
+    //             <div className='flex justify-between w-full'>
+    //                 <p className='text-primary text-[12px] font-semibold'>{Number(softCap).toLocaleString()} {data.paymentToken.symbol} </p>
+    //                 <p className='text-primary text-[12px] font-semibold'>{Number(hardCap).toLocaleString()} {data.paymentToken.symbol} </p>
+    //             </div>
+    //         </div>
+    //     )
+    // }
 
     if (loading || lockStakeLoading) {
         return (
@@ -225,7 +203,7 @@ export default function GiveawaySelected() {
         )
     }
 
-    console.log(data)
+    // console.log(data)
 
     function copyAddress(address: `0x${string}`) {
         navigator.clipboard.writeText(address)
@@ -238,164 +216,30 @@ export default function GiveawaySelected() {
             });
     }
 
-    async function handlePayment() {
-        setPurchasing(true)
-        try {
-            // if (Number(data.hardCap) === data.totalPaymentReceived || data.totalPaymentReceived > data.hardCap) {
-            //     toast("IDO has reached Hard Cap")
-            //     setPurchasing(false)
-            //     return;
-            // }
-
-            if (purchaseAmount < data.minTotalPayment) {
-                toast(`Can't purchase less than minimum amount ${data.minTotalPayment}`)
-                setPurchasing(false)
-                return;
-            }
-
-            if (purchaseAmount > data.maxTotalPayment) {
-                toast(`Can't purchase more than maximum amount ${data.maxTotalPayment}`)
-                setPurchasing(false)
-                return;
-            }
-
-            const walletClient = createViemWalletClient();
-            const [account] = await walletClient.getAddresses();
-            if (purchaseAmount === 0 && Number(data.salePrice) !== 0) {
-                toast.error("Purchase Amount can't be zero")
-                return;
-            }
-
-            const purchaseAmountArg = ethers.parseUnits(purchaseAmount.toString(), 18);
-            const tokenBalance = await getTokenBalance(data.paymentToken.id as `0x${string}`, user?.wallet?.address as `0x${string}`);
-
-            if (Number(purchaseAmount) > Number(tokenBalance)) {
-                toast(`You don't have enough ${data.paymentToken.symbol}`)
-                setPurchasing(false)
-                return;
-            }
-
-            // Approve Token Spending
-            async function approveTokenSpending() {
-                if (user?.wallet?.address) {
-                    let allowance = await getTokenAllowance(
-                        data.paymentToken.id,
-                        data.id,
-                        user.wallet.address as `0x${string}`
-                    )
-
-                    // Check if allowance is less than stake amount
-                    if (Number(allowance) < purchaseAmount) {
-                        // Allow Contract to Spend
-                        const { request } = await publicClient.simulateContract({
-                            address: data.paymentToken.id,
-                            account,
-                            abi: erc20Abi,
-                            functionName: "approve",
-                            args: [data.id, purchaseAmountArg]  // Changed to approve staking pool contract
-                        })
-
-                        // Run Approval
-                        const txHash = await walletClient.writeContract(request);
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        const receipt = await publicClient.getTransactionReceipt({
-                            hash: txHash
-                        })
-                        return receipt
-                    }
-
-                    return {
-                        status: "success"
-                    }
-                }
-            }
-
-            const receipt = await approveTokenSpending();
-            if (receipt && receipt.status === "success") {
-                try {
-                    // Purchase Transaction
-                    const { request } = await publicClient.simulateContract({
-                        address: data.id,
-                        abi: PresaleABI,
-                        account,
-                        functionName: "purchase",
-                        args: [
-                            purchaseAmountArg
-                        ]
-                    })
-
-                    const hash = await walletClient.writeContract(request)
-                    toast("Successful Purchase");
-                    setShowPaymentConfirmModal(false);
-
-                    setTxHash(hash)
-                    setTimeout(() => {
-                        setShowTxModal(true)
-                    }, 2000)
-
-                    setTimeout(async () => {
-                        await refetch();
-                    }, 5000)
-                } catch (error: any) {
-                    console.error(error)
-                    if (error.message.includes("User rejected the request")) {
-                        toast("User Rejected the Request!")
-                        return;
-                    }
-                    if (error.message.includes("sale over")) {
-                        toast("Giveaway is Over!")
-                        return
-                    }
-                    if (error.message.includes("sale has not begun")) {
-                        toast('Giveaway has not started yet')
-                        return
-                    }
-                    if (error.message.includes("must stake to participate in private sale")) {
-                        toast("Must stake in Lock & Stake to Participate")
-                        return;
-                    }
-
-                    toast.error("Purchase Failure, Please Try Again later")
-                    setPurchasing(false)
-                } finally {
-                    setPurchasing(false)
-                }
-
-            }
-        } catch (error) {
-            toast.error("Purchase Failed! Please Try Again Later")
-        } finally {
-            setPurchasing(false)
-        }
-    }
-
-    async function requestRefund() {
-        setRefunding(true)
+    async function handleWhitelist() {
+        setProcessing(true)
         try {
             const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
-            const refundDeadline = (Number(data.endTime) + Number(data.withdrawDelay)) * 1000;
-
-            if (isBefore(new Date(refundDeadline), new Date())) {
-                toast("You have missed the refund period")
-                console.log("you have missed the refund period")
-                setRefunding(false)
-                return
-            }
-
             const { request } = await publicClient.simulateContract({
                 address: data.id,
-                abi: PresaleABI,
+                abi: AirdropABI,
                 account,
-                functionName: "emergencyWithdraw"
+                functionName: "whitelist"
             })
 
+            if (!isWhitelistPeriod) {
+                toast("It is not yet whitelist period")
+                setProcessing(false)
+                return;
+            }
+
             const hash = await walletClient.writeContract(request)
-            toast("Successful Refund");
+            toast("Successful Whitelist");
             setShowPaymentConfirmModal(false);
-            setTxReceiptTitle("Refund Successful")
 
             setTxHash(hash)
+            setTxReceiptTitle("Successful Whitelist")
             setTimeout(() => {
                 setShowTxModal(true)
             }, 2000)
@@ -403,51 +247,49 @@ export default function GiveawaySelected() {
             setTimeout(async () => {
                 await refetch();
             }, 5000)
+
         } catch (error: any) {
-            console.log(error.message)
-            if (error.message.includes("you did not contribute to this sale")) {
-                toast("You did not contribute to this sale")
+            console.error(error);
+            if (error.message.includes("whitelist has not begun")) {
+                toast("Whitelist has not begun")
                 return;
             }
-            if (error.message.includes("sale has been cashed already")) {
-                toast("Giveaway has been cashed already")
+            if (error.message.includes("not staked")) {
+                toast("Must stake in Lock & Stake to Participate")
                 return;
             }
-            if (error.message.includes("cannot use emergency withdrawal after regular withdrawal")) {
-                toast("cannot use emergency withdrawal after regular withdrawal")
-                return;
-            }
-            toast.error("Purchase Failed! Please Try Again Later")
+            toast.error("Whitelist Failed! Please Try Again Later")
         } finally {
-            setRefunding(false)
+            setProcessing(false)
         }
     }
 
+
     async function handleClaim() {
-        setRefunding(true)
+        setProcessing(true)
         try {
             const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
 
-            if (!pastRefundPeriod) {
+            if (!isClaimPeriod) {
                 toast("It is not yet claim period")
-                setRefunding(false)
+                setProcessing(false)
                 return;
             }
 
             const { request } = await publicClient.simulateContract({
                 address: data.id,
-                abi: PresaleABI,
+                abi: AirdropABI,
                 account,
-                functionName: "withdraw"
+                functionName: "claim"
             })
 
             const hash = await walletClient.writeContract(request)
-            toast("Successful Withdrawal");
+            toast("Successful Claim");
             setShowPaymentConfirmModal(false);
 
             setTxHash(hash)
-            setTxReceiptTitle("Successful Withdrawal")
+            setTxReceiptTitle("Successful Claim")
             setTimeout(() => {
                 setShowTxModal(true)
             }, 2000)
@@ -476,7 +318,7 @@ export default function GiveawaySelected() {
             }
             toast('Withdrawal Failed, please try again later')
         } finally {
-            setRefunding(false)
+            setProcessing(false)
         }
     }
 
@@ -526,7 +368,7 @@ export default function GiveawaySelected() {
                     <div className="relative space-y-6">
                         <div>
                             <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
-                                {data?.presaleInfo?.projectName}
+                                {data?.giveawayInfo?.projectName}
                             </p>
                             <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
                                 Participate in the Future
@@ -538,25 +380,33 @@ export default function GiveawaySelected() {
                                 <h3 className='text-xl font-semibold mb-4 text-primary'>Airdrop Details</h3>
                                 <ul className='space-y-3'>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Start Date</span>
-                                        <span className='font-medium'>{format(new Date(data.startTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                        <span className='text-gray-300'>Whitelist Start Date</span>
+                                        <span className='font-medium'>{format(new Date(data.whitelistStartTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>End Date</span>
-                                        <span className='font-medium'>{format(new Date(data.endTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                        <span className='text-gray-300'>Whitelist End Date</span>
+                                        <span className='font-medium'>{format(new Date(data.whitelistEndTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
                                         <span className='text-gray-300'>Total Reward</span>
-                                        <span className='font-medium'>{data.presaleInfo?.totalReward.toLocaleString()} {data.saleToken.symbol}</span>
+                                        <span className='font-medium'>{data.giveawayInfo?.totalReward.toLocaleString()} {data.airdropToken.symbol}</span>
                                     </li>
                                     <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300'>Mainnet Contract</span>
+                                        <span className='text-gray-300'>Giveaway Access</span>
+                                        <span
+                                            className='font-medium flex items-center gap-2 hover:text-primary cursor-pointer'
+                                        >
+                                            {data.isPrivateAirdrop ? "Private" : "Public"}
+                                        </span>
+                                    </li>
+                                    <li className='flex justify-between items-center'>
+                                        <span className='text-gray-300 text-nowrap'>Mainnet Contract</span>
                                         <span
                                             className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
-                                            onClick={() => copyAddress(data.saleToken.id)}
+                                            onClick={() => copyAddress(data.airdropToken.id)}
                                         >
-                                            {data.saleToken.id.slice(0, 6)}...{data.saleToken.id.slice(-4)}
-                                            <FaCopy size={15} />
+                                            {`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}
+                                            <FaCopy />
                                         </span>
                                     </li>
                                 </ul>
@@ -569,31 +419,40 @@ export default function GiveawaySelected() {
                 <div className="relative p-8 overflow-hidden group">
                     <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
                     <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
-                    <div className="relative">
+                    <div className="relative space-y-3">
                         <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
-                            About {data?.presaleInfo?.projectName}
+                            About {data?.giveawayInfo?.projectName}
                         </p>
                         <div className='text-[15px] lg:text-[18px] mt-[20px]'>
-                            <p>{data?.presaleInfo?.description}</p>
-                            {data?.presaleInfo?.description_md && markdownContent && (
-                                <div className="markdown-content">
-                                    <ReactMarkdown>{markdownContent}</ReactMarkdown>
-                                </div>
-                            )}
+                            <p>{data?.giveawayInfo?.description}</p>
+
                         </div>
+
+                        <p className="text-primary text-[14px] uppercase font-normal tracking-[3px]">
+                            Terms & Conditions
+                        </p>
+                        <p>Airdrop tokens are subject to project's determined allocation's vesting schedule also specified in the Airdrop page of the project.</p>
+
+                        {data.isPrivateAirdrop ? (
+                            <p>This is a private airdrop. Only whitelisted addresses can participate.</p>
+                        ) : (
+                            <p>
+                                This is a public airdrop. All addresses can participate.
+                            </p>
+                        )}
 
                         <div className='grid grid-cols-3 gap-x-5 my-10'>
                             <div>
                                 <h3>Website</h3>
-                                <a className='text-primary' href={data?.presaleInfo?.website}>{data?.presaleInfo?.website}</a>
+                                <a className='text-primary' href={data?.giveawayInfo?.website}>{data?.giveawayInfo?.website}</a>
                             </div>
                             <div>
                                 <h3>Documents</h3>
-                                <a href={data?.presaleInfo?.website} className='text-primary'>Whitepaper</a>
+                                <a href={data?.giveawayInfo?.website} className='text-primary'>Whitepaper</a>
                             </div>
                             <div>
                                 <img
-                                    src={data?.presaleInfo?.images?.logo}
+                                    src={data?.giveawayInfo?.images?.logo}
                                     className="h-[40px] w-full object-contain"
                                     alt=""
                                 />
@@ -603,18 +462,18 @@ export default function GiveawaySelected() {
                         <div >
                             <h3>Social Media</h3>
                             <div className="flex space-x-4 mt-6">
-                                {data?.presaleInfo?.socials?.twitter && (
-                                    <a href={data.presaleInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
+                                {data?.giveawayInfo?.socials?.twitter && (
+                                    <a href={data.giveawayInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
                                         <FaTwitter className='hover:text-primary' size={20} />
                                     </a>
                                 )}
-                                {data?.presaleInfo?.socials?.telegram && (
-                                    <a href={data.presaleInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
+                                {data?.giveawayInfo?.socials?.telegram && (
+                                    <a href={data.giveawayInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
                                         <FaTelegramPlane className='hover:text-primary' size={20} />
                                     </a>
                                 )}
-                                {data?.presaleInfo?.socials?.discord && (
-                                    <a href={data.presaleInfo.socials.discord} target="_blank" rel="noopener noreferrer">
+                                {data?.giveawayInfo?.socials?.discord && (
+                                    <a href={data.giveawayInfo.socials.discord} target="_blank" rel="noopener noreferrer">
                                         <FaDiscord className='hover:text-primary' size={20} />
                                     </a>
                                 )}
@@ -631,9 +490,9 @@ export default function GiveawaySelected() {
                 <div className="relative space-y-6">
                     {/* Presale Status */}
                     <div className="flex items-center justify-between">
-                        <PresaleStatus
-                            startTime={data.startTime}
-                            endTime={data.endTime}
+                        <GiveawayStatus
+                            whitelistStartTime={data.whitelistStartTime}
+                            whitelistEndTime={data.whitelistEndTime}
                             delay={Number(data.withdrawDelay)}
                         />
                     </div>
@@ -641,27 +500,27 @@ export default function GiveawaySelected() {
                     {/* Countdown Timer */}
                     <div className="flex justify-between items-center flex-wrap">
                         <div className="mt-[10px] items-start flex flex-col space-x-[5px]">
-                            {isBefore(new Date(), new Date(data.startTime * 1000)) ? (
+                            {isBeforeWhitelist ? (
                                 <>
-                                    <p className='text-primary text-[12px]'>Giveaway starts in</p>
-                                    <PresaleCountdownTimer time={data.startTime} />
+                                    <p className='text-primary text-[12px]'>Whitelist starts in</p>
+                                    <PresaleCountdownTimer time={data.whitelistStartTime} />
                                 </>
-                            ) : isAfter(new Date(), new Date(data.endTime * 1000)) && isBefore(new Date(), new Date((Number(data.endTime) + Number(data.withdrawDelay)) * 1000)) ? (
+                            ) : isClaimPeriod ? (
                                 <>
-                                    <p className='text-primary text-[12px]'>Refund period ends in</p>
-                                    <PresaleCountdownTimer time={Number(data.endTime) + Number(data.withdrawDelay)} />
+                                    <p className='text-primary text-[12px]'>Claim Period Starts</p>
+                                    <PresaleCountdownTimer time={Number(data.whitelistEndTime) + Number(data.withdrawDelay)} />
                                 </>
                             ) : (
                                 <>
-                                    <p className='text-primary text-[12px]'>Giveaway ends in</p>
-                                    <PresaleCountdownTimer time={data.endTime} />
+                                    <p className='text-primary text-[12px]'>Whitelist ends in</p>
+                                    <PresaleCountdownTimer time={data.whitelistEndTime} />
                                 </>
                             )}
                         </div>
 
                         <div>
                             <img
-                                src={data?.presaleInfo?.images?.logo}
+                                src={data?.giveawayInfo?.images?.logo}
                                 className="h-[40px] w-full object-contain"
                                 alt=""
                             />
@@ -687,12 +546,17 @@ export default function GiveawaySelected() {
                             <div className="bg-primary w-[20%] h-[2px]" />
                             <p>{returnMultiplier(lockStake?.userData?.amountStaked)}</p>
                         </div>
+                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
+                            <p>Claimable</p>
+                            <div className="bg-primary w-[20%] h-[2px]" />
+                            <p>{claimableAmount} {data.airdropToken.symbol}</p>
+                        </div>
                     </div>
 
                     {/* Action Buttons */}
                     {authenticated ? (
                         <>
-                            {pastRefundPeriod && (
+                            {isClaimPeriod && (
                                 <button
                                     className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
                                     onClick={handleClaim}
@@ -703,11 +567,51 @@ export default function GiveawaySelected() {
                                     <span className="relative">
                                         {claimableAmount === 0
                                             ? "You have no tokens to claim"
-                                            : `Claim Tokens ${Number(claimableAmount).toLocaleString()} ${data.saleToken.symbol}`
+                                            : `Claim Tokens ${Number(claimableAmount).toLocaleString()} ${data.airdropToken.symbol}`
                                         }
                                     </span>
                                 </button>
                             )}
+
+                            {
+                                isWhitelistPeriod && !isUserWhitelisted && (
+                                    <button
+                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                        onClick={handleWhitelist}
+                                    >
+                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
+                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
+                                        <span className="relative">
+                                            Whitelist
+                                        </span>
+                                    </button>
+                                ) ||
+                                isWhitelistPeriod && isUserWhitelisted && (
+                                    <button
+                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                    >
+                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
+                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
+                                        <span className="relative">
+                                            Whitelisted
+                                        </span>
+                                    </button>
+                                )
+                            }
+                            {
+                                isBeforeWhitelist && (
+                                    <button
+                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                        onClick={() => toast("Whitelist is upcoming")}
+                                    >
+                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
+                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
+                                        <span className="relative">
+                                            Whitelist Upcoming
+                                        </span>
+                                    </button>
+                                )
+                            }
                         </>
                     ) : (
                         <button

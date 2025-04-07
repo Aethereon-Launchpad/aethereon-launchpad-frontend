@@ -15,7 +15,7 @@ import { noOfDays } from "../../utils/tools";
 import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress, getStakingPoolOwner } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
-import { sonicTestnet } from "../../config/chain";
+import { baseSepolia } from "../../config/chain";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolABI from "../../abis/StakingPool.json";
@@ -28,7 +28,7 @@ import ManageStaking from "../Modal/ManageStaking";
 // Add this function to create wallet client
 const createViemWalletClient = () => {
   return createWalletClient({
-    chain: sonicTestnet,
+    chain: baseSepolia,
     transport: custom(window.ethereum)
   });
 };

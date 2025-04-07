@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWallets, usePrivy } from "@privy-io/react-auth";
 import { FiHome, FiDatabase, FiLock, FiShoppingCart } from "react-icons/fi";
+import { FiDollarSign } from "react-icons/fi";
+
 function Layout({ children }: { children: ReactNode }) {
     const { wallets } = useWallets();
     const { login, authenticated } = usePrivy();
@@ -64,6 +66,12 @@ function Layout({ children }: { children: ReactNode }) {
                         <a href="/admin/dashboard/presales" className="flex items-center text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
                             <FiShoppingCart className="mr-2" />
                             Presales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/dashboard/giveaways" className="flex items-center text-primary hover:text-primary/70 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-800">
+                            <FiShoppingCart className="mr-2" />
+                            Giveaways
                         </a>
                     </li>
                 </ul>

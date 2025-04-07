@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Layout from "../../../../layout/Admin";
 import { usePrivy } from "@privy-io/react-auth";
-import { sonicTestnet } from "../../../../config/chain";
+import { baseSepolia } from "../../../../config/chain";
 import { publicClient } from "../../../../config";
 import { createWalletClient, custom } from "viem";
 import { toast } from "react-hot-toast";
@@ -11,7 +11,7 @@ import { IoWalletSharp } from "react-icons/io5";
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -83,7 +83,7 @@ export default function CreateVotingSlot() {
 
             const hash = await walletClient.writeContract(request);
             toast.success("Voting slot created successfully!");
-            
+
             // Reset form after successful creation
             setFormData({
                 name: '',
