@@ -7,16 +7,17 @@ import { ethers } from 'ethers';
 import Layout from '../../../layout/Main';
 import { useGiveaway } from '../../../hooks/web3/useGiveaway';
 import { publicClient } from '../../../config';
-import { createViemWalletClient } from '../../../utils/web3/actions';
+import { createViemWalletClient, getTokenAllowance } from '../../../utils/web3/actions';
 import AirdropABI from '../../../abis/Airdrop.json';
 import TxReceipt from '../../../components/TxReceipt';
 import { Input } from '../../../components/Form';
+import erc20Abi from '../../../abis/ERC20.json';
 
 export default function FundGiveaway() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { authenticated, login } = usePrivy();
-    const { data: giveaway, loading: giveawayLoading } = useGiveaway(id as `0x${string}`);
+    const { data: giveaway, loading: giveawayLoading, refetch } = useGiveaway(id as `0x${string}`);
     const [amount, setAmount] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
@@ -46,23 +47,45 @@ export default function FundGiveaway() {
 
             const formattedAmount = ethers.parseUnits(amount, giveaway.airdropToken.decimals);
 
-            const { request } = await publicClient.simulateContract({
-                address: id as `0x${string}`,
+            // Check and approve token allowance
+            const allowance = await getTokenAllowance(
+                giveaway.airdropToken.id,
+                giveaway.id,
+                account
+            );
+
+            if (Number(allowance) < Number(formattedAmount)) {
+                // Approve token spending
+                const { request: approveRequest } = await publicClient.simulateContract({
+                    address: giveaway.airdropToken.id as `0x${string}`,
+                    abi: erc20Abi,
+                    functionName: "approve",
+                    account,
+                    args: [giveaway.id, formattedAmount]
+                });
+
+                const approveHash = await walletClient.writeContract(approveRequest);
+                await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            }
+
+            // Fund the airdrop
+            const { request: fundRequest } = await publicClient.simulateContract({
+                address: giveaway.id as `0x${string}`,
                 abi: AirdropABI,
                 functionName: "fundAirdrop",
                 account,
                 args: [formattedAmount]
             });
 
-            const hash = await walletClient.writeContract(request);
+            const hash = await walletClient.writeContract(fundRequest);
             setTxHash(hash);
             setShowTxModal(true);
 
             toast("Successfully Funded Giveaway");
             setTimeout(async () => {
-                const receipt = await publicClient.getTransactionReceipt({ hash });
+                const receipt = await publicClient.waitForTransactionReceipt({ hash });
                 if (receipt && receipt.status === "success") {
-                    navigate(`/admin/dashboard/giveaways/manage/${id}`);
+                    refetch();
                 }
             }, 5000);
         } catch (error: any) {

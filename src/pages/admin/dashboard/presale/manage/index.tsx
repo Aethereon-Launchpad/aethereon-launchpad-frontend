@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin"
 import { usePrivy } from "@privy-io/react-auth"
-import { baseSepolia } from "../../../../../config/chain";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../../../../config";
 import { usePresale } from "../../../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";

@@ -7,6 +7,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { FaDiscord, FaGlobe, FaTelegram, FaTwitter } from "react-icons/fa6";
 import { differenceInDays, differenceInHours, differenceInMinutes, isBefore } from 'date-fns';
 import CurrentChain from "../../Presale/CurrentChain";
+import { useLocation } from "react-router-dom";
 
 
 function CountdownTimer({ time, endTime, delayTime }: { time: string, endTime: string, delayTime: number }) {
@@ -73,6 +74,7 @@ function GiveawayCardCompleted({ giveaway }: any) {
     const [currentChain, setCurrentChain] = useState<string>("57054")
     const { wallets } = useWallets();
     const { authenticated } = usePrivy();
+    const location = useLocation();
 
     useEffect(() => {
         if (authenticated) {
@@ -106,7 +108,7 @@ function GiveawayCardCompleted({ giveaway }: any) {
 
     return (
         <div className="overflow-hidden relative bg-[#111115] border border-primary/20 transition-all hover:scale-[1.01] duration-300 hover:cursor-pointer shadow-[0_0_15px_2px_rgba(83,37,169,0.3)] hover:shadow-[0_0_25px_5px_rgba(83,37,169,0.5)]"
-            onClick={() => navigate(`/giveaways/${giveaway?.giveawayInfo?.projectName.toLowerCase()}`)}
+            onClick={() => navigate(location.pathname.includes("dashboard") ? `/admin/dashboard/giveaways/manage/${giveaway?.giveawayInfo?.projectName.toLowerCase()}` : `/giveaways/${giveaway?.giveawayInfo?.projectName.toLowerCase()}`)}
         >
             <div className="h-[150px] w-full border-b relative">
                 <img

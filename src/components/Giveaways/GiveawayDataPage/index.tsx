@@ -17,20 +17,15 @@ import { PresaleCountdownTimer } from '../../Countdown';
 import { toast } from 'react-hot-toast';
 import TxReceipt from '../../Modal/TxReceipt';
 import AirdropABI from "../../../abis/Airdrop.json";
-import { baseSepolia } from "../../../config/chain";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 // import ConfirmClaim from '../../Modal/ConfirmClaim';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
-import { getTokenAllowance } from '../../../utils/web3/actions';
 import { getClaimableTokens } from '../../../utils/web3/giveaway';
-import erc20Abi from "../../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
-import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
 import { useLockStake } from '../../../hooks/web3/useLockStake';
-import { getTokenBalance } from '../../../utils/web3/actions';
 import { usePageTitleGiveaway } from '../../../hooks/utils';
 import { isWhitelisted } from '../../../utils/web3/giveaway';
 import { useGiveawayPeriods } from '../../../hooks/web3/useGiveawayPeriods';
@@ -259,6 +254,10 @@ export default function GiveawaySelected() {
                 toast("Whitelist has not begun")
                 return;
             }
+            if (error.message.includes("not staked")) {
+                toast("Must stake in Lock & Stake to Participate")
+                return;
+            }
             toast.error("Whitelist Failed! Please Try Again Later")
         } finally {
             setProcessing(false)
@@ -282,15 +281,15 @@ export default function GiveawaySelected() {
                 address: data.id,
                 abi: AirdropABI,
                 account,
-                functionName: "withdraw"
+                functionName: "claim"
             })
 
             const hash = await walletClient.writeContract(request)
-            toast("Successful Withdrawal");
+            toast("Successful Claim");
             setShowPaymentConfirmModal(false);
 
             setTxHash(hash)
-            setTxReceiptTitle("Successful Withdrawal")
+            setTxReceiptTitle("Successful Claim")
             setTimeout(() => {
                 setShowTxModal(true)
             }, 2000)
@@ -395,9 +394,19 @@ export default function GiveawaySelected() {
                                     <li className='flex justify-between items-center'>
                                         <span className='text-gray-300'>Giveaway Access</span>
                                         <span
-                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
+                                            className='font-medium flex items-center gap-2 hover:text-primary cursor-pointer'
                                         >
                                             {data.isPrivateAirdrop ? "Private" : "Public"}
+                                        </span>
+                                    </li>
+                                    <li className='flex justify-between items-center'>
+                                        <span className='text-gray-300 text-nowrap'>Mainnet Contract</span>
+                                        <span
+                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
+                                            onClick={() => copyAddress(data.airdropToken.id)}
+                                        >
+                                            {`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}
+                                            <FaCopy />
                                         </span>
                                     </li>
                                 </ul>
@@ -588,9 +597,7 @@ export default function GiveawaySelected() {
                                         </span>
                                     </button>
                                 )
-
                             }
-
                             {
                                 isBeforeWhitelist && (
                                     <button
