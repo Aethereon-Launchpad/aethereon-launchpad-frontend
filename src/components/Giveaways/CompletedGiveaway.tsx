@@ -15,7 +15,7 @@ function CompletedGiveaways() {
             const currentTime = Date.now();
             const filtered = data.filter((giveaway: any) => {
                 const endTime = Number(giveaway.whitelistEndTime) * 1000;
-                return !isBefore(currentTime, endTime) && !giveaway.isPrivateAirdrop;
+                return !isBefore(currentTime, endTime) // Show giveaways that have ended;
             });
             setFilteredGiveaways(filtered);
         }
