@@ -15,7 +15,7 @@ function CompletedGiveaways() {
             const currentTime = Date.now();
             const filtered = data.filter((giveaway: any) => {
                 const endTime = Number(giveaway.whitelistEndTime) * 1000;
-                return !isBefore(currentTime, endTime) && !giveaway.isPrivateAirdrop;
+                return !isBefore(currentTime, endTime) // Show giveaways that have ended;
             });
             setFilteredGiveaways(filtered);
         }
@@ -64,7 +64,7 @@ function CompletedGiveaways() {
                 </p>
             </div>
             <div className="w-full mx-auto">
-                <div className="grid gap-[40px] grid-cols-3 mt-[40px]">
+                <div className="grid gap-[40px] grid-cols-1 md:grid-cols-3 mt-[40px]">
                     {filteredGiveaways.length > 0 ? (
                         filteredGiveaways.map((giveaway: any, index: number) => (
                             <GiveawayCardCompleted key={index} giveaway={giveaway} />

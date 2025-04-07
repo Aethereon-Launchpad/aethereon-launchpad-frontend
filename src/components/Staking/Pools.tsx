@@ -137,8 +137,8 @@ function Pools() {
                 <th scope="col" className="px-6 py-3 min-w-[210px]">
                   Reward Token
                 </th>
-                <th>Available Rewards</th>
                 <th>Total Staked</th>
+                <th>Available Rewards</th>
               </tr>
             </thead>
             <tbody className="mt-[20px]">
@@ -182,7 +182,7 @@ function Pools() {
                       </div>
                     </td>
                     <td className="px-6 py-4 min-w-fit">{item.totalStaked} {item.stakeToken.symbol}</td>
-                    <td className="px-6 py-4 min-w-fit">{item.totalRewardable} {item.rewardToken.symbol}</td>
+                    <td className="px-6 py-4 min-w-fit">{Number(item.totalRewardable).toFixed(0)} {item.rewardToken.symbol}</td>
                   </tr>
                 ))
               ) : (

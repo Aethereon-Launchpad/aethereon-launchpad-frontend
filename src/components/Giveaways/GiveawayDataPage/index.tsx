@@ -122,8 +122,8 @@ export default function GiveawaySelected() {
 
         if (isAfter(new Date(), new Date(whitelistEndTimeUnix))) {
             return (
-                <div className="bg-red-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-red-300'>Whitelist is Over</p>
+                <div className="bg-green-700/80 p-[3px_8px] w-fit text-[12px]">
+                    <p className='text-green-300'>Claim Period Started</p>
                 </div>)
         }
 
@@ -300,23 +300,23 @@ export default function GiveawaySelected() {
 
         } catch (error: any) {
             console.log(error.message)
-            if (error.message.includes("cannot withdraw yet")) {
-                toast("Cannot withdraw yet")
+            if (error.message.includes("no claimable tokens")) {
+                toast("No Claimable Tokens")
                 return;
             }
-            if (error.message.includes("Already Cashed")) {
-                toast("Already Cashed")
+            if (error.message.includes("already withdrawn")) {
+                toast("Already Withdrawn")
                 return;
             }
-            if (error.message.includes("can't withdraw before claim is started")) {
-                toast("Can't withdraw before claim is started")
+            if (error.message.includes("not whitelisted")) {
+                toast("Not Whitelisted")
                 return;
             }
-            if (error.message.includes("no token to be withdrawn")) {
-                toast("No Token to Claim")
+            if (error.message.includes("no tokens available to claim")) {
+                toast("No Tokens Available to Claim")
                 return;
             }
-            toast('Withdrawal Failed, please try again later')
+            toast('Claim Failed, please try again later')
         } finally {
             setProcessing(false)
         }
@@ -358,133 +358,9 @@ export default function GiveawaySelected() {
     const badgeInfo = getBadgeInfo(lockStake?.userData?.amountStaked || 0);
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-[40px_20px] lg:p-[40px] text-white">
-            {/* Left Column */}
-            <div className="space-y-8">
-                {/* Project Details */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-3"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
-                    <div className="relative space-y-6">
-                        <div>
-                            <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
-                                {data?.giveawayInfo?.projectName}
-                            </p>
-                            <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
-                                Participate in the Future
-                            </p>
-                        </div>
-
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Airdrop Details</h3>
-                                <ul className='space-y-3'>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Whitelist Start Date</span>
-                                        <span className='font-medium'>{format(new Date(data.whitelistStartTime * 1000), 'dd MMM yyyy HH:mm')}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Whitelist End Date</span>
-                                        <span className='font-medium'>{format(new Date(data.whitelistEndTime * 1000), 'dd MMM yyyy HH:mm')}</span>
-                                    </li>
-                                    <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Total Reward</span>
-                                        <span className='font-medium'>{data.giveawayInfo?.totalReward.toLocaleString()} {data.airdropToken.symbol}</span>
-                                    </li>
-                                    <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300'>Giveaway Access</span>
-                                        <span
-                                            className='font-medium flex items-center gap-2 hover:text-primary cursor-pointer'
-                                        >
-                                            {data.isPrivateAirdrop ? "Private" : "Public"}
-                                        </span>
-                                    </li>
-                                    <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300 text-nowrap'>Mainnet Contract</span>
-                                        <span
-                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
-                                            onClick={() => copyAddress(data.airdropToken.id)}
-                                        >
-                                            {`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}
-                                            <FaCopy />
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* About Section */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
-                    <div className="relative space-y-3">
-                        <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
-                            About {data?.giveawayInfo?.projectName}
-                        </p>
-                        <div className='text-[15px] lg:text-[18px] mt-[20px]'>
-                            <p>{data?.giveawayInfo?.description}</p>
-
-                        </div>
-
-                        <p className="text-primary text-[14px] uppercase font-normal tracking-[3px]">
-                            Terms & Conditions
-                        </p>
-                        <p>Airdrop tokens are subject to project's determined allocation's vesting schedule also specified in the Airdrop page of the project.</p>
-
-                        {data.isPrivateAirdrop ? (
-                            <p>This is a private airdrop. Only whitelisted addresses can participate.</p>
-                        ) : (
-                            <p>
-                                This is a public airdrop. All addresses can participate.
-                            </p>
-                        )}
-
-                        <div className='grid grid-cols-3 gap-x-5 my-10'>
-                            <div>
-                                <h3>Website</h3>
-                                <a className='text-primary' href={data?.giveawayInfo?.website}>{data?.giveawayInfo?.website}</a>
-                            </div>
-                            <div>
-                                <h3>Documents</h3>
-                                <a href={data?.giveawayInfo?.website} className='text-primary'>Whitepaper</a>
-                            </div>
-                            <div>
-                                <img
-                                    src={data?.giveawayInfo?.images?.logo}
-                                    className="h-[40px] w-full object-contain"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-
-                        <div >
-                            <h3>Social Media</h3>
-                            <div className="flex space-x-4 mt-6">
-                                {data?.giveawayInfo?.socials?.twitter && (
-                                    <a href={data.giveawayInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
-                                        <FaTwitter className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.giveawayInfo?.socials?.telegram && (
-                                    <a href={data.giveawayInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
-                                        <FaTelegramPlane className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.giveawayInfo?.socials?.discord && (
-                                    <a href={data.giveawayInfo.socials.discord} target="_blank" rel="noopener noreferrer">
-                                        <FaDiscord className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="relative p-8 overflow-hidden group h-fit">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-[40px_20px] lg:p-[40px] text-white mobile-order">
+            {/* Right Column - will appear first on mobile */}
+            <div className="relative p-8 overflow-hidden group h-fit order-first lg:order-last">
                 <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
                 <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
                 <div className="relative space-y-6">
@@ -629,6 +505,129 @@ export default function GiveawaySelected() {
                 </div>
             </div>
 
+            {/* Left Column - will appear second on mobile */}
+            <div className="space-y-8 order-last lg:order-first">
+                {/* Project Details */}
+                <div className="relative p-8 overflow-hidden group">
+                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-3"></span>
+                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                    <div className="relative space-y-6">
+                        <div>
+                            <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
+                                {data?.giveawayInfo?.projectName}
+                            </p>
+                            <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
+                                Participate in the Future
+                            </p>
+                        </div>
+
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
+                                <h3 className='text-xl font-semibold mb-4 text-primary'>Airdrop Details</h3>
+                                <ul className='space-y-3'>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Whitelist Start Date</span>
+                                        <span className='font-medium'>{format(new Date(data.whitelistStartTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Whitelist End Date</span>
+                                        <span className='font-medium'>{format(new Date(data.whitelistEndTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                    </li>
+                                    <li className='flex justify-between'>
+                                        <span className='text-gray-300'>Total Reward</span>
+                                        <span className='font-medium'>{data.giveawayInfo?.totalReward.toLocaleString()} {data.airdropToken.symbol}</span>
+                                    </li>
+                                    <li className='flex justify-between items-center'>
+                                        <span className='text-gray-300'>Giveaway Access</span>
+                                        <span
+                                            className='font-medium flex items-center gap-2 hover:text-primary cursor-pointer'
+                                        >
+                                            {data.isPrivateAirdrop ? "Private" : "Public"}
+                                        </span>
+                                    </li>
+                                    <li className='flex justify-between items-center'>
+                                        <span className='text-gray-300 text-nowrap'>Mainnet Contract</span>
+                                        <span
+                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
+                                            onClick={() => copyAddress(data.airdropToken.id)}
+                                        >
+                                            {`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}
+                                            <FaCopy />
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* About Section */}
+                <div className="relative p-8 overflow-hidden group">
+                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                    <div className="relative space-y-3">
+                        <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
+                            About {data?.giveawayInfo?.projectName}
+                        </p>
+                        <div className='text-[15px] lg:text-[18px] mt-[20px]'>
+                            <p>{data?.giveawayInfo?.description}</p>
+
+                        </div>
+
+                        <p className="text-primary text-[14px] uppercase font-normal tracking-[3px]">
+                            Terms & Conditions
+                        </p>
+                        <p>Airdrop tokens are subject to project's determined allocation's vesting schedule also specified in the Airdrop page of the project.</p>
+
+                        {data.isPrivateAirdrop ? (
+                            <p>This is a private airdrop. Only whitelisted addresses can participate.</p>
+                        ) : (
+                            <p>
+                                This is a public airdrop. All addresses can participate.
+                            </p>
+                        )}
+
+                        <div className='grid grid-cols-3 gap-x-5 my-10'>
+                            <div>
+                                <h3>Website</h3>
+                                <a className='text-primary' href={data?.giveawayInfo?.website}>{data?.giveawayInfo?.website}</a>
+                            </div>
+                            <div>
+                                <h3>Documents</h3>
+                                <a href={data?.giveawayInfo?.website} className='text-primary'>Whitepaper</a>
+                            </div>
+                            <div>
+                                <img
+                                    src={data?.giveawayInfo?.images?.logo}
+                                    className="h-[40px] w-full object-contain"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+
+                        <div >
+                            <h3>Social Media</h3>
+                            <div className="flex space-x-4 mt-6">
+                                {data?.giveawayInfo?.socials?.twitter && (
+                                    <a href={data.giveawayInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
+                                        <FaTwitter className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                                {data?.giveawayInfo?.socials?.telegram && (
+                                    <a href={data.giveawayInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
+                                        <FaTelegramPlane className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                                {data?.giveawayInfo?.socials?.discord && (
+                                    <a href={data.giveawayInfo.socials.discord} target="_blank" rel="noopener noreferrer">
+                                        <FaDiscord className='hover:text-primary' size={20} />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <TxReceipt
                 visible={showTxModal}
