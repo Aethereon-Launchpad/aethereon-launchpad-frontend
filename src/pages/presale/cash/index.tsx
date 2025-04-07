@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
-import { sonicTestnet } from "../../../config/chain";
+import { baseSepolia } from "../../../config/chain";
 import { publicClient } from "../../../config";
 import { usePresale } from "../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";
@@ -13,7 +13,7 @@ import { IoWalletSharp } from "react-icons/io5";
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin"
 import { usePrivy } from "@privy-io/react-auth"
-import { sonicTestnet } from "../../../../../config/chain";
+import { baseSepolia } from "../../../../../config/chain";
 import { publicClient } from "../../../../../config";
 import { usePresale } from "../../../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";
@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -672,23 +672,34 @@ export default function AdminPresaleManageID() {
                                         className="w-full h-[50px] bg-[#291254]/50 border border-primary/20 rounded-[8px] px-4 outline-none focus:ring-2 focus:ring-primary/50"
                                     />
                                     <input
-                                        value={linearVestingSetting.endOfLinearVesting ? new Date(linearVestingSetting.endOfLinearVesting * 1000).toISOString().split('T')[1].substring(0, 5) : ''}
+                                        value={linearVestingSetting.endOfLinearVesting ?
+                                            new Date(linearVestingSetting.endOfLinearVesting * 1000)
+                                                .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                                            : ''
+                                        }
                                         onChange={(e) => {
                                             const timeValue = e.target.value;
                                             if (timeValue.length === 5) {
-                                                const date = new Date(linearVestingSetting.endOfLinearVesting * 1000);
+                                                const currentDate = new Date(linearVestingSetting.endOfLinearVesting * 1000);
                                                 const [hours, minutes] = timeValue.split(':').map(Number);
+
+                                                // Create new date with existing date values and new time values
                                                 const newDate = new Date(Date.UTC(
-                                                    date.getUTCFullYear(),
-                                                    date.getUTCMonth(),
-                                                    date.getUTCDate(),
+                                                    currentDate.getUTCFullYear(),
+                                                    currentDate.getUTCMonth(),
+                                                    currentDate.getUTCDate(),
                                                     hours,
-                                                    minutes
+                                                    minutes,
+                                                    currentDate.getUTCSeconds()
                                                 ));
-                                                setLinearVestingSetting(prev => ({
-                                                    ...prev,
-                                                    endOfLinearVesting: Math.floor(newDate.getTime() / 1000)
-                                                }));
+
+                                                // Only update if the new time is different
+                                                if (newDate.getTime() !== currentDate.getTime()) {
+                                                    setLinearVestingSetting(prev => ({
+                                                        ...prev,
+                                                        endOfLinearVesting: Math.floor(newDate.getTime() / 1000)
+                                                    }));
+                                                }
                                             }
                                         }}
                                         type="time"

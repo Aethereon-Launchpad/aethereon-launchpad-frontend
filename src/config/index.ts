@@ -1,15 +1,14 @@
 import { createConfig } from '@privy-io/wagmi';
-import { sonicTestnet } from './chain';
+import { baseSepolia } from 'viem/chains';
 import { http } from 'wagmi';
 import type { PrivyClientConfig } from '@privy-io/react-auth';
-import { addRpcUrlOverrideToChain } from '@privy-io/react-auth';
 import { createPublicClient } from 'viem';
 
 
 export const config = createConfig({
-  chains: [sonicTestnet], // Pass your required chains as an array
+  chains: [baseSepolia], // Pass your required chains as an array
   transports: {
-    [sonicTestnet.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
@@ -26,6 +25,6 @@ export const privyConfig: PrivyClientConfig = {
 };
 
 export const publicClient = createPublicClient({
-  chain: sonicTestnet,
+  chain: baseSepolia,
   transport: http()
 })

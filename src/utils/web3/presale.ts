@@ -3,9 +3,17 @@ import ERC20ABI from "../../abis/ERC20.json";
 import Presale from "../../abis/Presale.json";
 import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
+import { getContractAddress } from '../source';
+
+// Define the contract read configurations for common fields
+const commonReadConfig = (presale: `0x${string}`, functionName: string) => ({
+    address: presale,
+    abi: Presale,
+    functionName
+})
 
 export const getAllPresaleAddress = async () => {
-    const presaleFactoryAddress = `0x83a19012cc530f3693aB1153a1EFb04EC555987B`
+    const presaleFactoryAddress = getContractAddress("presaleFactory")
     try {
         let addressList: `0x${string}`[] = []
         let index = 0
@@ -45,6 +53,99 @@ export const getAllPresaleData = async () => {
     const allPresales = await getAllPresaleAddress();
 
     const presaleData = await Promise.all(allPresales.map(async (presale: `0x${string}`) => {
+        const presaleContract = {
+            address: presale,
+            abi: Presale
+        }
+        const results = await client.multicall({
+            contracts: [
+                {
+                    ...presaleContract,
+                    functionName: "metadataURI"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "paymentToken"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "saleToken"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "salePrice"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "startTime"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "endTime"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "minTotalPayment"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "maxTotalPayment"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "softCap"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "hardCap"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "totalPaymentReceived"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "purchaserCount"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "isSoftCapReached"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "hasCashed"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "withdrawerCount"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "withdrawDelay"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "linearVestingEndTime"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "taxCollector"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "taxPercentage"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "stakingPool"
+                },
+                {
+                    ...presaleContract,
+                    functionName: "isPrivateSale"
+                }
+            ]
+        });
+
         const [
             metadataURI,
             paymentToken,
@@ -67,184 +168,100 @@ export const getAllPresaleData = async () => {
             taxPercentage,
             stakingPool,
             isPrivateSale
-        ] = await Promise.all([
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "metadataURI"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "paymentToken"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "saleToken"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "salePrice"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "startTime"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "endTime"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "minTotalPayment"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "maxTotalPayment"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "softCap"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "hardCap"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "totalPaymentReceived"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "purchaserCount"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "isSoftCapReached"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "hasCashed"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "withdrawerCount"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "withdrawDelay"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "linearVestingEndTime"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "taxCollector"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "taxPercentage"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "stakingPool"
-            }),
-            client.readContract({
-                address: presale,
-                abi: Presale,
-                functionName: "isPrivateSale"
-            }),
-        ]);
+        ] = results;
 
-        const paymentTokenName = await client.readContract({
-            address: paymentToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "name"
-        });
+        if (!paymentToken) throw new Error('Invalid payment token address');
 
-        const paymentTokenSymbol = await client.readContract({
-            address: paymentToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "symbol"
-        });
-
-        const paymentTokenDecimals = await client.readContract({
-            address: paymentToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "decimals"
-        });
-
-        const saleTokenName = await client.readContract({
-            address: saleToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "name"
+        const paymentTokenData = await client.multicall({
+            contracts: [
+                {
+                    address: paymentToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "name"
+                },
+                {
+                    address: paymentToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "symbol"
+                },
+                {
+                    address: paymentToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "decimals"
+                }
+            ]
         })
 
-        const saleTokenSymbol = await client.readContract({
-            address: saleToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "symbol"
-        });
+        if (!paymentTokenData) throw new Error('Failed to retrieve payment token data');
 
-        const saleTokenDecimals = await client.readContract({
-            address: saleToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "decimals"
-        });
+        const [
+            paymentTokenName,
+            paymentTokenSymbol,
+            paymentTokenDecimals
+        ] = paymentTokenData;
+
+        const saleTokenData = await client.multicall({
+            contracts: [
+                {
+                    address: saleToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "name"
+                },
+                {
+                    address: saleToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "symbol"
+                },
+                {
+                    address: saleToken.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "decimals"
+                }
+            ]
+        })
+
+        const [
+            saleTokenName,
+            saleTokenSymbol,
+            saleTokenDecimals
+        ] = saleTokenData;
+
+        if (!saleTokenData) throw new Error('Failed to retrieve sale token data');
 
 
         return {
             id: presale,
-            metadataURI,
+            metadataURI: metadataURI.result,
             paymentToken: {
-                id: paymentToken,
-                name: paymentTokenName,
-                symbol: paymentTokenSymbol,
-                decimals: paymentTokenDecimals
+                id: paymentToken.result,
+                name: paymentTokenName.result,
+                symbol: paymentTokenSymbol.result,
+                decimals: paymentTokenDecimals.result
             },
             saleToken: {
-                id: saleToken,
-                name: saleTokenName,
-                symbol: saleTokenSymbol,
-                decimals: saleTokenDecimals
+                id: saleToken.result,
+                name: saleTokenName.result,
+                symbol: saleTokenSymbol.result,
+                decimals: saleTokenDecimals.result
             },
-            salePrice: ethers.formatUnits(salePrice as string, paymentTokenDecimals as number),
-            startTime: Number(startTime),
-            endTime: Number(endTime),
-            minTotalPayment: ethers.formatUnits(minTotalPayment as string, paymentTokenDecimals as number),
-            maxTotalPayment: ethers.formatUnits(maxTotalPayment as string, paymentTokenDecimals as number),
-            softCap: ethers.formatUnits(softCap as string, paymentTokenDecimals as number),
-            hardCap: ethers.formatUnits(hardCap as string, paymentTokenDecimals as number),
-            totalPaymentReceived: ethers.formatUnits(totalPaymentReceived as string, paymentTokenDecimals as number),
-            purchaserCount: Number(purchaserCount),
-            isSoftCapReached,
-            hasCashed,
-            withdrawerCount,
-            withdrawDelay,
-            linearVestingEndTime: Number(linearVestingEndTime),
-            taxCollector,
-            taxPercentage: Number(taxPercentage) / 100,
-            stakingPool,
-            isPrivateSale
+            salePrice: ethers.formatUnits(salePrice.result as any, paymentTokenDecimals.result as number),
+            startTime: Number(startTime.result),
+            endTime: Number(endTime.result),
+            minTotalPayment: ethers.formatUnits(minTotalPayment.result as any, paymentTokenDecimals.result as number),
+            maxTotalPayment: ethers.formatUnits(maxTotalPayment.result as any, paymentTokenDecimals.result as number),
+            softCap: ethers.formatUnits(softCap.result as any, paymentTokenDecimals.result as number),
+            hardCap: ethers.formatUnits(hardCap.result as any, paymentTokenDecimals.result as number),
+            totalPaymentReceived: ethers.formatUnits(totalPaymentReceived.result as any, paymentTokenDecimals.result as number),
+            purchaserCount: Number(purchaserCount.result),
+            isSoftCapReached: isSoftCapReached.result,
+            hasCashed: hasCashed.result,
+            withdrawerCount: withdrawerCount.result,
+            withdrawDelay: withdrawDelay.result,
+            linearVestingEndTime: Number(linearVestingEndTime.result),
+            taxCollector: taxCollector.result,
+            taxPercentage: Number(taxPercentage.result) / 100,
+            stakingPool: stakingPool.result,
+            isPrivateSale: isPrivateSale.result
         };
     }));
 
@@ -252,6 +269,101 @@ export const getAllPresaleData = async () => {
 }
 
 export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
+    const presaleContract = {
+        address: presale,
+        abi: Presale
+    }
+
+    const results = await client.multicall({
+        contracts: [
+            {
+                ...presaleContract,
+                functionName: "metadataURI"
+            },
+            {
+                ...presaleContract,
+                functionName: "paymentToken"
+            },
+            {
+                ...presaleContract,
+                functionName: "saleToken"
+            },
+            {
+                ...presaleContract,
+                functionName: "salePrice"
+            },
+            {
+                ...presaleContract,
+                functionName: "startTime"
+            },
+            {
+                ...presaleContract,
+                functionName: "endTime"
+            },
+            {
+                ...presaleContract,
+                functionName: "minTotalPayment"
+            },
+            {
+                ...presaleContract,
+                functionName: "maxTotalPayment"
+            },
+            {
+                ...presaleContract,
+                functionName: "softCap"
+            },
+            {
+                ...presaleContract,
+                functionName: "hardCap"
+            },
+            {
+                ...presaleContract,
+                functionName: "totalPaymentReceived"
+            },
+            {
+                ...presaleContract,
+                functionName: "purchaserCount"
+            },
+            {
+                ...presaleContract,
+                functionName: "isSoftCapReached"
+            },
+            {
+                ...presaleContract,
+                functionName: "hasCashed"
+            },
+            {
+                ...presaleContract,
+                functionName: "withdrawerCount"
+            },
+            {
+                ...presaleContract,
+                functionName: "withdrawDelay"
+            },
+            {
+                ...presaleContract,
+                functionName: "linearVestingEndTime"
+            },
+            {
+                ...presaleContract,
+                functionName: "taxCollector"
+            },
+            {
+                ...presaleContract,
+                functionName: "taxPercentage"
+            },
+            {
+                ...presaleContract,
+                functionName: "stakingPool"
+            },
+            {
+                ...presaleContract,
+                functionName: "isPrivateSale"
+            }
+        ]
+    });
+
+
     const [
         metadataURI,
         paymentToken,
@@ -274,150 +386,65 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
         taxPercentage,
         stakingPool,
         isPrivateSale
-    ] = await Promise.all([
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "metadataURI"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "paymentToken"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "saleToken"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "salePrice"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "startTime"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "endTime"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "minTotalPayment"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "maxTotalPayment"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "softCap"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "hardCap"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "totalPaymentReceived"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "purchaserCount"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "isSoftCapReached"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "hasCashed"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "withdrawerCount"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "withdrawDelay"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "linearVestingEndTime"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "taxCollector"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "taxPercentage"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "stakingPool"
-        }),
-        client.readContract({
-            address: presale,
-            abi: Presale,
-            functionName: "isPrivateSale"
-        }),
-    ]);
+    ] = results;
 
-    const paymentTokenName = await client.readContract({
-        address: paymentToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "name"
+    if (!paymentToken.result) throw new Error('Invalid payment token address');
+
+    const paymentTokenData = await client.multicall({
+        contracts: [
+            {
+                address: paymentToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
+            },
+            {
+                address: paymentToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            },
+            {
+                address: paymentToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            }
+        ]
     });
 
-    const paymentTokenSymbol = await client.readContract({
-        address: paymentToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "symbol"
+    if (!paymentTokenData) throw new Error('Failed to retrieve payment token data');
+
+    const [
+        paymentTokenName,
+        paymentTokenSymbol,
+        paymentTokenDecimals
+    ] = paymentTokenData;
+
+    const saleTokenData = await client.multicall({
+        contracts: [
+            {
+                address: saleToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
+            },
+            {
+                address: saleToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            },
+            {
+                address: saleToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            }
+        ]
     });
 
-    const paymentTokenDecimals = await client.readContract({
-        address: paymentToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "decimals"
-    });
+    if (!saleTokenData) throw new Error('Failed to retrieve sale token data');
 
-
-    const saleTokenName = await client.readContract({
-        address: saleToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "name"
-    })
-
-    const saleTokenSymbol = await client.readContract({
-        address: saleToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "symbol"
-    });
-
-    const saleTokenDecimals = await client.readContract({
-        address: saleToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "decimals"
-    });
+    const [
+        saleTokenName,
+        saleTokenSymbol,
+        saleTokenDecimals
+    ] = saleTokenData;
 
     interface Period {
         claimTime: number,
@@ -460,38 +487,38 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
 
     return {
         id: presale,
-        metadataURI,
+        metadataURI: metadataURI.result,
         paymentToken: {
-            id: paymentToken,
-            name: paymentTokenName,
-            symbol: paymentTokenSymbol,
-            decimals: paymentTokenDecimals
+            id: paymentToken.result,
+            name: paymentTokenName.result,
+            symbol: paymentTokenSymbol.result,
+            decimals: paymentTokenDecimals.result
         },
         saleToken: {
-            id: saleToken,
-            name: saleTokenName,
-            symbol: saleTokenSymbol,
-            decimals: saleTokenDecimals
+            id: saleToken.result,
+            name: saleTokenName.result,
+            symbol: saleTokenSymbol.result,
+            decimals: saleTokenDecimals.result
         },
-        salePrice: ethers.formatUnits(salePrice as string, paymentTokenDecimals as number),
-        startTime: Number(startTime),
-        endTime: Number(endTime),
-        minTotalPayment: ethers.formatUnits(minTotalPayment as string, paymentTokenDecimals as number),
-        maxTotalPayment: ethers.formatUnits(maxTotalPayment as string, paymentTokenDecimals as number),
-        softCap: ethers.formatUnits(softCap as string, paymentTokenDecimals as number),
-        hardCap: ethers.formatUnits(hardCap as string, paymentTokenDecimals as number),
-        totalPaymentReceived: ethers.formatUnits(totalPaymentReceived as string, paymentTokenDecimals as number),
-        purchaserCount: Number(purchaserCount),
-        isSoftCapReached,
-        hasCashed,
-        withdrawerCount,
-        withdrawDelay,
-        linearVestingEndTime: Number(linearVestingEndTime),
+        salePrice: ethers.formatUnits(salePrice.result as any, paymentTokenDecimals.result as number),
+        startTime: Number(startTime.result),
+        endTime: Number(endTime.result),
+        minTotalPayment: ethers.formatUnits(minTotalPayment.result as any, paymentTokenDecimals.result as number),
+        maxTotalPayment: ethers.formatUnits(maxTotalPayment.result as any, paymentTokenDecimals.result as number),
+        softCap: ethers.formatUnits(softCap.result as any, paymentTokenDecimals.result as number),
+        hardCap: ethers.formatUnits(hardCap.result as any, paymentTokenDecimals.result as number),
+        totalPaymentReceived: ethers.formatUnits(totalPaymentReceived.result as any, paymentTokenDecimals.result as number),
+        purchaserCount: Number(purchaserCount.result),
+        isSoftCapReached: isSoftCapReached.result,
+        hasCashed: hasCashed.result,
+        withdrawerCount: withdrawerCount.result,
+        withdrawDelay: withdrawDelay.result,
+        linearVestingEndTime: Number(linearVestingEndTime.result),
         cliffPeriod: cliffPeriod,
-        taxCollector,
-        taxPercentage: Number(taxPercentage) / 100,
-        stakingPool,
-        isPrivateSale
+        taxCollector: taxCollector.result,
+        taxPercentage: Number(taxPercentage.result) / 100,
+        stakingPool: stakingPool.result,
+        isPrivateSale: isPrivateSale.result
     };
 }
 
@@ -542,4 +569,33 @@ export const getClaimableTokensAmount = async (presale: `0x${string}`, walletAdd
         console.error(error.message)
         throw new Error("Failed to retrieve claimable amount");
     }
+}
+
+export const getPresaleDataByProjectName = async (projectName: string) => {
+    const allPresales = await getAllPresaleData();
+
+    // Find the presale where the project name matches (case insensitive)
+    const matchingPresale = await Promise.all(allPresales.map(async (presale) => {
+        if (!presale.metadataURI) return null;
+        try {
+            const response = await fetch(presale.metadataURI.toString());
+            if (!response.ok) return null;
+
+            const metadata = await response.json() as { projectName?: string };
+            if (metadata.projectName?.toLowerCase() === projectName.toLowerCase()) {
+                return {
+                    ...presale,
+                    presaleInfo: metadata
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching metadata:', error);
+            return null;
+        }
+    }));
+
+    // Filter out null values and return the first match
+    const result = matchingPresale.filter(p => p !== null);
+    return result.length > 0 ? result[0] : null;
 }

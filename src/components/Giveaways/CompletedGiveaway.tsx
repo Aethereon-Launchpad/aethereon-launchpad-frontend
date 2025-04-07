@@ -1,24 +1,23 @@
 // import React from 'react'
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import GiveawayCardCompleted from "../../components/Giveaways/StatusCard";
-import { usePresale } from "../../hooks/web3/usePresale";
+import GiveawayCardCompleted from "./StatusCard";
+import { useGiveaway } from "../../hooks/web3/useGiveaway";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
 
 function CompletedGiveaways() {
-    const { data, error, loading } = usePresale();
-    const [filteredSales, setFilteredSales] = useState<[]>([]);
+    const { data, error, loading } = useGiveaway();
+    const [filteredGiveaways, setFilteredGiveaways] = useState<any[]>([]);
 
     useEffect(() => {
         if (data) {
             const currentTime = Date.now();
-            const filtered = data.filter((presale: any) => {
-                const startTime = Number(presale.startTime) * 1000;
-                const endTime = (Number(presale.endTime) + Number(presale.withdrawDelay)) * 1000;
-                return !isBefore(currentTime, endTime) && !presale.isPrivateSale; // Show presales that haven't ended yet
+            const filtered = data.filter((giveaway: any) => {
+                const endTime = Number(giveaway.whitelistEndTime) * 1000;
+                return !isBefore(currentTime, endTime) && !giveaway.isPrivateAirdrop;
             });
-            setFilteredSales(filtered);
+            setFilteredGiveaways(filtered);
         }
     }, [data]);
 
@@ -37,7 +36,7 @@ function CompletedGiveaways() {
     }
 
     if (error.message) {
-        console.error("Featured IDO Error:", error.message);
+        console.error("Completed Giveaway Error:", error.message);
         return (
             <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +44,7 @@ function CompletedGiveaways() {
                 </svg>
                 <h3 className="text-red-500 text-xl font-medium">Oops! Something went wrong</h3>
                 <p className="text-gray-400 max-w-md">
-                    We're having trouble loading the completed IDOs. Please try refreshing the page or check back later.
+                    We're having trouble loading the completed giveaways. Please try refreshing the page or check back later.
                 </p>
                 <button
                     onClick={() => window.location.reload()}
@@ -66,13 +65,13 @@ function CompletedGiveaways() {
             </div>
             <div className="w-full mx-auto">
                 <div className="grid gap-[40px] grid-cols-3 mt-[40px]">
-                    {filteredSales.length > 0 ? (
-                        filteredSales.map((presale: any, index: any) => (
-                            <GiveawayCardCompleted key={index} presale={presale} />
+                    {filteredGiveaways.length > 0 ? (
+                        filteredGiveaways.map((giveaway: any, index: number) => (
+                            <GiveawayCardCompleted key={index} giveaway={giveaway} />
                         ))
                     ) : (
                         <div className="col-span-full text-center text-gray-400">
-                            No completed airdrops at the moment
+                            No completed giveaways at the moment
                         </div>
                     )}
                 </div>

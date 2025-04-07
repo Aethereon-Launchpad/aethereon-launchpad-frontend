@@ -1,6 +1,6 @@
 import { defineChain } from "viem";
 
-export const sonicTestnet = defineChain({
+export const baseSepolia = defineChain({
     id: 57054,
     name: 'Sonic Testnet',
     nativeCurrency: {

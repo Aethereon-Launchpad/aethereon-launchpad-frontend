@@ -16,7 +16,9 @@ import FAQ from "../components/Home/FAQ"
 import Access from "../components/Launchpad/Access"
 import StakingBadge from "../components/Launchpad/StakingBadge"
 import SupportedBy from "../components/Home/SupportedBy"
-import CompletedGiveaways from "../components/Giveaways/CompletedGiveaway"
+// import CompletedGiveaways from "../components/Giveaways/CompletedGiveaway"
+import LaunchProject from "../components/Launchpad/LaunchProject"
+import UpComingGiveaways from "../components/Giveaways/UpComingGiveaway"
 
 function Home() {
   usePageTitle("Discover and Invest in Early-Stage Blockchain Projects")
@@ -31,8 +33,9 @@ function Home() {
       <FeaturedIdo />
       <CompletedIDO />
       <Guaranteed />
-      <CompletedGiveaways />
+      <UpComingGiveaways />
       <StakingCTA />
+      <LaunchProject />
       <Community />
       <Access />
       <FAQ />

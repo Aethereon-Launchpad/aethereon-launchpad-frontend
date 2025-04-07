@@ -4,122 +4,181 @@ import { publicClient as client } from "../../config";
 import { ethers } from "ethers";
 import { getTotalSupply } from "./actions";
 import { parseAbiItem } from "viem";
+import { getContractAddress } from "../../utils/source";
 
-const stakeLock = "0x18366aB93A121142df729DAAeE20E749d212eA95"
+const stakeLock = getContractAddress("stakeLock");
 
 export const getLockAndStake = async () => {
-    const [apyRate, withdrawalIntervals, stakeFeePercentage, withdrawalFeePercentage, stakeToken, rewardToken, totalStaked, totalRewardable, feeReceiver] = await Promise.all([
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "apyRate"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "withdrawalIntervals"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "stakeFeePercentage"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "withdrawalFeePercentage"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "token0"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "token1"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "totalStaked"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "totalRewardable"
-        }),
-        client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "feeReceiver"
-        })
-    ])
+    const stakeLockContract = {
+        address: stakeLock,
+        abi: LockStakeABI
+    };
 
-    const stakeTokenName = await client.readContract({
-        address: stakeToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "name"
-    })
+    const results = await client.multicall({
+        contracts: [
+            {
+                ...stakeLockContract,
+                functionName: "apyRate"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "withdrawalIntervals"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "stakeFeePercentage"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "withdrawalFeePercentage"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "token0"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "token1"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "totalStaked"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "totalRewardable"
+            },
+            {
+                ...stakeLockContract,
+                functionName: "feeReceiver"
+            }
+        ]
+    });
 
-    const stakeTokenSymbol = await client.readContract({
-        address: stakeToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "symbol"
-    })
+    const [
+        apyRate,
+        withdrawalIntervals,
+        stakeFeePercentage,
+        withdrawalFeePercentage,
+        stakeToken,
+        rewardToken,
+        totalStaked,
+        totalRewardable,
+        feeReceiver
+    ] = results;
 
-    const stakeTokenDecimals = await client.readContract({
-        address: stakeToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "decimals"
-    })
+    if (!stakeToken.result || !rewardToken.result) throw new Error('Invalid token addresses');
 
-    const rewardTokenName = await client.readContract({
-        address: rewardToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "name"
-    })
+    const stakeTokenData = await client.multicall({
+        contracts: [
+            {
+                address: stakeToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
+            },
+            {
+                address: stakeToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            },
+            {
+                address: stakeToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            }
+        ]
+    });
 
-    const rewardTokenSymbol = await client.readContract({
-        address: rewardToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "symbol"
-    })
+    const [stakeTokenName, stakeTokenSymbol, stakeTokenDecimals] = stakeTokenData;
 
-    const rewardTokenDecimals = await client.readContract({
-        address: rewardToken as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: "decimals"
-    })
+    const rewardTokenData = await client.multicall({
+        contracts: [
+            {
+                address: rewardToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "name"
+            },
+            {
+                address: rewardToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "symbol"
+            },
+            {
+                address: rewardToken.result as `0x${string}`,
+                abi: ERC20ABI,
+                functionName: "decimals"
+            }
+        ]
+    });
+
+    const [rewardTokenName, rewardTokenSymbol, rewardTokenDecimals] = rewardTokenData;
 
     return {
         stakeLock: {
             id: stakeLock,
-            apyRate: Number(apyRate) / 1e4,
-            withdrawalIntervals: Number(withdrawalIntervals),
-            stakeFeePercentage: Number(stakeFeePercentage) * 100 / 1e4,
-            withdrawalFeePercentage: Number(withdrawalFeePercentage) * 100 / 1e4,
+            apyRate: Number(apyRate.result) / 1e4,
+            withdrawalIntervals: Number(withdrawalIntervals.result),
+            stakeFeePercentage: Number(stakeFeePercentage.result) * 100 / 1e4,
+            withdrawalFeePercentage: Number(withdrawalFeePercentage.result) * 100 / 1e4,
             stakeToken: {
-                id: stakeToken,
-                name: stakeTokenName,
-                symbol: stakeTokenSymbol,
-                decimals: stakeTokenDecimals
+                id: stakeToken.result,
+                name: stakeTokenName.result,
+                symbol: stakeTokenSymbol.result,
+                decimals: stakeTokenDecimals.result
             },
             rewardToken: {
-                id: rewardToken,
-                name: rewardTokenName,
-                symbol: rewardTokenSymbol,
-                decimals: rewardTokenDecimals
+                id: rewardToken.result,
+                name: rewardTokenName.result,
+                symbol: rewardTokenSymbol.result,
+                decimals: rewardTokenDecimals.result
             },
-            totalStaked: ethers.formatUnits(totalStaked as string, stakeTokenDecimals as number),
-            totalRewardable: ethers.formatUnits(totalRewardable as string, rewardTokenDecimals as number),
-            feeReceiver
+            totalStaked: ethers.formatUnits(totalStaked.result as string, stakeTokenDecimals.result as number),
+            totalRewardable: ethers.formatUnits(totalRewardable.result as string, rewardTokenDecimals.result as number),
+            feeReceiver: feeReceiver.result
         }
     }
 }
 
 export const getUserLockStakeData = async (userAddress: `0x${string}`) => {
     try {
+        const stakeLockContract = {
+            address: stakeLock,
+            abi: LockStakeABI
+        };
+
+        const results = await client.multicall({
+            contracts: [
+                {
+                    ...stakeLockContract,
+                    functionName: "lastStakeTime",
+                    args: [userAddress]
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "getNextWithdrawalTime",
+                    args: [userAddress]
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "calculateReward",
+                    args: [userAddress]
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "staked",
+                    args: [userAddress]
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "token0"
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "token1"
+                }
+            ]
+        });
+
         const [
             lastStakeTime,
             nextRewardTime,
@@ -127,61 +186,34 @@ export const getUserLockStakeData = async (userAddress: `0x${string}`) => {
             amountStaked,
             stakeTokenAddress,
             rewardTokenAddress
-        ] = await Promise.all([
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "lastStakeTime",
-                args: [userAddress]
-            }),
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "getNextWithdrawalTime",
-                args: [userAddress]
-            }),
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "calculateReward",
-                args: [userAddress]
-            }),
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "staked",
-                args: [userAddress]
-            }),
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "token0"
-            }),
-            client.readContract({
-                address: stakeLock,
-                abi: LockStakeABI,
-                functionName: "token1"
-            })
-        ]);
+        ] = results;
 
-        const [stakeTokenDecimals, rewardTokenDecimals] = await Promise.all([
-            client.readContract({
-                address: stakeTokenAddress as `0x${string}`,
-                abi: ERC20ABI,
-                functionName: "decimals"
-            }),
-            client.readContract({
-                address: rewardTokenAddress as `0x${string}`,
-                abi: ERC20ABI,
-                functionName: "decimals"
-            })
-        ]);
+        if (!stakeTokenAddress.result || !rewardTokenAddress.result) {
+            throw new Error('Invalid token addresses');
+        }
+
+        const tokenData = await client.multicall({
+            contracts: [
+                {
+                    address: stakeTokenAddress.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "decimals"
+                },
+                {
+                    address: rewardTokenAddress.result as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: "decimals"
+                }
+            ]
+        });
+
+        const [stakeTokenDecimals, rewardTokenDecimals] = tokenData;
 
         return {
-            lastStakeTime: Number(lastStakeTime) as number,
-            nextRewardTime: Number(nextRewardTime) as number,
-            rewards: ethers.formatUnits(rewards as string, rewardTokenDecimals as number),
-            amountStaked: ethers.formatUnits(amountStaked as string, stakeTokenDecimals as number)
+            lastStakeTime: Number(lastStakeTime.result),
+            nextRewardTime: Number(nextRewardTime.result),
+            rewards: ethers.formatUnits(rewards.result as string, rewardTokenDecimals.result as number),
+            amountStaked: ethers.formatUnits(amountStaked.result as string, stakeTokenDecimals.result as number)
         };
     } catch (error) {
         console.error(error);
@@ -191,30 +223,40 @@ export const getUserLockStakeData = async (userAddress: `0x${string}`) => {
 
 export const estimateRewards = async (stakeAmount: bigint) => {
     try {
-        const rewardToken = await client.readContract({
+        const stakeLockContract = {
             address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "token1"
-        })
+            abi: LockStakeABI
+        };
+
+        const results = await client.multicall({
+            contracts: [
+                {
+                    ...stakeLockContract,
+                    functionName: "token1"
+                },
+                {
+                    ...stakeLockContract,
+                    functionName: "estimateRewards",
+                    args: [stakeAmount]
+                }
+            ]
+        });
+
+        const [rewardToken, estimatedRewards] = results;
+
+        if (!rewardToken.result) {
+            throw new Error('Invalid reward token address');
+        }
 
         const rewardTokenDecimals = await client.readContract({
-            address: rewardToken as `0x${string}`,
+            address: rewardToken.result as `0x${string}`,
             abi: ERC20ABI,
             functionName: "decimals"
-        })
+        });
 
-        const estimateRewards = await client.readContract({
-            address: stakeLock,
-            abi: LockStakeABI,
-            functionName: "estimateRewards",
-            args: [
-                stakeAmount
-            ]
-        })
-
-        return ethers.formatUnits(estimateRewards as string, rewardTokenDecimals as number)
+        return ethers.formatUnits(estimatedRewards.result as string, rewardTokenDecimals as number);
     } catch (error: any) {
-        console.error(error.message)
-        throw new Error("Estimating Reward Failed")
+        console.error(error.message);
+        throw new Error("Estimating Reward Failed");
     }
 }

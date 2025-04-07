@@ -5,10 +5,10 @@ import CreatePresaleStep2 from "../../../components/CreatePresale/Step2.tsx"
 import CreatePresaleStep3 from "../../../components/CreatePresale/Step3.tsx"
 import CreatePresaleStep4 from "../../../components/CreatePresale/Step4.tsx"
 import { FaCheck } from "react-icons/fa6";
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { Preloader, Oval } from 'react-preloader-icon';
 import PresaleFactoryABI from '../../../abis/PresaleFactory.json';
-import { sonicTestnet } from '../../../config/chain/index.ts';
+import { baseSepolia } from 'viem/chains';
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
@@ -18,6 +18,7 @@ import { ethers } from 'ethers'
 import { isValidERC20 } from '../../../utils/web3/actions.ts';
 import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
 import { useNavigate } from 'react-router-dom';
+import { getContractAddress } from "../../../utils/source";
 
 interface Presale {
     metadataURI: `https://${string}`;
@@ -37,7 +38,7 @@ interface Presale {
 // Add this function to create wallet client
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -64,6 +65,7 @@ export default function PresaleCreator() {
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
     const [txReceiptTitle] = useState<string>("Successfully Created New Presale");
     const [txHash, setTxHash] = useState<`0x${string}`>("0x");
+    const { wallets } = useWallets();
 
     const navigate = useNavigate();
 
@@ -170,7 +172,10 @@ export default function PresaleCreator() {
     async function createPresale() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
-        const presaleFactoryCA = "0x83a19012cc530f3693aB1153a1EFb04EC555987B"
+        const wallet = wallets[0];
+        const info = wallet.chainId;
+        const chainId = info.split(":")[1];
+        const presaleFactoryCA = getContractAddress('presaleFactory');
 
         if (!authenticated) {
             login();

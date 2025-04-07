@@ -8,7 +8,7 @@ import { useLockStake } from "../../hooks/web3/useLockStake";
 import { usePrivy } from "@privy-io/react-auth";
 import { createWalletClient, custom } from 'viem';
 import { publicClient } from '../../config';
-import { sonicTestnet } from '../../config/chain';
+import { baseSepolia } from '../../config/chain';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { IoWalletSharp } from "react-icons/io5";
 import { ethers } from 'ethers';
@@ -21,7 +21,7 @@ import stakeLockABI from "../../abis/StakeLock.json";
 // Add this function to create wallet client
 const createViemWalletClient = () => {
   return createWalletClient({
-    chain: sonicTestnet,
+    chain: baseSepolia,
     transport: custom(window.ethereum)
   });
 };
@@ -335,7 +335,7 @@ function Dynamic() {
         {authenticated && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Current Badge */}
-            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+            <div className="bg-[#000027] p-6 shadow-lg hover:shadow-2xl transition-all">
               <div className="flex items-center space-x-3 mb-4">
                 {badgeInfo.image && (
                   <img src={badgeInfo.image} alt={badgeInfo.name} className="w-12 h-12" />
@@ -348,7 +348,7 @@ function Dynamic() {
             </div>
 
             {/* Current Multiplier */}
-            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+            <div className="bg-[#000027] p-6 shadow-lg hover:shadow-2xl transition-all">
               <div className="text-center">
                 <span className="text-4xl font-bold text-primary block mb-2">{currentMultiplier}</span>
                 <p className="text-gray-400">Current Multiplier</p>
@@ -356,7 +356,7 @@ function Dynamic() {
             </div>
 
             {/* Amount Staked */}
-            <div className="bg-[#000027] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all">
+            <div className="bg-[#000027] p-6 shadow-lg hover:shadow-2xl transition-all">
               <div className="text-center">
                 <span className="text-4xl font-bold block mb-2">{data?.userData?.amountStaked || 0}</span>
                 <p className="text-gray-400">Total Staked DRX</p>
@@ -366,7 +366,7 @@ function Dynamic() {
         )}
 
         {/* Staking Interface */}
-        <div className="bg-[#000027] p-8 rounded-xl shadow-lg">
+        <div className="bg-[#000027] p-8 shadow-lg">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Left Column - Staking Input */}
             <div className="space-y-6">
@@ -377,7 +377,7 @@ function Dynamic() {
                     type="number"
                     value={stakeAmount}
                     onChange={(e) => handleSetAmount(Number(e.target.value))}
-                    className="w-full bg-[#1A1A1A] rounded-lg p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                    className="w-full bg-[#1A1A1A]  p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                     placeholder="Enter amount"
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center space-x-2">
@@ -391,13 +391,13 @@ function Dynamic() {
                 <div className="relative">
                   <button
                     onClick={() => setShowMultiplierDropdown(!showMultiplierDropdown)}
-                    className="w-full bg-[#1A1A1A] rounded-lg p-4 text-left flex items-center justify-between hover:bg-[#252525] transition-colors"
+                    className="w-full bg-[#1A1A1A]  p-4 text-left flex items-center justify-between hover:bg-[#252525] transition-colors"
                   >
                     <span>{multiplier}</span>
                     <FaChevronDown className={`transition-transform duration-300 ${showMultiplierDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   {showMultiplierDropdown && (
-                    <div className="absolute w-full mt-2 bg-[#1A1A1A] rounded-lg shadow-xl z-10 border border-primary/20">
+                    <div className="absolute w-full mt-2 bg-[#1A1A1A]  shadow-xl z-10 border border-primary/20">
                       {multiplierOptions.map((option) => (
                         <button
                           key={option.value}
@@ -414,7 +414,7 @@ function Dynamic() {
               </div>
 
               {/* Estimated Rewards */}
-              <div className="bg-[#1A1A1A] p-6 rounded-lg border border-primary/20">
+              <div className="bg-[#1A1A1A] p-6  border border-primary/20">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-gray-400">Estimated Rewards</p>
@@ -433,7 +433,7 @@ function Dynamic() {
               {!authenticated ? (
                 <button
                   onClick={login}
-                  className="w-full bg-primary text-white p-4 rounded-lg flex items-center justify-center space-x-3 hover:bg-primary/90 transition-all text-lg font-medium"
+                  className="w-full bg-primary text-white p-4  flex items-center justify-center space-x-3 hover:bg-primary/90 transition-all text-lg font-medium"
                 >
                   <IoWalletSharp className="text-xl" />
                   <span>Connect Wallet</span>
@@ -443,7 +443,7 @@ function Dynamic() {
                   <button
                     onClick={() => setOpenConfirmStaking(true)}
                     disabled={isStaking || stakeAmount <= 0}
-                    className="w-full bg-primary text-white p-4 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+                    className="w-full bg-primary text-white p-4  hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
                   >
                     {isStaking ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -463,7 +463,7 @@ function Dynamic() {
                   <button
                     onClick={() => setOpenConfirmUnstaking(true)}
                     disabled={isStaking || !data?.userData?.amountStaked}
-                    className="w-full border-2 border-primary text-primary p-4 rounded-lg hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+                    className="w-full border-2 border-primary text-primary p-4  hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
                   >
                     {isStaking ? (
                       <div className="flex items-center justify-center space-x-2">

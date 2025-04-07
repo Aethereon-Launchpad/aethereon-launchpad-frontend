@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Preloader, Oval } from 'react-preloader-icon';
 import { getStakingPoolDataByAddress } from "../../../utils/web3/actions";
 import { usePrivy } from "@privy-io/react-auth";
-import { sonicTestnet } from "../../../config/chain";
+import { baseSepolia } from "../../../config/chain";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolAbi from "../../../abis/StakingPool.json";
@@ -19,7 +19,7 @@ interface ManageStakingProps {
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -61,7 +61,8 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
 
             const amount = ethers.parseUnits(rewardAmount, poolData.stakingPool.rewardToken.decimals);
 
-            if (Number(amount) > Number(tokenBalance)){
+            console.log(Number(rewardAmount), Number(tokenBalance));
+            if (Number(rewardAmount) > Number(tokenBalance)) {
                 toast("Not enough balance")
                 setIsProcessing(false)
                 return;

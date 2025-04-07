@@ -7,7 +7,7 @@ import { isValidERC20, getTokenSymbol, getStakingPoolFactoryFee } from "../../ut
 import { Preloader, Oval } from 'react-preloader-icon';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import stakingPoolActionsABI from "../../abis/StakingPoolActions.json";
-import { sonicTestnet } from "../../config/chain";
+import { baseSepolia } from "../../config/chain";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 // Add this function to create wallet client
 const createViemWalletClient = () => {
   return createWalletClient({
-    chain: sonicTestnet,
+    chain: baseSepolia,
     transport: custom(window.ethereum)
   });
 };

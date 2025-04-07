@@ -32,9 +32,9 @@
   "hiddenData": {
     "startTime": "TBA",
     "endTime": "TBA",
-    "IMC": "TBA",
-    "totalIMC": "TBA",
-    "fdv": "TBA",
+    "IMC": "380000",
+    "totalIMC": "1000000",
+    "fdv": "12000000",
     "giveaway": "TBA",
     "totalReward": "TBA",
     "tokenPrice": "TBA"

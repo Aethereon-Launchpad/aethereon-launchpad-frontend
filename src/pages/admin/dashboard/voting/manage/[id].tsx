@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin";
 import { usePrivy } from "@privy-io/react-auth";
-import { sonicTestnet } from "../../../../../config/chain";
+import { baseSepolia } from "../../../../../config/chain";
 import { publicClient } from "../../../../../config";
 import { useVoting } from "../../../../../hooks/web3/useVoting";
 import { createWalletClient, custom } from "viem";
@@ -13,7 +13,7 @@ import VotingSlot from "../../../../../abis/VotingSlot.json";
 
 const createViemWalletClient = () => {
     return createWalletClient({
-        chain: sonicTestnet,
+        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
