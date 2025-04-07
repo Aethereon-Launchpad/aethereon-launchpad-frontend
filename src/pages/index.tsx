@@ -19,6 +19,7 @@ import SupportedBy from "../components/Home/SupportedBy"
 // import CompletedGiveaways from "../components/Giveaways/CompletedGiveaway"
 import LaunchProject from "../components/Launchpad/LaunchProject"
 import UpComingGiveaways from "../components/Giveaways/UpComingGiveaway"
+import { Link } from "react-router-dom"
 
 function Home() {
   usePageTitle("Discover and Invest in Early-Stage Blockchain Projects")
@@ -34,6 +35,16 @@ function Home() {
       <CompletedIDO />
       <Guaranteed />
       <UpComingGiveaways />
+      <div className="flex items-center justify-center w-full">
+        <Link
+          to="/giveaways"
+          className="relative text-[#FAFAFA] mt-[50px] p-[8px_20px] w-fit mx-auto overflow-hidden group-button"
+        >
+          <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
+          <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
+          <span className="relative">View All Airdrops</span>
+        </Link>
+      </div>
       <StakingCTA />
       <LaunchProject />
       <Community />

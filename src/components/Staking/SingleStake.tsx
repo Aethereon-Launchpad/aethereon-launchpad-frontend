@@ -15,7 +15,7 @@ import { noOfDays } from "../../utils/tools";
 import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress, getStakingPoolOwner } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
-import { baseSepolia } from "../../config/chain";
+import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolABI from "../../abis/StakingPool.json";
@@ -117,7 +117,7 @@ function SingleStake() {
         rewardsAmount,
         lastStakeTime
       ] = await Promise.all([
-        getTokenBalance(poolData.stakingPool.stakeToken.id, user.wallet.address),
+        getTokenBalance(poolData.stakingPool.stakeToken.id, user.wallet.address as `0x${string}`),
         getStakingPoolPauseStatus(poolData.stakingPool.id),
         getTotalSupply(poolData.stakingPool.stakeToken.id),
         getAmountStaked(poolData.stakingPool.id, user.wallet.address as `0x${string}`),
@@ -147,7 +147,7 @@ function SingleStake() {
     try {
       if (user?.wallet?.address) {
         const alreadyStaked = await getAmountStaked(data.stakingPool.id, user.wallet.address as `0x${string}`)
-        const newBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user.wallet.address);
+        const newBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user.wallet.address as `0x${string}`);
         setStaked(Number(alreadyStaked));
         setTokenBalance(newBalance);
       }
@@ -162,8 +162,8 @@ function SingleStake() {
     const [account] = await walletClient.getAddresses();
     const decimals = await getTokenDecimals(data.stakingPool.stakeToken.id)
     const stakeAmountArg = ethers.parseUnits(stakeAmount.toString(), decimals);
-    const balanceOfStakeToken = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address);
-    const tokenBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address)
+    const balanceOfStakeToken = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address as `0x${string}`);
+    const tokenBalance = await getTokenBalance(data.stakingPool.stakeToken.id, user?.wallet?.address as `0x${string}`)
     console.log("running handle stake")
     if (Number(stakeAmount) > Number(tokenBalance)) {
       toast(`Insufficient ${data.stakingPool.stakeToken.symbol} Balance`)
