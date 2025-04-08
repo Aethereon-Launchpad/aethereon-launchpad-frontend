@@ -29,7 +29,7 @@ const SupportedBy = () => {
 
     return (
         <section className="py-12 text-primary p-[60px]">
-            <h2 className="font-thin text-left mb-8 uppercase font-space">Supported By</h2>
+            <h2 className="text-left text-2xl font-extrabold mb-8 uppercase font-space">Supported By</h2>
             <motion.div
                 ref={carousel}
                 className="cursor-grab overflow-hidden"
