@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { CountdownTimer } from "../Countdown";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { useState, useEffect } from "react";
 import { useWallets } from "@privy-io/react-auth";
 import { usePrivy } from "@privy-io/react-auth";
-import { isBefore } from "date-fns";
+// import { isBefore } from "date-fns";
 import CurrentChain from "../Presale/CurrentChain";
 
 function SaleCard({ presale }: any) {
@@ -41,8 +42,8 @@ function SaleCard({ presale }: any) {
   }
 
   const totalRaised = parseFloat(presale.totalPaymentReceived || "0");
-  const hardCap = parseFloat(presale.hardCap || "0");
-  const progress = (totalRaised / hardCap) * 100;
+  // const hardCap = parseFloat(presale.hardCap || "0");
+  // const progress = (totalRaised / hardCap) * 100;
 
   return (
     <div className="overflow-hidden relative bg-[#111115] border border-primary/20 transition-all hover:scale-[1.01] duration-300 hover:cursor-pointer shadow-[0_0_15px_2px_rgba(83,37,169,0.3)] hover:shadow-[0_0_25px_5px_rgba(83,37,169,0.5)]">
