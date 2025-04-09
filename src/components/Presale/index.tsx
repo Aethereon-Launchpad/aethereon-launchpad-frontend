@@ -507,6 +507,8 @@ export default function IDOComponent() {
 
     const badgeInfo = getBadgeInfo(lockStake?.userData?.amountStaked || 0);
 
+    console.log(data)
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-[40px_20px] lg:p-[40px] text-white">
             {/* Right Column - Moved to top on mobile */}
