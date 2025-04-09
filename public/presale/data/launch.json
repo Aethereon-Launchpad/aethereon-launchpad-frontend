@@ -1,0 +1,82 @@
+{
+  "projectName": "Anubis",
+  "description": "Anubis is a powerful and intuitive trading bot designed to revolutionize your decentralized trading experience. Fully compatible with DexScreener, Anubis enables ",
+  "description_md": "https://timmyisanerd.github.io/project_info.MD",
+  "documentation": "derhex.com",
+  "website": "https://sunami.trade",
+  "socials": {
+    "twitter": "https://twitter.com/derhex",
+    "telegram": "https://t.me/derhex",
+    "discord": "https://discord.gg/derhex"
+  },
+  "token": {
+    "name": "DRX Token",
+    "symbol": "BOLT",
+    "decimals": 18,
+    "totalSupply": "1000000000",
+    "contractAddress": "0xdEB561F9216576B41D6E67414c81Ff0fdbba5b46"
+  },
+  "images": {
+    "logo": "https://www.anubistrade.xyz/_next/static/media/herobg.e1144f3d.svg",
+    "bg": "https://derhex.com/hero-der.svg"
+  },
+  "fundraising": {
+    "softCap": "500000",
+    "hardCap": "2000000",
+    "presalePrice": "0.05",
+    "listingPrice": "0.08",
+    "acceptedCurrency": "USDT",
+    "liquidityAllocationPercentage": 60,
+    "platformFeePercentage": 2
+  },
+  "hiddenData": {
+    "startTime": "TBA",
+    "endTime": "TBA",
+    "IMC": "380000",
+    "totalIMC": "1000000",
+    "fdv": "12000000",
+    "giveaway": "TBA",
+    "totalReward": "TBA",
+    "tokenPrice": "TBA"
+  },
+  "tokenlaunch": {
+    "blockscan": "https://basescan.org/address/0x4837b18a6d7aF6159c8665505B90a2ed393255E0",
+    "cmc": "https://coinmarketcap.com/currencies/derhex",
+    "coingecko": "https://www.coingecko.com/en/coins/derhex"
+  },
+  "team": [
+    {
+      "name": "John Doe",
+      "role": "CEO",
+      "linkedin": "https://linkedin.com/in/johndoe"
+    },
+    {
+      "name": "Alice Smith",
+      "role": "CTO",
+      "linkedin": "https://linkedin.com/in/alicesmith"
+    }
+  ],
+  "roadmap": [
+    {
+      "quarter": "Q2 2024",
+      "milestone": "Beta Launch & Initial IDO"
+    },
+    {
+      "quarter": "Q3 2024",
+      "milestone": "Mainnet Deployment & CEX Listing"
+    }
+  ],
+  "audits": [
+    {
+      "auditor": "CertiK",
+      "reportUrl": "https://certik.com/projects/derhex"
+    }
+  ],
+  "whitepaper": "https://derhex.com/whitepaper.pdf",
+  "tokenomics": "https://derhex.com/tokenomics.pdf",
+  "imc": 380000,
+  "totalImc": 1000000,
+  "fdv": 12000000,
+  "giveaway": true,
+  "totalReward": 3000000
+}

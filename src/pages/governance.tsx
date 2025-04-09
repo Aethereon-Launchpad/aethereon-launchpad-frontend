@@ -5,8 +5,10 @@ import GovHero from '../components/Governance/GovHero'
 import GovModel from '../components/Governance/GovModel'
 import VotingRewards from '../components/Governance/VotingRewards'
 import Layout from '../layout'
+import { usePageTitle } from '../hooks/utils'
 
 function Governance() {
+  usePageTitle("Participate in Community Governance")
   return (
     <Layout>
         <GovHero/>

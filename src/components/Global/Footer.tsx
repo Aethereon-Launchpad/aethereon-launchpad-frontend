@@ -5,36 +5,48 @@ import { Link } from "react-router-dom";
 function Footer() {
   const footerLinks = [
     {
-      name: "Lunchpad",
+      name: "Launchpad",
       link: "/launchpad",
     },
     {
       name: "Staking & Farming",
-      link: "/stake-farm",
+      link: "/staking-pool",
     },
     {
       name: "Governance",
-      link: "/lunchpad",
+      link: "/governance",
     },
     {
       name: "Dashboard",
-      link: "/lunchpad",
+      link: "/dashboard",
     },
     {
       name: "Community",
-      link: "/lunchpad",
+      link: "/launchpad",
     },
     {
       name: "Customer Support",
       link: "/support",
     },
     {
-      name: "Terms and Condition",
-      link: "/terms",
+      name: "Documentation",
+      link: "https://derhex.notion.site/DerHex-Documentation-1ba6e8fffcc5804bbe21e858fdf7361a?pvs=4",
+    },
+    {
+      name: "Terms of Service",
+      link: "/terms-of-service",
     },
     {
       name: "Privacy Policy",
-      link: "/privacy",
+      link: "/privacy-policy",
+    },
+    {
+      name: "Cookies Policy",
+      link: "/cookies-policy",
+    },
+    {
+      name: "Disclaimer",
+      link: "/disclaimer",
     },
     {
       name: "Contact",
@@ -57,16 +69,32 @@ function Footer() {
       link: "https://linkedin.com/in/derhex",
     },
   ];
+
+  const footerSocials = [
+    {
+      url: "https://linkedIn.com",
+      img: "/footer/socials/linkedin.svg"
+    },
+    {
+      url: "https://twitter.com",
+      img: "/footer/socials/twitter.svg"
+    },
+    {
+      url: "https://instagram.com",
+      img: "/footer/socials/ig.svg"
+    },
+    {
+      url: "https://facebook.com",
+      img: "/footer/socials/facebook.svg"
+    }
+  ]
   return (
     <div className="flex flex-col w-full font-space p-[20px] lg:p-[40px]">
       <div className="bg-[#000508] text-white lg:p-[40px] grid lg:grid-cols-2 gap-[40px]">
         <div>
           <img src="/derhex-logo.svg" className="h-[26px] lg:h-[38px]" alt="" />
           <p className="w-full lg:w-[50%] text-[14px] lg:text-[16px] mt-[15px] lg:mt-[25px]">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat,
-            doloremque beatae. Dolorem rerum blanditiis qui quisquam saepe sed,
-            neque asperiores eius tempora dolores suscipit quo possimus earum
-            expedita sequi ducimus?
+            Derhex Pad is a leading decentralized fundraising platform on @soniclabs, incubating the next generation of web3 startups, fueled by $D & $S
           </p>
         </div>
         <div className="grid gap-[30px] lg:gap-0 lg:grid-cols-3">
@@ -84,7 +112,7 @@ function Footer() {
             <p className="text-[16px] font-[600] lg:text-[20px]">Help</p>
             <div className="flex flex-col items-start mt-[10px] lg:mt-[20px] space-y-[10px]">
               {footerLinks.slice(5, 9).map((link, index) => (
-                <Link className="text-[14px] lg:text-[16px]" to={link.link} key={index}>
+                <Link className="text-[14px] lg:text-[16px]" target="_blank" to={link.link} key={index}>
                   {link.name}
                 </Link>
               ))}
@@ -103,9 +131,16 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-t-[#797979] mt-[20px] pt-[20px]">
-        <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between text-white">
-          <div>loll</div>
-          <div>loll</div>
+        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between text-white">
+          <div>Copyright derhex {new Date().getFullYear()}. All Rights Reserved.</div>
+          <div className="flex gap-x-8 mt-[20px] lg:mt-0">
+            {footerSocials.map((sm: { url: string, img: string }, index: number) => {
+              return (
+                <Link to={sm.url} key={index}>
+                  <img src={sm.img} alt="" />
+                </Link>
+              )
+            })}</div>
         </div>
       </div>
     </div>

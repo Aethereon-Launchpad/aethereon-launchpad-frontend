@@ -3,37 +3,62 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaCheck } from "react-icons/fa6";
-import stakingPoolActions from '../../abis/StakingPoolActions.json';
-import { ethers } from "ethers";
+import { isValidERC20, getTokenSymbol, getStakingPoolFactoryFee } from "../../utils/web3/actions";
+import { Preloader, Oval } from 'react-preloader-icon';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
+import stakingPoolActionsABI from "../../abis/StakingPoolActions.json";
+import { baseSepolia } from "viem/chains";
+import { publicClient } from "../../config";
+import { createWalletClient, custom } from "viem";
+import { useNavigate } from "react-router-dom";
+import { getContractAddress } from "../../utils/source";
 
+// Add this function to create wallet client
+const createViemWalletClient = () => {
+  return createWalletClient({
+    chain: baseSepolia,
+    transport: custom(window.ethereum)
+  });
+};
 
 function PoolForm() {
   // const abi = [ /* Your Contract ABI Here */ ];
-  const contractAddress = "0x6cE168E73C64a502d4850CCE952bb2b75a3F4711";
-  const provider = new ethers.JsonRpcProvider("https://your-rpc-url");
-  const contract = new ethers.Contract(contractAddress, stakingPoolActions.abi, provider);
+  // const contractAddress = "0x6cE168E73C64a502d4850CCE952bb2b75a3F4711";
+  // const provider = new ethers.JsonRpcProvider("https://your-rpc-url");
+  // const contract = new ethers.Contract(contractAddress, stakingPoolActions.abi, provider);
+  const { user, authenticated, login } = usePrivy();
+  const { wallets } = useWallets();
+  const wallet = wallets[0];
+  const [loading, setLoading] = useState<boolean>(false)
+  const [tab, setTab] = useState<number>(0);
 
-
-  const [tab, setTab] = useState(0);
+  const [stakingSymbol, setStakingSymbol] = useState<string>("")
+  const [rewardSymbol, setRewardSymbol] = useState<string>("")
+  const navigate = useNavigate();
 
 
   const [poolData, setPoolData] = useState({
-    stakingTokenSymbol: "",
-    rewardTokenAddress: "",
-    stakeFee: "",
-    withdrawalFee: "",
-    rewardBasis: "",
-    numberOfDays: "",
-    apyRate: ""
+    stakingTokenAddress: `0x` as `0x${string}`,
+    rewardTokenAddress: "0x" as `0x${string}`,
+    stakeFeePercentage: 0,
+    apyRate: 0,
+    withdrawalFeePercentage: 0,
+    withdrawalIntervals: 0,
   })
 
-  const { stakingTokenSymbol, rewardTokenAddress, stakeFee, withdrawalFee, rewardBasis, numberOfDays, apyRate } = poolData;
+  const { stakingTokenAddress, rewardTokenAddress, stakeFeePercentage, withdrawalFeePercentage, withdrawalIntervals, apyRate } = poolData;
 
 
   const handleNextMove = async () => {
+    if (!authenticated) {
+      toast("Login to Wallet")
+      login();
+      return;
+    }
     if (tab === 0) {
+      setLoading(true)
       // Validate for the first step
-      if (!stakingTokenSymbol.trim()) {
+      if (!stakingTokenAddress.trim()) {
         toast.error("Staking Token Symbol is required!");
         return;
       }
@@ -41,53 +66,147 @@ function PoolForm() {
         toast.error("Reward Token Address is required!");
         return;
       }
-      // If valid, proceed to the next tab
-      setTab(tab + 1);
-    } else if (tab === 1) {
-      // Validate for the second step
 
-      if (!stakeFee.trim()) {
-        toast.error("Stake Fee is required!");
+      try {
+        const isStakingTokenValid = await isValidERC20(stakingTokenAddress);
+        const isRewardTokenValid = await isValidERC20(rewardTokenAddress);
+
+        if (!isStakingTokenValid || !isRewardTokenValid) {
+          toast("Make sure Staking and Reward Tokens are valid ERC20 Tokens")
+          return;
+        }
+
+        const stkSymbol = await getTokenSymbol(stakingTokenAddress)
+        const rdSymbol = await getTokenSymbol(rewardTokenAddress);
+        setStakingSymbol(stkSymbol as string);
+        setRewardSymbol(rdSymbol as string);
+
+
+        setTab(tab + 1);
+      } catch (error: any) {
+        toast.error(error.message || "Error validating token addresses");
+        return;
+      } finally {
+        setLoading(false)
+      }
+    } else if (tab === 1) {
+      setLoading(true)
+      // Validate for the second step
+      if (withdrawalIntervals === 0) {
+        toast.error("Withdrawal interval can't be zero!");
         return;
       }
-      if (!withdrawalFee.trim()) {
-        toast.error("Withdrawal Fee is required!");
-        return;
-      }
-      if (!rewardBasis.trim()) {
-        toast.error("Reward Basis is required!");
-        return;
-      }
-      if (!numberOfDays.trim()) {
+
+      if (withdrawalIntervals === 0) {
         toast.error("Number of Days is required!");
         return;
       }
-      if (!apyRate.trim()) {
+
+      if (apyRate === 0) {
         toast.error("APY Rate is required!");
         return;
       }
+
+      setLoading(false)
       // If valid, proceed to the next tab
       setTab(tab + 1);
     } else if (tab === 2) {
-      // Submit the data
-      try {
-        await contract.createStakingPool(
-          stakingTokenSymbol,
-          rewardTokenAddress,
-          stakeFee,
-          withdrawalFee,
-          rewardBasis,
-          numberOfDays,
-          apyRate
-        )
-        console.log("Submitting data: ", poolData);
-        toast.success("Staking Pool created successfully!");
-      } catch (error) {
-        toast.error("An error occurred while creating the Staking Pool!");
-
-      }
+      await createStakingPool();
+      console.log("Submitting data: ", poolData);
+      // toast.success("Staking Pool created successfully!");
     }
-  };
+  }
+
+  async function createStakingPool() {
+    setLoading(true)
+    // await wallet.switchChain(sonic.id);
+    try {
+      const StakingPoolFactoryCA = getContractAddress("stakingPoolFactory")
+      // Ensure all values are correctly formatted
+      const formatPercentage = (value: number) => Math.round((value / 100) * 1e4);
+      const formatRewardBasis = (value: number) => value * 24 * 60 * 60; // No of Days
+      const formatAPYRate = (value: number) => Math.round(value * 1e4);
+
+      // Format the values
+      const stakeFeePercentage = formatPercentage(poolData.stakeFeePercentage);
+      const withdrawalFeePercentage = formatPercentage(poolData.withdrawalFeePercentage);
+      const noOfDays = formatRewardBasis(poolData.withdrawalIntervals);
+      const apyRate = formatAPYRate(poolData.apyRate);
+
+      // Submit the data
+      const walletClient = createViemWalletClient();
+      const [account] = await walletClient.getAddresses();
+
+      if (!account) {
+        toast("Connect Wallet");
+        return;
+      }
+
+      const fee: string = await getStakingPoolFactoryFee();
+
+      // Get wallet balance
+      const balance = await publicClient.getBalance({
+        address: account
+      });
+
+      // Compare balance with required fee
+      if (balance < BigInt(fee)) {
+        toast(`Insufficient SONIC balance. You need at least ${Number(fee) / 1e18} SONIC to create a staking pool`);
+        setLoading(false);
+        return;
+      }
+
+      const { request, result } = await publicClient.simulateContract({
+        address: StakingPoolFactoryCA,
+        abi: stakingPoolActionsABI,
+        functionName: "createStakingPool",
+        account,
+        args: [
+          user?.wallet?.address,
+          poolData.stakingTokenAddress,
+          poolData.rewardTokenAddress,
+          apyRate,
+          stakeFeePercentage,
+          withdrawalFeePercentage,
+          user?.wallet?.address,
+          noOfDays
+        ],
+        value: BigInt(fee)
+      })
+
+      const hash = await walletClient.writeContract(request)
+
+      console.log(hash, result);
+
+      toast.success("Successfully Created New Staking Pool")
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      if (receipt && receipt.status === "success") {
+        navigate("/staking-pool")
+      }
+    } catch (err: any) {
+      console.error("Staking Pool", err);
+      toast.error("Creating Staking Pool Failed")
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+
+
+
+
+
+  //   const _newOwner = "0x" + "0".repeat(40);
+  //   const _token0 = stakingTokenSymbol;
+  //   const _token1 = "0x" + "0".repeat(40);
+  //   const _apyRate = Number(apyRate);
+  //   const _stakeFeePercentage = parseInt(stakeFee);
+  //   const _withdrawalFeePercentage = parseFloat(withdrawalFee);
+  //  const _feeReceiver = rewardTokenAddress;
+  //  const _intervals = BigInt(numberOfDays)
+
+
 
 
 
@@ -95,12 +214,22 @@ function PoolForm() {
     return (
       <button
         onClick={handleNextMove}
-        className={` bg-primary text-white p-[10px_20px] mt-[20px] rounded-[8px] w-full h-[50px]`}
+        className={` bg-primary text-white p-[10px_20px] mt-[20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`}
       >
-        {tab === 2 ? "Create Staking Pool" : "Continue"}
+        {!authenticated ? "Connect Wallet" : loading ? (
+          <Preloader
+            use={Oval}
+            size={32}
+            strokeWidth={8}
+            strokeColor="#FFF"
+            duration={800}
+          />
+        ) : tab === 2 ? "Create Staking Pool" : "Continue"}
+
       </button>
     );
   };
+
   return (
     <div className="p-[40px_20px] lg:p-[100px_40px] font-space">
       <div className="flex flex-col lg:flex-row items-start  gap-[20px] text-white">
@@ -139,7 +268,7 @@ function PoolForm() {
                   {tab > 1 ? (
                     <FaCheck className="text-white text-[20px]" />
                   ) : (
-                    <p className="text-white text-[20px] font-[600]">1</p>
+                    <p className="text-white text-[20px] font-[600]">2</p>
                   )}
                 </div>
                 <p className="font-[500] text-[#848895] text-[14px] text-center leading-[15px] lg:leading-[20px] mt-[5px] lg:mt-0 lg:text-[16px]">
@@ -240,21 +369,25 @@ function PoolForm() {
           </div>
         </div>
         <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
-          <p className="text-[20px] lg:text-[36px] font-[500]">
-            {tab === 0
-              ? " Enter token addresses for Staking and reward"
-              : tab === 1
-                ? "Staking Information"
-                : "Review Information"}
-          </p>
+          <div className="flex items-center justify-between w-full">
+            {tab > 0 && (
+              <div className="cursor-pointer" onClick={() => setTab(tab - 1)}>back</div>)}
+            <p className="text-[20px] lg:text-[36px] font-[500] grow text-center">
+              {tab === 0
+                ? " Enter token addresses for Staking and reward"
+                : tab === 1
+                  ? "Staking Information"
+                  : "Review Information"}
+            </p>
+          </div>
           {tab === 0 && (
             <div className="flex flex-col w-full space-y-[20px] lg:space-y-[80px]">
               <div className="w-full">
-                <p>Staking Token (CA) / Symbol</p>
+                <p>Staking Token (CA)</p>
                 <input
-                  value={stakingTokenSymbol}
+                  value={stakingTokenAddress}
                   onChange={(e) =>
-                    setPoolData({ ...poolData, stakingTokenSymbol: e.target.value })
+                    setPoolData({ ...poolData, stakingTokenAddress: e.target.value as `0x${string}` })
                   }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
@@ -265,7 +398,7 @@ function PoolForm() {
                 <input
                   value={rewardTokenAddress}
                   onChange={(e) =>
-                    setPoolData({ ...poolData, rewardTokenAddress: e.target.value })
+                    setPoolData({ ...poolData, rewardTokenAddress: e.target.value as `0x${string}` })
                   }
                   type="text"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
@@ -278,45 +411,27 @@ function PoolForm() {
               <div className="w-full">
                 <p>Stake Fee (%)</p>
                 <input
-                  value={stakeFee}
+                  value={stakeFeePercentage}
                   onChange={(e) =>
-                    setPoolData({ ...poolData, stakeFee: e.target.value })
+                    setPoolData({ ...poolData, stakeFeePercentage: Number(e.target.value) })
                   }
-                  type="text"
+                  type="number"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
+                  min={0}
+                  step={0.01}
                 />
               </div>
               <div className="w-full">
                 <p>Withdrawal Fee (%)</p>
                 <input
-                  value={withdrawalFee}
+                  value={withdrawalFeePercentage}
                   onChange={(e) =>
-                    setPoolData({ ...poolData, withdrawalFee: e.target.value })
+                    setPoolData({ ...poolData, withdrawalFeePercentage: Number(e.target.value) })
                   }
-                  type="text"
+                  type="number"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
-                />
-              </div>
-              <div className="w-full">
-                <p>Reward Basis</p>
-                <input
-                  value={rewardBasis}
-                  onChange={(e) =>
-                    setPoolData({ ...poolData, rewardBasis: e.target.value })
-                  }
-                  type="text"
-                  className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
-                />
-              </div>
-              <div className="w-full">
-                <p>Number Of Days</p>
-                <input
-                  type="text"
-                  value={numberOfDays}
-                  onChange={(e) =>
-                    setPoolData({ ...poolData, numberOfDays: e.target.value })
-                  }
-                  className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
+                  min={0}
+                  step={0.01}
                 />
               </div>
               <div className="w-full">
@@ -324,11 +439,58 @@ function PoolForm() {
                 <input
                   value={apyRate}
                   onChange={(e) =>
-                    setPoolData({ ...poolData, apyRate: e.target.value })
+                    setPoolData({ ...poolData, apyRate: Number(e.target.value) })
                   }
-                  type="text"
+                  type="number"
                   className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
                 />
+              </div>
+              <div className="w-full">
+                <p>Withdrawal Intervals (No. of Days) </p>
+                <input
+                  value={withdrawalIntervals}
+                  onChange={(e) =>
+                    setPoolData({ ...poolData, withdrawalIntervals: Number(e.target.value) })
+                  }
+                  type="number"
+                  className="mt-[8px] outline-none px-[10px] rounded-[8px] h-[50px] w-full bg-[#291254]"
+                />
+              </div>
+            </div>
+          )}
+          {tab === 2 && (
+            <div className="flex flex-col w-full space-y-[40px]">
+              <div className="space-y-[20px]">
+                <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                  <h3 className="text-[18px] font-[500]">Pool Owner & Fee Receiver</h3>
+                  <p className="text-[#848895] break-all">{user?.wallet?.address}</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px]">
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">Staking Token</h3>
+                    <p className="text-[#848895]">{stakingSymbol}</p>
+                  </div>
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">Reward Token</h3>
+                    <p className="text-[#848895]">{rewardSymbol}</p>
+                  </div>
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">Stake Fee</h3>
+                    <p className="text-[#848895]">{poolData.stakeFeePercentage}%</p>
+                  </div>
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">Withdrawal Fee</h3>
+                    <p className="text-[#848895]">{poolData.withdrawalFeePercentage}%</p>
+                  </div>
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">APY Rate</h3>
+                    <p className="text-[#848895]">{poolData.apyRate}%</p>
+                  </div>
+                  <div className="flex flex-col space-y-[10px] p-[20px] rounded-[8px] bg-[#291254]">
+                    <h3 className="text-[18px] font-[500]">Withdrawal Intervals</h3>
+                    <p className="text-[#848895]">{poolData.withdrawalIntervals} Days</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

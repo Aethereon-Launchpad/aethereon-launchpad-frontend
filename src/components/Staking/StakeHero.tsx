@@ -4,7 +4,7 @@
 import { useNavigate } from "react-router-dom";
 
 function StakeHero() {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   return (
     <div className="relative overflow-hidden hero-bg font-space">
       {/* <img src="/der-rows.svg" className=" w-full h-[400px]" alt="" /> */}
@@ -17,15 +17,15 @@ function StakeHero() {
             <br className="hidden lg:block" /> Through Staking
           </p>
           <p className="text-[18px] lg:text-[22px] leading-[25px] lg:leading-[27px] mt-[5px] lg:mt-[10px]">
-            Stake $HEX and participate in yield farming to unlock{" "}
+            Stake and participate in yield farming to unlock{" "}
             <br className="hidden lg:block" /> exclusive platform benefits and
             passive income.
           </p>
-          <button onClick={()=> navigate("/stake-farm/new")} className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[16px] lg:text-[20px] text-white rounded-full flex items-center space-x-[5px]">
+          {/* <button onClick={() => navigate("/staking-pool/new")} className="bg-primary p-[8px_20px] mt-[20px] font-[500] text-[16px] lg:text-[20px] text-white rounded-full flex items-center space-x-[5px]">
             <span>Create New Stake Pool</span>
 
-            {/* <FaArrowCircleRight className="text-white" /> */}
-          </button>
+            <FaArrowCircleRight className="text-white" />
+          </button> */}
         </div>
         <div className="mt-[40px] lg:mt-0 flex items-center justify-end">
           <img src="/stakehero.svg" alt="" />

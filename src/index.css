@@ -1,22 +1,83 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Splash&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Splash&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-.topbar-gradient{
-  background: linear-gradient(to right, #5325A9, #5325A9);
+.topbar-gradient {
+  background: linear-gradient(to right, #5325a9, #5325a9);
 }
 
-.hero-bg{
-  background-image: url('/der-rows.svg');
+.hero-bg {
+  background-image: url("/der-rows.svg");
   background-position: center;
   background-repeat: no-repeat;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Remove arrows from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.debug {
+  border: 1px solid red;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #17043b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5325a9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b3bbf;
+}
+
+/* Firefox Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5325a9 #17043b;
+}
+
+.clip-path-polygon {
+  clip-path: polygon(
+    0 0,
+    /* Top-left straight */ calc(100% - 10px) 0,
+    /* Top-right corner cut */ 100% 10px,
+    /* Top-right corner cut */ 100% 100%,
+    /* Bottom-right straight */ 10px 100%,
+    /* Bottom-left corner cut */ 0 calc(100% - 10px)
+      /* Bottom-left corner cut */
+  );
+}
+
+.clip-path-polygon-tall {
+  clip-path: polygon(
+    0 0,
+    /* Top-left */ 100% 0,
+    /* Top-right */ 100% 90%,
+    /* Angled cut start - lower down for taller elements */ 95% 100%,
+    /* Angled cut end - more gradual slope */ 0 100% /* Bottom-left */
+  );
 }
