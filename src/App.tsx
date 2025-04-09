@@ -38,12 +38,12 @@ function App() {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='/giveaways' element={<Giveaways />} />
-      <Route path='/bonds' element={<Bonds />} />
+      <Route path='/deals/giveaways' element={<Giveaways />} />
+      <Route path='/deals/bonds' element={<Bonds />} />
       <Route path='/launchpad' element={<Launchpad />} />
-      <Route path='/launchpad/:id' element={<IDO />} />
-      <Route path='/giveaways/:id' element={<GiveAwayById />} />
-      <Route path='/explore' element={<Explore />} />
+      <Route path='/deals/launchpad/:id' element={<IDO />} />
+      <Route path='/deals/giveaways/:id' element={<GiveAwayById />} />
+      <Route path='/explore/ido' element={<Explore />} />
       <Route path='/join-ido' element={<Ido />} />
       <Route path='/staking-pool' element={<Staking />} />
       <Route path='/staking-pool/:id' element={<Single />} />
