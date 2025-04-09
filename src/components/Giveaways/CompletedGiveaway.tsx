@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import React from 'react'
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import GiveawayCardCompleted from "./StatusCard";
 import { useGiveaway } from "../../hooks/web3/useGiveaway";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
