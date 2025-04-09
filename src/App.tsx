@@ -30,6 +30,7 @@ import AdminManageGiveaways from './pages/admin/dashboard/giveaways'
 import AdminGiveawayManageID from './pages/admin/dashboard/giveaways/manage'
 import FundGiveaway from './pages/giveaways/fund'
 import NotFound from './pages/NotFound'
+import Bonds from './pages/bonds'
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
     <Routes>
       <Route path='/' element={<Home />} />
       <Route path='/giveaways' element={<Giveaways />} />
+      <Route path='/bonds' element={<Bonds />} />
       <Route path='/launchpad' element={<Launchpad />} />
       <Route path='/launchpad/:id' element={<IDO />} />
       <Route path='/giveaways/:id' element={<GiveAwayById />} />
