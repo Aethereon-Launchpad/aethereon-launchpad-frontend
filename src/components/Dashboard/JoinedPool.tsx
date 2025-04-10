@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import React from 'react'
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useState, useEffect } from "react";
@@ -54,7 +55,7 @@ function JoinedPool() {
 
     loadData()
 
-  }, [])
+  }, [user])
 
   if (loading) {
     return (
