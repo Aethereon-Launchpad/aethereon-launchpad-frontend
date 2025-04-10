@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "react-hot-toast";
 import { usePresale } from "../../../hooks/web3/usePresale";
+import { useBond } from "../../../hooks/web3/useBond";
 import { getAllStakingPoolAddress } from "../../../utils/web3/actions";
 import { useEffect, useState } from "react";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
@@ -15,6 +16,7 @@ export default function AdminDashboardPage() {
     const { logout, user } = usePrivy();
     const navigate = useNavigate();
     const { data, loading: loadingPresale } = usePresale();
+    const { data: bondData, loading: loadingBonds } = useBond();
 
     useEffect(() => {
         async function loadData() {
@@ -40,8 +42,15 @@ export default function AdminDashboardPage() {
         return;
     }
 
+    function navigateToBonds() {
+        navigate("/admin/dashboard/bonds");
+    }
 
-    if (loading || loadingPresale) {
+    function navigateToCreateBond() {
+        navigate("/admin/dashboard/bonds/create");
+    }
+
+    if (loading || loadingPresale || loadingBonds) {
         return (
             <div className="flex justify-center items-center h-[200px]">
                 <Preloader
@@ -77,16 +86,37 @@ export default function AdminDashboardPage() {
                     {/* <DashboardCard title="Admin" value={adminAddress} /> */}
                     <DashboardCard title="No of Staking Pools" value={noOfStakingPools} />
                     <DashboardCard title="No of Presales" value={data.length} />
+                    <DashboardCard
+                        title="No of Bonds"
+                        value={Array.isArray(bondData) ? bondData.length : 0}
+                        onClick={navigateToBonds}
+                    />
                     <DashboardCard title="No Of Voting Slots" value={1} />
+                </div>
+
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold mb-4 text-primary">Quick Actions</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button
+                            onClick={navigateToCreateBond}
+                            className="bg-primary hover:bg-primary/80 text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2"
+                        >
+                            <span>Create New Bond</span>
+                        </button>
+                    </div>
                 </div>
             </section>
         </Layout>
     )
 }
 
-function DashboardCard({ title, value }: { title: string; value: string | number | undefined }) {
+function DashboardCard({ title, value, onClick }: { title: string; value: string | number | undefined; onClick?: () => void }) {
     return (
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-gray-800 p-6 rounded-lg shadow-lg truncate">
+        <motion.div
+            whileHover={{ scale: 1.05 }}
+            className={`bg-gray-800 p-6 rounded-lg shadow-lg truncate ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
             <h2 className="text-xl font-semibold mb-2 text-primary">{title}</h2>
             <p className="text-white">{value}</p>
         </motion.div>

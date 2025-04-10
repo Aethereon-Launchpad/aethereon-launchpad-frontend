@@ -11,7 +11,7 @@ export default function CurrentChain({ chainId }: { chainId: string }) {
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                     {/* <!-- Icon from Web3 Icons by 0xa3k5 - https://github.com/0xa3k5/web3icons/blob/main/LICENCE --> */}
-                    <path fill="currentColor" d="M11.984 21C16.964 21 21 16.97 21 12s-4.036-9-9.016-9C7.26 3 3.384 6.627 3 11.244h11.917v1.513H3C3.385 17.373 7.26 21 11.984 21" /></svg>
+                    <path fill="#FFFFFF" d="M11.984 21C16.964 21 21 16.97 21 12s-4.036-9-9.016-9C7.26 3 3.384 6.627 3 11.244h11.917v1.513H3C3.385 17.373 7.26 21 11.984 21" /></svg>
             )
     }
 }

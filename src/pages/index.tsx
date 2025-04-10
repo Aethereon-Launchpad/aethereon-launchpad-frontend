@@ -37,12 +37,12 @@ function Home() {
       <UpComingGiveaways />
       <div className="flex items-center justify-center w-full">
         <Link
-          to="/giveaways"
+          to="/deals/giveaways"
           className="relative text-[#FAFAFA] mt-[50px] p-[8px_20px] w-fit mx-auto overflow-hidden group-button"
         >
           <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
           <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
-          <span className="relative">View All Airdrops</span>
+          <span className="relative">View All Giveaways</span>
         </Link>
       </div>
       <StakingCTA />

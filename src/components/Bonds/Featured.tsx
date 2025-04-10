@@ -1,35 +1,113 @@
-import React from 'react'
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useBond } from '../../hooks/web3/useBond';
+import { Preloader, ThreeDots } from 'react-preloader-icon';
+import { differenceInDays, format } from 'date-fns';
 
 function FeaturedBonds() {
-  return (
-    <div className='text-white p-[40px_20px] lg:p-[40px] flex items-center justify-center font-space shadow'>
-        <div className='border flex flex-col lg:flex-row items-center rounded-[10px] overflow-hidden  w-full lg:w-[75%] h-full lg:h-[360px]'>
-            <div className='w-full lg:w-[65%] border min-h-full p-[10px]'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut, esse inventore! Veritatis porro a odio dolor distinctio odit dolore. Alias, natus nostrum voluptatem est repellendus quos amet rerum facere. Quam.
+    const { data, loading, error } = useBond(null, { polling: true });
+    const [featuredBond, setFeaturedBond] = useState<any>(null);
+    const navigate = useNavigate();
+
+    // Select the most recent upcoming bond as the featured bond
+    useEffect(() => {
+        if (data && Array.isArray(data) && data.length > 0) {
+            // Sort bonds by start time, most recent first
+            const sortedBonds = [...data].sort((a, b) => b.saleStartTime - a.saleStartTime);
+
+            // Find the first bond that has metadata and take it as featured
+            const featured = sortedBonds.find(bond => bond.bondInfo && bond.metadataURI);
+
+            if (featured) {
+                setFeaturedBond(featured);
+            }
+        }
+    }, [data]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-[200px] p-[40px_20px] lg:p-[40px]">
+                <Preloader
+                    use={ThreeDots}
+                    size={60}
+                    strokeWidth={6}
+                    strokeColor="#5325A9"
+                    duration={2000}
+                />
             </div>
-            <div className='w-full lg:w-[35%]  h-full p-[10px]'>
-                <p className='font-[600] text-[25px]'>FEATURED BOND</p>
-                <p>Script Network is a layer 1 open source live tv platform, protocol and storage network.</p>
-                <div className='mt-[5px]'>
-                    <p className='font-[500] text-[20px]'>Discount Rate</p>
-                    <p>20% to 10%</p>
+        );
+    }
+
+    if (error.message || !featuredBond) {
+        return null; // Don't show the featured section if there's an error or no featured bond
+    }
+
+    return (
+        <div className='text-white p-[40px_20px] lg:p-[40px] flex items-center justify-center font-space shadow'>
+            <div className='border w-[75%] h-full grid grid-cols-6'>
+                <div className='w-full min-h-full relative h-full col-span-4'
+                >
+                    <div className="bg-black bg-opacity-50 flex flex-col items-center justify-center p-6 h-full text-center" style={
+                        featuredBond?.bondInfo?.images?.bg ? { 
+                            backgroundImage: `url(${featuredBond?.bondInfo?.images?.bg})`, 
+                            backgroundSize: 'cover', 
+                            backgroundPosition: 'center', 
+                            height: "100%",
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        } : {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }
+                    }>
+                        <div className="max-w-[600px]">
+                            <img
+                                src={featuredBond?.bondInfo?.images?.logo}
+                                alt={featuredBond?.bondInfo?.projectName}
+                                className="w-24 h-24 rounded-full mb-6 mx-auto"
+                            />
+                            <h2 className="text-4xl font-bold mb-4">{featuredBond?.bondInfo?.projectName}</h2>
+                            <p className="text-gray-200 text-lg leading-relaxed">{featuredBond?.bondInfo?.description}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className='mt-[5px]'>
-                    <p className='font-[500] text-[20px]'>Vesting Duration</p>
-                    <p>10 days to 5 days</p>
+                <div className='w-full col-span-2 h-full p-[20px] bg-[#111115]'>
+                    <p className='font-[600] text-[25px]'>FEATURED BOND</p>
+                    <p className="mt-2 line-clamp-2">{featuredBond?.bondInfo?.description}</p>
+                    <div className='mt-[15px]'>
+                        <p className='font-[500] text-[20px]'>Discount Rate</p>
+                        <p>{(featuredBond.initialDiscountPercentage).toFixed()}% to {(featuredBond.finalDiscountPercentage).toFixed()}%</p>
+                    </div>
+                    <div className='mt-[15px]'>
+                        <p className='font-[500] text-[20px]'>Vesting Duration</p>
+                        <p>
+                            {featuredBond.linearVestingEndTime && featuredBond.linearVestingEndTime > 0 ? (
+                                differenceInDays(new Date(featuredBond.linearVestingEndTime * 1000), new Date(featuredBond.withdrawTime * 1000))
+                            ) : (
+                                0
+                            )} days
+                        </p>
+                    </div>
+                    <div className='mt-[15px]'>
+                        <p className='font-[500] text-[20px]'>Start-End Time</p>
+                        <p>
+                            {format(new Date(featuredBond.saleStartTime * 1000), "dd MMM")} - {format(new Date(featuredBond.saleEndTime * 1000), "dd MMM")}
+                        </p>
+                    </div>
+                    <button
+                        className='h-[40px] font-[600] border-primary w-full mt-[20px] border-[2px] hover:bg-primary hover:text-white transition-colors duration-300'
+                        onClick={() => navigate(`/deals/bonds/${featuredBond?.bondInfo?.projectName.toLowerCase()}`)}
+                    >
+                        Bond Page
+                    </button>
                 </div>
-                <div className='mt-[5px]'>
-                    <p className='font-[500] text-[20px]'>Start-End Time</p>
-                    <p>25 Mar - 09 Apr</p>
-                </div>
-                <button className='h-[40px] font-[600] border-primary w-full mt-[20px]  border-[2px]'>
-                    Bond Page
-                </button>
             </div>
-           
         </div>
-    </div>
-  )
+    );
 }
 
-export default FeaturedBonds
+export default FeaturedBonds;

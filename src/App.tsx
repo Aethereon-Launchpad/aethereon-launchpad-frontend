@@ -31,7 +31,12 @@ import AdminGiveawayManageID from './pages/admin/dashboard/giveaways/manage'
 import FundGiveaway from './pages/giveaways/fund'
 import NotFound from './pages/NotFound'
 import Bonds from './pages/bonds'
-
+import BondDetail from './pages/bonds/id'
+import BondCreator from './pages/bonds/create'
+import AdminManageBonds from './pages/admin/dashboard/bonds'
+import AdminBondManageID from './pages/admin/dashboard/bonds/manage'
+import FundBond from './pages/bonds/fund'
+import CashBond from './pages/bonds/cash'
 
 function App() {
 
@@ -40,6 +45,9 @@ function App() {
       <Route path='/' element={<Home />} />
       <Route path='/deals/giveaways' element={<Giveaways />} />
       <Route path='/deals/bonds' element={<Bonds />} />
+      <Route path='/deals/bonds/:id' element={<BondDetail />} />
+      <Route path='/deals/bonds/fund/:id' element={<FundBond />} />
+      <Route path='/deals/bonds/cash/:id' element={<CashBond />} />
       <Route path='/launchpad' element={<Launchpad />} />
       <Route path='/deals/launchpad/:id' element={<IDO />} />
       <Route path='/deals/giveaways/:id' element={<GiveAwayById />} />
@@ -61,6 +69,10 @@ function App() {
       <Route path='/admin/dashboard/presales/:id' element={<AdminManagePresales />} />
       <Route path='/admin/dashboard/presales/fund/:id' element={<FundPresale />} />
       <Route path='/admin/dashboard/presales/cash/:id' element={<CashPresale />} />
+      <Route path='/admin/dashboard/bonds/create' element={<BondCreator />} />
+      <Route path='/admin/dashboard/bonds' element={<AdminManageBonds />} />
+      <Route path='/admin/dashboard/bonds/manage/:id' element={<AdminBondManageID />} />
+      <Route path='/admin/dashboard/bonds/:id' element={<AdminManageBonds />} />
       <Route path='/admin/dashboard/giveaway/create' element={<GiveawayCreator />} />
       <Route path='/admin/dashboard/giveaways' element={<AdminManageGiveaways />} />
       <Route path='/admin/dashboard/giveaways/manage/:id' element={<AdminGiveawayManageID />} />

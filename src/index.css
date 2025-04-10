@@ -81,3 +81,7 @@ input[type="number"] {
     /* Angled cut end - more gradual slope */ 0 100% /* Bottom-left */
   );
 }
+
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+}
