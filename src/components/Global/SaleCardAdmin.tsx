@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { CountdownTimer } from "../Countdown";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
