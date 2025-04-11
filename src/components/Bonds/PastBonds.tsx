@@ -4,6 +4,7 @@ import { useBond } from "../../hooks/web3/useBond";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
 import { format } from "date-fns";
+import CurrentChain from "../Presale/CurrentChain";
 
 function PastBonds() {
   const { data, error, loading } = useBond();
@@ -180,7 +181,7 @@ function PastBonds() {
                       {format(new Date(bond.saleEndTime * 1000), "dd MMM, HH:mm")}
                     </td>
                     <td className="p-4">
-                      {/* Chain icon would go here */}
+                      <CurrentChain chainId="84532" />
                     </td>
                   </tr>
                 ))

@@ -8,7 +8,7 @@ import { createWalletClient, custom } from "viem";
 import { useParams } from "react-router-dom";
 import TxReceipt from "../../../../../components/Modal/TxReceipt";
 import { IoWalletSharp } from "react-icons/io5";
-import { Preloader, ThreeDots } from 'react-preloader-icon';
+import { Preloader, ThreeDots, Oval } from 'react-preloader-icon';
 import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import erc20Abi from "../../../../../abis/ERC20.json";
@@ -18,14 +18,14 @@ import { Link } from "react-router-dom";
 const createViemWalletClient = () => {
     return createWalletClient({
         chain: baseSepolia,
-        transport: custom(window.ethereum)
+        transport: custom(window.ethereum as any)
     });
 };
 
 export default function AdminBondManageID() {
     const { authenticated, login, user } = usePrivy();
-    const { id } = useParams<{ id: `0x${string}` }>();
-    const { data: bondData, error, loading, refetch } = useBond(id, { polling: false });
+    const { id } = useParams<{ id: string }>();
+    const { data: bondData, error, loading, refetch } = useBond(null, { polling: false }, id as `0x${string}`);
 
     const [taxSetting, setTaxSetting] = useState<{
         taxCollector: `0x${string}`,
@@ -83,6 +83,7 @@ export default function AdminBondManageID() {
 
     async function handleSetTaxCollector(address: `0x${string}`) {
         const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
         setTaxSetting(prev => ({ ...prev, loading: true }));
 
         try {
@@ -90,7 +91,8 @@ export default function AdminBondManageID() {
                 address: id as `0x${string}`,
                 abi: BondABI,
                 functionName: "setTaxCollector",
-                args: [address]
+                args: [address],
+                account
             });
 
             const hash = await walletClient.writeContract(request);
@@ -106,6 +108,7 @@ export default function AdminBondManageID() {
 
     async function handleSetTaxPercentage(percentage: number) {
         const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
         setTaxSetting(prev => ({ ...prev, loading: true }));
 
         try {
@@ -113,7 +116,8 @@ export default function AdminBondManageID() {
                 address: id as `0x${string}`,
                 abi: BondABI,
                 functionName: "setTaxPercentage",
-                args: [percentage]
+                args: [percentage],
+                account
             });
 
             const hash = await walletClient.writeContract(request);
@@ -129,6 +133,7 @@ export default function AdminBondManageID() {
 
     async function handleSetStakingPool(address: `0x${string}`) {
         const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
         setStakingPool(prev => ({ ...prev, loading: true }));
 
         try {
@@ -136,7 +141,8 @@ export default function AdminBondManageID() {
                 address: id as `0x${string}`,
                 abi: BondABI,
                 functionName: "setStakingPool",
-                args: [address]
+                args: [address],
+                account
             });
 
             const hash = await walletClient.writeContract(request);
@@ -152,6 +158,7 @@ export default function AdminBondManageID() {
 
     async function handleSetLinearVesting(endTime: number) {
         const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
         setLinearVestingSetting(prev => ({ ...prev, loading: true }));
 
         try {
@@ -159,7 +166,8 @@ export default function AdminBondManageID() {
                 address: id as `0x${string}`,
                 abi: BondABI,
                 functionName: "setLinearVestingEndTime",
-                args: [endTime]
+                args: [endTime],
+                account
             });
 
             const hash = await walletClient.writeContract(request);
@@ -216,7 +224,7 @@ export default function AdminBondManageID() {
                 abi: BondABI,
                 account,
                 functionName: "setCliffPeriod",
-                args: [claimTimes, percentages]
+                args: [claimTimes, percentages.map(p => Number(p))]
             });
 
             const hash = await walletClient.writeContract(request);

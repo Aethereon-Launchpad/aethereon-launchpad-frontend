@@ -3,29 +3,47 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useWallets, usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
 import Layout from '../../../layout';
-import { Preloader, ThreeDots } from 'react-preloader-icon';
+import { Preloader, ThreeDots, Oval } from 'react-preloader-icon';
 import { getBondDataByAddress } from '../../../utils/web3/bond';
 import { getContractAddress } from '../../../utils/source';
 import BondABI from '../../../abis/Bond.json';
 import ERC20ABI from '../../../abis/ERC20.json';
 import { publicClient as client } from '../../../config';
+import { toast } from 'react-hot-toast';
 
 interface Bond {
+    id: string;
     address: string;
     metadataURI: string;
-    paymentToken: string;
-    saleToken: string;
+    paymentToken: {
+        id: string;
+        symbol: string;
+        decimals: number;
+    };
+    saleToken: {
+        id: string;
+        symbol: string;
+        decimals: number;
+    };
     whitelistStartTime: number;
     saleStartTime: number;
     saleEndTime: number;
     withdrawDelay: number;
     owner: string;
-    bondSize: bigint;
+    bondSize: string;
     bondType: number;
     fixedDiscount: number;
-    totalRaised: bigint;
-    totalTokensSold: bigint;
+    totalRaised: string;
+    totalSold: string;
     isActive: boolean;
+    bondInfo?: {
+        projectName: string;
+        description: string;
+        images?: {
+            logo?: string;
+            bg?: string;
+        };
+    };
 }
 
 interface TokenInfo {
@@ -48,6 +66,7 @@ function CashBond() {
     const [withdrawablePaymentTokens, setWithdrawablePaymentTokens] = useState<bigint>(BigInt(0));
     const [withdrawableSaleTokens, setWithdrawableSaleTokens] = useState<bigint>(BigInt(0));
     const [isCashing, setIsCashing] = useState(false);
+    const [txHash, setTxHash] = useState<string>("");
 
     useEffect(() => {
         if (authenticated && wallets.length > 0) {
@@ -64,16 +83,53 @@ function CashBond() {
             setError(null);
 
             const bondData = await getBondDataByAddress(id as `0x${string}`);
-            setBond(bondData);
+
+            // Ensure bondData has the correct structure
+            if (!bondData || !bondData.paymentToken || !bondData.saleToken) {
+                setError('Invalid bond data structure');
+                setLoading(false);
+                return;
+            }
+
+            // Create a properly structured Bond object
+            const formattedBond: Bond = {
+                id: bondData.id,
+                address: bondData.id, // Use id as address
+                metadataURI: bondData.metadataURI as string,
+                paymentToken: {
+                    id: bondData.paymentToken.id as string,
+                    symbol: bondData.paymentToken.symbol as string,
+                    decimals: Number(bondData.paymentToken.decimals)
+                },
+                saleToken: {
+                    id: bondData.saleToken.id as string,
+                    symbol: bondData.saleToken.symbol as string,
+                    decimals: Number(bondData.saleToken.decimals)
+                },
+                whitelistStartTime: Number(bondData.whitelistStartTime),
+                saleStartTime: Number(bondData.saleStartTime),
+                saleEndTime: Number(bondData.saleEndTime),
+                withdrawDelay: Number(bondData.withdrawDelay),
+                owner: wallet.address, // Assuming the current wallet is the owner
+                bondSize: bondData.bondSize as string,
+                bondType: Number(bondData.bondType),
+                fixedDiscount: 0, // Default value
+                totalRaised: '0', // Default value
+                totalSold: bondData.totalSold as string || '0',
+                isActive: true,
+                bondInfo: undefined // We'll fetch this separately if needed
+            };
+
+            setBond(formattedBond);
 
             // Fetch token details
             const paymentTokenContract = {
-                address: bondData.paymentToken as `0x${string}`,
+                address: formattedBond.paymentToken.id as `0x${string}`,
                 abi: ERC20ABI
             };
 
             const saleTokenContract = {
-                address: bondData.saleToken as `0x${string}`,
+                address: formattedBond.saleToken.id as `0x${string}`,
                 abi: ERC20ABI
             };
 
@@ -90,7 +146,7 @@ function CashBond() {
                 client.readContract({
                     ...paymentTokenContract,
                     functionName: 'balanceOf',
-                    args: [bondData.address]
+                    args: [formattedBond.id as `0x${string}`]
                 })
             ]);
 
@@ -107,7 +163,7 @@ function CashBond() {
                 client.readContract({
                     ...saleTokenContract,
                     functionName: 'balanceOf',
-                    args: [bondData.address]
+                    args: [formattedBond.id as `0x${string}`]
                 })
             ]);
 
@@ -124,7 +180,7 @@ function CashBond() {
             });
 
             // Check if the user is the owner and can withdraw tokens
-            const isOwner = bondData.owner.toLowerCase() === wallet.address.toLowerCase();
+            const isOwner = formattedBond.owner.toLowerCase() === wallet.address.toLowerCase();
 
             if (isOwner) {
                 // For owner, set withdrawable amounts to contract balances
@@ -155,20 +211,23 @@ function CashBond() {
             setError(null);
 
             const { request } = await client.simulateContract({
-                address: bond.address as `0x${string}`,
+                address: bond.id as `0x${string}`,
                 abi: BondABI,
                 functionName: 'withdrawPaymentTokens',
                 account: wallet.address as `0x${string}`
             });
 
             const hash = await wallet.sendTransaction(request);
+            setTxHash(hash);
             await client.waitForTransactionReceipt({ hash });
+            toast.success("Successfully withdrew payment tokens");
 
             // Refresh data
             await fetchBondData();
         } catch (err: any) {
             console.error('Error withdrawing payment tokens:', err);
             setError(err.message || 'Failed to withdraw payment tokens');
+            toast.error("Failed to withdraw payment tokens");
         } finally {
             setIsCashing(false);
         }
@@ -182,20 +241,23 @@ function CashBond() {
             setError(null);
 
             const { request } = await client.simulateContract({
-                address: bond.address as `0x${string}`,
+                address: bond.id as `0x${string}`,
                 abi: BondABI,
                 functionName: 'withdrawSaleTokens',
                 account: wallet.address as `0x${string}`
             });
 
             const hash = await wallet.sendTransaction(request);
+            setTxHash(hash);
             await client.waitForTransactionReceipt({ hash });
+            toast.success("Successfully withdrew sale tokens");
 
             // Refresh data
             await fetchBondData();
         } catch (err: any) {
             console.error('Error withdrawing sale tokens:', err);
             setError(err.message || 'Failed to withdraw sale tokens');
+            toast.error("Failed to withdraw sale tokens");
         } finally {
             setIsCashing(false);
         }
@@ -328,7 +390,7 @@ function CashBond() {
                         <div>
                             <p className="text-sm text-gray-400">Total Raised</p>
                             <p className="font-medium">
-                                {paymentToken ? formatAmount(bond.totalRaised, paymentToken.decimals) : '0'} {paymentToken?.symbol || ''}
+                                {paymentToken ? formatAmount(BigInt(bond.totalRaised || '0'), paymentToken.decimals) : '0'} {paymentToken?.symbol || ''}
                             </p>
                         </div>
                     </div>
@@ -412,4 +474,4 @@ function CashBond() {
     );
 }
 
-export default CashBond; 
+export default CashBond;

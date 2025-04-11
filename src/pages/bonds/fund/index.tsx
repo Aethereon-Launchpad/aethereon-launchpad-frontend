@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWallets, usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
@@ -10,23 +10,33 @@ import BondABI from '../../../abis/Bond.json';
 import ERC20ABI from '../../../abis/ERC20.json';
 import { publicClient as client } from '../../../config';
 import { useBond } from '../../../hooks/web3/useBond';
+import { toast } from 'react-hot-toast';
+import { Oval } from 'react-preloader-icon';
+import TxReceipt from "../../../components/Modal/TxReceipt";
+import { IoWalletSharp } from "react-icons/io5";
+import { createWalletClient, custom } from "viem";
+import { baseSepolia } from 'viem/chains';
+import { getTokenBalance, getTokenDecimals } from '../../../utils/web3/actions';
 
 interface Bond {
-    address: string;
+    id: string;
     metadataURI: string;
-    paymentToken: string;
-    saleToken: string;
+    paymentToken: {
+        id: string;
+        symbol: string;
+        decimals: number;
+    };
+    saleToken: {
+        id: string;
+        symbol: string;
+        decimals: number;
+    };
+    bondSize: string;
+    totalSold: string;
     whitelistStartTime: number;
     saleStartTime: number;
     saleEndTime: number;
     withdrawDelay: number;
-    owner: string;
-    bondSize: bigint;
-    bondType: number;
-    fixedDiscount: number;
-    totalRaised: bigint;
-    totalTokensSold: bigint;
-    isActive: boolean;
     bondInfo?: {
         projectName: string;
         description: string;
@@ -37,27 +47,37 @@ interface Bond {
     };
 }
 
+
+const createViemWalletClient = () => {
+    return createWalletClient({
+        chain: baseSepolia,
+        transport: custom(window.ethereum as any)
+    });
+};
+
+
 function FundBond() {
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams<{ id: `0x${string}` }>();
     const navigate = useNavigate();
     const { authenticated, login } = usePrivy();
     const { wallets } = useWallets();
     const [wallet, setWallet] = useState<any>(null);
-    const [amount, setAmount] = useState<string>('');
+    const [amount, setAmount] = useState<number>(0);
     const [isApproving, setIsApproving] = useState(false);
     const [isFunding, setIsFunding] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
+    const [allowance, setAllowance] = useState<number>(0);
+    const [showTxModal, setShowTxModal] = useState<boolean>(false);
+    const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Funded Bond");
+    const [txHash, setTxHash] = useState<string>("");
+    const [tokenBalance, setTokenBalance] = useState<number>(0);
 
     const {
-        bond,
-        tokenSymbol,
-        tokenDecimals,
-        tokenBalance,
-        allowance,
+        data: bond,
         loading,
         error: bondError,
-        fetchBondData
-    } = useBond(id, wallet?.address);
+        refetch: fetchBondData
+    } = useBond(null, { polling: false }, id as `0x${string}`);
 
     useEffect(() => {
         if (authenticated && wallets.length > 0) {
@@ -66,74 +86,95 @@ function FundBond() {
         }
     }, [authenticated, wallets]);
 
+    useEffect(() => {
+        if (bond?.saleToken?.id && wallet?.address) {
+            const fetchBalance = async () => {
+                try {
+                    const balance = await getTokenBalance(
+                        bond.saleToken.id,
+                        wallet.address as `0x${string}`
+                    );
+                    setTokenBalance(Number(balance));
+                } catch (error) {
+                    console.error('Error fetching token balance:', error);
+                    setTokenBalance(0);
+                }
+            };
+            fetchBalance();
+        }
+    }, [bond, wallet]);
+
     const handleApprove = async () => {
-        if (!bond || !wallet || !amount) return;
+        const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        if (!bond || !amount) return;
 
         try {
             setIsApproving(true);
             setSuccess(null);
 
-            const amountToApprove = ethers.parseUnits(amount, tokenDecimals);
+            const amountToApprove = ethers.parseUnits(amount.toString(), bond.saleToken.decimals);
 
             const { request } = await client.simulateContract({
-                address: bond.saleToken as `0x${string}`,
+                address: bond.saleToken.id as `0x${string}`,
                 abi: ERC20ABI,
                 functionName: 'approve',
-                args: [bond.address, amountToApprove],
-                account: wallet.address as `0x${string}`
+                args: [bond.id, amountToApprove],
+                account
             });
 
-            const hash = await wallet.sendTransaction(request);
+            const hash = await walletClient.writeContract(request);
             await client.waitForTransactionReceipt({ hash });
 
-            // Update allowance
             const newAllowance = await client.readContract({
-                address: bond.saleToken as `0x${string}`,
+                address: bond.saleToken.id as `0x${string}`,
                 abi: ERC20ABI,
                 functionName: 'allowance',
-                args: [wallet.address, bond.address]
+                args: [account, bond.id]
             });
 
-            setAllowance(newAllowance as bigint);
+            setAllowance(Number(newAllowance));
             setSuccess('Token approval successful!');
+            toast.success('Token approval successful!');
         } catch (err: any) {
             console.error('Error approving tokens:', err);
-            setSuccess(null);
+            toast.error('Approval failed');
         } finally {
             setIsApproving(false);
         }
     };
 
     const handleFund = async () => {
-        if (!bond || !wallet || !amount) return;
+        const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        if (!bond || !amount) return;
 
         try {
             setIsFunding(true);
             setSuccess(null);
 
-            const amountToFund = ethers.parseUnits(amount, tokenDecimals);
+            const amountToFund = ethers.parseUnits(amount.toString(), bond.saleToken.decimals);
 
-            // Call the fund function on the bond contract
             const { request } = await client.simulateContract({
-                address: bond.address as `0x${string}`,
+                address: bond.id as `0x${string}`,
                 abi: BondABI,
                 functionName: 'fund',
                 args: [amountToFund],
-                account: wallet.address as `0x${string}`
+                account
             });
 
-            const hash = await wallet.sendTransaction(request);
+            const hash = await walletClient.writeContract(request);
             await client.waitForTransactionReceipt({ hash });
 
-            // Refresh bond data
             await fetchBondData();
-
-            // Clear input and show success message
-            setAmount('');
-            setSuccess(`Successfully funded bond with ${amount} ${tokenSymbol}!`);
+            setAmount(0);
+            setSuccess(`Successfully funded bond with ${amount} ${bond.saleToken.symbol}!`);
+            toast.success('Funding successful');
+            setTxHash(hash);
+            setShowTxModal(true);
         } catch (err: any) {
             console.error('Error funding bond:', err);
-            setSuccess(null);
+            toast.error('Funding failed');
         } finally {
             setIsFunding(false);
         }
@@ -141,13 +182,45 @@ function FundBond() {
 
     const handleMaxAmount = () => {
         if (tokenBalance > 0) {
-            setAmount(ethers.formatUnits(tokenBalance, tokenDecimals));
+            setAmount(tokenBalance);
         }
     };
 
     const formatAmount = (amount: bigint, decimals: number = 18) => {
         return ethers.formatUnits(amount, decimals);
     };
+
+    // Get token info with fallbacks
+    const tokenSymbol = bond?.saleToken?.symbol || '';
+    const tokenDecimals = bond?.saleToken?.decimals || 18;
+
+    // Get bond name with fallbacks
+    const bondName = bond?.bondInfo?.projectName || bond?.metadataURI || 'Bond';
+
+    // Calculate amount in wei safely
+    const amountInWei = useMemo(() => {
+        try {
+            return amount ? ethers.parseUnits(amount.toString(), tokenDecimals) : BigInt(0);
+        } catch (error) {
+            console.error('Error parsing amount:', error);
+            return BigInt(0);
+        }
+    }, [amount, tokenDecimals]);
+
+    // Check if approval is needed
+    const needsApproval = useMemo(() => {
+        return amount && amountInWei > allowance;
+    }, [amount, amountInWei, allowance]);
+
+    // Check if user has enough balance
+    const hasEnoughBalance = useMemo(() => {
+        try {
+            return tokenBalance >= Number(amount);
+        } catch (error) {
+            console.error('Error checking balance:', error);
+            return false;
+        }
+    }, [tokenBalance, amount]);
 
     if (!authenticated) {
         return (
@@ -197,13 +270,18 @@ function FundBond() {
         );
     }
 
-    const bondName = bond.bondInfo?.projectName || bond.metadataURI || 'Bond';
-    const needsApproval = amount && ethers.parseUnits(amount, tokenDecimals) > allowance;
-    const amountInWei = amount ? ethers.parseUnits(amount, tokenDecimals) : BigInt(0);
-    const hasEnoughBalance = tokenBalance >= amountInWei;
+    // Update bond size and total raised display
+    const bondSize = bond ? ethers.parseUnits(bond.bondSize, tokenDecimals) : BigInt(0);
+    const totalRaised = bond ? ethers.parseUnits(bond.totalSold, tokenDecimals) : BigInt(0);
 
     return (
         <Layout>
+            <TxReceipt
+                onClose={() => setShowTxModal(false)}
+                title={txReceiptTitle}
+                txHash={txHash}
+                visible={showTxModal}
+            />
             <div className="max-w-2xl mx-auto p-6">
                 <div className="flex items-center mb-8">
                     <button
@@ -217,7 +295,7 @@ function FundBond() {
 
                 {bondError && (
                     <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6">
-                        {bondError}
+                        {bondError.message}
                     </div>
                 )}
 
@@ -248,7 +326,7 @@ function FundBond() {
 
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Bond Address</p>
-                            <p className="font-medium text-sm truncate text-gray-900 dark:text-white">{bond.address}</p>
+                            <p className="font-medium text-sm truncate text-gray-900 dark:text-white">{bond.id}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Token to Fund</p>
@@ -256,11 +334,11 @@ function FundBond() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Bond Size</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{Number(bond.bondSize)} {tokenSymbol}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{Number(bondSize)} {tokenSymbol}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Current Total Raised</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{Number(bond.totalRaised)} tokens</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{Number(totalRaised)} tokens</p>
                         </div>
                     </div>
                 </div>
@@ -271,14 +349,15 @@ function FundBond() {
                         <div>
                             <div className="flex justify-between mb-2">
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Amount to Fund</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">Balance: {formatAmount(tokenBalance, tokenDecimals)} {tokenSymbol}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Balance: {tokenBalance} {tokenSymbol}</p>
                             </div>
                             <div className="flex space-x-2">
                                 <input
-                                    type="text"
+                                    type="number"
+                                    step={0.01}
+                                    min={0}
                                     value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    placeholder={`Enter amount in ${tokenSymbol}`}
+                                    onChange={(e) => setAmount(Number(e.target.value))}
                                     className="flex-1 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
                                 <button
@@ -349,4 +428,4 @@ function FundBond() {
     );
 }
 
-export default FundBond; 
+export default FundBond;

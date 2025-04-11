@@ -304,7 +304,7 @@ function BondDetail() {
     const { authenticated, login } = usePrivy();
     const { wallets } = useWallets();
     const [wallet, setWallet] = useState<any>(null);
-    const [currentChain, setCurrentChain] = useState('56');
+    const [currentChain, setCurrentChain] = useState('84532');
 
     // First, fetch the bond data using the project name from URL parameter
     const { data: bondData, loading: bondLoading, error: bondError } = useBond(id || null);
@@ -386,7 +386,7 @@ function BondDetail() {
         <Layout>
             <div className="font-space text-white">
                 {/* Hero section with background */}
-                <div className="relative h-[300px]">
+                <div className="relative h-[300px] px-4 py-5 border-b border-primary/20">
                     <img
                         src={bondData.bondInfo?.images?.bg}
                         alt={bondData.bondInfo?.projectName}
