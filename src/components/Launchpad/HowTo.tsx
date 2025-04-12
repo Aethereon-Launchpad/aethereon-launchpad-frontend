@@ -58,13 +58,6 @@ function HowTo() {
                             <div className="relative flex flex-col gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="text-primary text-2xl font-bold group-hover:text-white transition-colors duration-300">0{index + 1}</div>
-                                    <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors duration-300">
-                                        <img
-                                            src={step.icon}
-                                            alt={step.title}
-                                            className="w-8 h-8 filter brightness-0 invert-[0.4] group-hover:brightness-100 group-hover:invert-0 transition-all duration-300"
-                                        />
-                                    </div>
                                 </div>
                                 <div>
                                     <p className="text-[20px] font-[500] mb-2 group-hover:text-white transition-colors duration-300">{step.title}</p>
