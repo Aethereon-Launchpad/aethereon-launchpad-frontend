@@ -38,10 +38,10 @@ export default function AdminBondManageID() {
     });
 
     const [linearVestingSetting, setLinearVestingSetting] = useState<{
-        endOfLinearVesting: number,
+        endOfLinearVesting: string,
         loading: boolean
     }>({
-        endOfLinearVesting: 0,
+        endOfLinearVesting: '',
         loading: false
     });
 
@@ -156,12 +156,14 @@ export default function AdminBondManageID() {
         }
     }
 
-    async function handleSetLinearVesting(endTime: number) {
+    async function handleSetLinearVesting() {
         const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setLinearVestingSetting(prev => ({ ...prev, loading: true }));
 
         try {
+            const endTime = Math.floor(new Date(linearVestingSetting.endOfLinearVesting).getTime() / 1000);
+
             const { request } = await publicClient.simulateContract({
                 address: id as `0x${string}`,
                 abi: BondABI,
@@ -263,7 +265,10 @@ export default function AdminBondManageID() {
                         <h3 className="text-xl font-semibold text-primary">Tax Settings</h3>
                         <div className="space-y-4">
                             <div className="flex flex-col space-y-2">
-                                <p className="text-[#C4C4C4] text-sm">Tax Collector Address</p>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-[#C4C4C4] text-sm">Tax Collector Address</p>
+                                    <p className="text-[#C4C4C4] text-sm">Current: {bondData?.taxCollector || 'Not set'}</p>
+                                </div>
                                 <div className="flex gap-x-2">
                                     <input
                                         type="text"
@@ -281,7 +286,10 @@ export default function AdminBondManageID() {
                                 </div>
                             </div>
                             <div className="flex flex-col space-y-2">
-                                <p className="text-[#C4C4C4] text-sm">Tax Percentage</p>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-[#C4C4C4] text-sm">Tax Percentage</p>
+                                    <p className="text-[#C4C4C4] text-sm">Current: {bondData?.taxPercentage || 0}%</p>
+                                </div>
                                 <div className="flex gap-x-2">
                                     <input
                                         type="number"
@@ -305,17 +313,27 @@ export default function AdminBondManageID() {
                     <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
                         <h3 className="text-xl font-semibold text-primary">Linear Vesting Settings</h3>
                         <div className="flex flex-col space-y-2">
-                            <p className="text-[#C4C4C4] text-sm">End Time (Unix Timestamp)</p>
+                            <div className="flex justify-between items-center">
+                                <p className="text-[#C4C4C4] text-sm">End Time</p>
+                                <p className="text-[#C4C4C4] text-sm">
+                                    Current: {bondData?.linearVestingEndTime ?
+                                        new Date(Number(bondData.linearVestingEndTime) * 1000).toLocaleString() :
+                                        'Not set'
+                                    }
+                                </p>
+                            </div>
                             <div className="flex gap-x-2">
                                 <input
-                                    type="number"
+                                    type="datetime-local"
                                     value={linearVestingSetting.endOfLinearVesting}
-                                    onChange={(e) => setLinearVestingSetting(prev => ({ ...prev, endOfLinearVesting: Number(e.target.value) }))}
+                                    onChange={(e) => setLinearVestingSetting(prev => ({
+                                        ...prev,
+                                        endOfLinearVesting: e.target.value
+                                    }))}
                                     className="w-full h-[50px] bg-[#291254]/50 border border-primary/20 rounded-[8px] px-4 outline-none focus:ring-2 focus:ring-primary/50"
-                                    placeholder="Enter end time"
                                 />
                                 <button
-                                    onClick={() => handleSetLinearVesting(linearVestingSetting.endOfLinearVesting)}
+                                    onClick={handleSetLinearVesting}
                                     className="bg-primary/90 hover:bg-primary px-4 rounded-[8px] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95"
                                 >
                                     Set
@@ -328,7 +346,10 @@ export default function AdminBondManageID() {
                     <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
                         <h3 className="text-xl font-semibold text-primary">Staking Pool Settings</h3>
                         <div className="flex flex-col space-y-2">
-                            <p className="text-[#C4C4C4] text-sm">Staking Pool Address</p>
+                            <div className="flex justify-between items-center">
+                                <p className="text-[#C4C4C4] text-sm">Staking Pool Address</p>
+                                <p className="text-[#C4C4C4] text-sm">Current: {bondData?.stakingPool || 'Not set'}</p>
+                            </div>
                             <div className="flex gap-x-2">
                                 <input
                                     type="text"

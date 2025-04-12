@@ -47,17 +47,6 @@ function AdminManageBonds() {
     const { data, error, loading, refetch } = useBond(null, { polling: true });
     const [filter, setFilter] = useState<'all' | 'active' | 'upcoming' | 'ended'>('all');
     const [bonds, setBonds] = useState<Bond[]>([]);
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    useEffect(() => {
-        if (authenticated && wallets.length > 0) {
-            const activeWallet = wallets[0];
-            setWallet(activeWallet);
-
-            // Check if user is admin (simplistic approach - in real app would check against a list or contract)
-            setIsAdmin(true);
-        }
-    }, [authenticated, wallets, user]);
 
     useEffect(() => {
         if (data && Array.isArray(data)) {
@@ -109,22 +98,6 @@ function AdminManageBonds() {
         );
     }
 
-    if (!isAdmin) {
-        return (
-            <Layout>
-                <div className="flex flex-col items-center justify-center min-h-[500px] p-8 text-center">
-                    <h2 className="text-2xl font-bold mb-4 text-white">Admin Access Required</h2>
-                    <p className="text-gray-400 mb-6">You don't have permission to access this page.</p>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="bg-primary hover:bg-primary/80 text-white py-2 px-6 rounded-lg"
-                    >
-                        Go Home
-                    </button>
-                </div>
-            </Layout>
-        );
-    }
 
     if (loading) {
         return (

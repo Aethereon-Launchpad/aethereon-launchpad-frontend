@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAllBondData, getBondDataByAddress, getBondDataByProjectName } from '../../utils/web3/bond'
+import { ensureRawGistURL } from '../../utils/tools';
 
 interface UseBondReturn {
     loading: boolean;
@@ -37,7 +38,7 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
                 result = await getBondDataByAddress(id);
                 if (result) {
                     try {
-                        const response = await fetch(result.metadataURI as string);
+                        const response = await fetch(ensureRawGistURL(result.metadataURI as string));
                         if (response.ok) {
                             const data = await response.json();
                             result = {
@@ -59,7 +60,7 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
                     await new Promise(resolve => setTimeout(resolve, index * 2000));
 
                     try {
-                        const response = await fetch(bond.metadataURI as string);
+                        const response = await fetch(ensureRawGistURL(bond.metadataURI as string));
                         if (response.ok) {
                             const data = await response.json();
                             return {

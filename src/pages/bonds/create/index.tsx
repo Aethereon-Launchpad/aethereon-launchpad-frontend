@@ -62,7 +62,7 @@ function BondCreator() {
     const [withdrawDelay, setWithdrawDelay] = useState<number>(60 * 20);
     const [bondType, setBondType] = useState<'Dynamic' | 'Fixed'>('Dynamic');
     const [fixedDiscount, setFixedDiscount] = useState<string>('');
-    const [metadataURI, setMetadataURI] = useState<string>('https://gist.githubusercontent.com/TimmyIsANerd/1914c6807754f21865f184324fe70960/raw/8de411c073b6eb9c5cd62e37f75ba5a83187e607/anubis');
+    const [metadataURI, setMetadataURI] = useState<string>('https://gist.github.com/TimmyIsANerd/49832fca4b76495e78b203d5245011d6/raw/5633514457010c956b6ff30292640ec8aa5a0d99/ScarabX.json');
 
     useEffect(() => {
         if (authenticated && wallets.length > 0) {

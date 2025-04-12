@@ -49,9 +49,10 @@ function FeaturedBonds() {
                 >
                     <div className="bg-black bg-opacity-50 flex flex-col items-center justify-center p-6 h-full text-center" style={
                         featuredBond?.bondInfo?.images?.bg ? { 
-                            backgroundImage: `url(${featuredBond?.bondInfo?.images?.bg})`, 
+                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${featuredBond?.bondInfo?.images?.bg})`, 
                             backgroundSize: 'cover', 
                             backgroundPosition: 'center', 
+                            backgroundRepeat: 'no-repeat',
                             height: "100%",
                             display: 'flex',
                             flexDirection: 'column',

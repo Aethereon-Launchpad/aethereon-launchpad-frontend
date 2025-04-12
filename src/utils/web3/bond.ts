@@ -4,6 +4,7 @@ import Bond from "../../abis/Bond.json";
 import { publicClient as client } from "../../config"
 import { ethers } from 'ethers';
 import { getContractAddress } from '../source';
+import { ensureRawGistURL } from "../tools";
 
 // Define the contract read configurations for common fields
 const commonReadConfig = (bond: `0x${string}`, functionName: string) => ({
@@ -137,6 +138,18 @@ export const getAllBondData = async () => {
                 {
                     ...bondContract,
                     functionName: "finalDiscountPercentage"
+                },
+                {
+                    ...bondContract,
+                    functionName: "whitelistCount"
+                },
+                {
+                    ...bondContract,
+                    functionName: "participants"
+                },
+                {
+                    ...bondContract,
+                    functionName: "bondAllocation"
                 }
             ]
         });
@@ -161,7 +174,10 @@ export const getAllBondData = async () => {
             fixedDiscountPercentage,
             currentDiscount,
             initialDiscountPercentage,
-            finalDiscountPercentage
+            finalDiscountPercentage,
+            whitelistCount,
+            participants,
+            bondAllocation
         ] = results;
 
         if (!paymentToken.result) throw new Error('Invalid payment token address');
@@ -292,7 +308,10 @@ export const getAllBondData = async () => {
             fixedDiscountPercentage: Number(fixedDiscountPercentage.result) / 100,
             currentDiscount: Number(currentDiscount.result) / 100,
             initialDiscountPercentage: Number(initialDiscountPercentage.result) / 100,
-            finalDiscountPercentage: Number(finalDiscountPercentage.result) / 100
+            finalDiscountPercentage: Number(finalDiscountPercentage.result) / 100,
+            whitelistCount: Number(whitelistCount.result),
+            participants: Number(participants.result),
+            bondAllocation: ethers.formatUnits(bondAllocation.result as any, saleTokenDecimals.result as number)
         };
     }));
 
@@ -386,6 +405,18 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
             {
                 ...bondContract,
                 functionName: "finalDiscountPercentage"
+            },
+            {
+                ...bondContract,
+                functionName: "whitelistCount"
+            },
+            {
+                ...bondContract,
+                functionName: "participants"
+            },
+            {
+                ...bondContract,
+                functionName: "bondAllocation"
             }
         ]
     });
@@ -410,7 +441,10 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
         fixedDiscountPercentage,
         currentDiscount,
         initialDiscountPercentage,
-        finalDiscountPercentage
+        finalDiscountPercentage,
+        whitelistCount,
+        participants,
+        bondAllocation
     ] = results;
 
     if (!paymentToken.result) throw new Error('Invalid payment token address');
@@ -579,7 +613,10 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
         fixedDiscountPercentage: Number(fixedDiscountPercentage.result) / 100,
         currentDiscount: Number(currentDiscount.result) / 100,
         initialDiscountPercentage: Number(initialDiscountPercentage.result) / 100,
-        finalDiscountPercentage: Number(finalDiscountPercentage.result) / 100
+        finalDiscountPercentage: Number(finalDiscountPercentage.result) / 100,
+        whitelistCount: Number(whitelistCount.result),
+        participants: Number(participants.result),
+        bondAllocation: ethers.formatUnits(bondAllocation.result as any, saleTokenDecimals.result as number)
     };
 }
 
@@ -668,7 +705,7 @@ export const getBondDataByProjectName = async (projectName: string) => {
     const matchingBond = await Promise.all(allBonds.map(async (bond) => {
         if (!bond.metadataURI) return null;
         try {
-            const response = await fetch(bond.metadataURI.toString());
+            const response = await fetch(ensureRawGistURL(bond.metadataURI.toString()));
             if (!response.ok) return null;
 
             const metadata = await response.json() as { projectName?: string };

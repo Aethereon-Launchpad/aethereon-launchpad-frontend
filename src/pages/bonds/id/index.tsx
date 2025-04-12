@@ -7,6 +7,14 @@ import Layout from '../../../layout';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { FaDiscord, FaGlobe, FaTelegram, FaTwitter } from 'react-icons/fa6';
 import CurrentChain from '../../../components/Presale/CurrentChain';
+import { publicClient } from '../../../config';
+import { createWalletClient, custom, http, encodePacked, keccak256, toHex } from 'viem';
+import { baseSepolia } from 'viem/chains';
+import BondABI from "../../../abis/Bond.json";
+import toast from 'react-hot-toast';
+import { ethers } from 'ethers';
+import { privateKeyToAccount } from 'viem/accounts';
+
 
 function CountdownTimer({
     whitelistStartTime,
@@ -113,30 +121,6 @@ function ProgressBar({ totalSold, bondSize }: { totalSold: number; bondSize: num
     );
 }
 
-function StakingTiersList({ tiers }: { tiers: any[] }) {
-    return (
-        <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Staking Tiers</h3>
-            <div className="bg-[#111115]  p-4">
-                <div className="grid grid-cols-2 gap-4">
-                    {tiers.map((tier, index) => (
-                        <div key={index} className="text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Tier {index + 1}:</span>
-                                <span>{tier.threshold} FINC</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Multiplier:</span>
-                                <span>{tier.multiplier}x</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function BondStage({
     bond,
     userData,
@@ -219,7 +203,17 @@ function BondStage({
                             <input
                                 type="text"
                                 value={purchaseAmount}
-                                onChange={(e) => setPurchaseAmount(e.target.value)}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                                    const maxAllocation = parseFloat(bond.bondAllocation);
+                                    const numericValue = parseFloat(value);
+
+                                    if (!isNaN(numericValue) && numericValue <= maxAllocation) {
+                                        setPurchaseAmount(value);
+                                    } else if (value === '') {
+                                        setPurchaseAmount('');
+                                    }
+                                }}
                                 className="w-full p-2 bg-[#1A1A1A] border border-gray-700 rounded text-white"
                                 placeholder="Enter amount to purchase"
                             />
@@ -227,11 +221,15 @@ function BondStage({
                         <div className="mb-4 text-sm text-left">
                             <div className="flex justify-between mb-2">
                                 <span className="text-gray-400">Current Discount:</span>
-                                <span>{(bond.currentDiscount * 100).toFixed(2)}%</span>
+                                <span>{(bond.currentDiscount).toFixed(2)}%</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">You've Paid:</span>
                                 <span>{userData?.amountPaid || 0} {bond.paymentToken.symbol}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Your Allocation:</span>
+                                <span>{bond?.bondAllocation || 0} {bond.paymentToken.symbol}</span>
                             </div>
                         </div>
                         <button
@@ -298,6 +296,15 @@ function BondStage({
     );
 }
 
+
+const createViemWalletClient = () => {
+    return createWalletClient({
+        chain: baseSepolia,
+        transport: custom(window.ethereum)
+    });
+};
+
+
 function BondDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -306,8 +313,10 @@ function BondDetail() {
     const [wallet, setWallet] = useState<any>(null);
     const [currentChain, setCurrentChain] = useState('84532');
 
+    const [loading, setLoading] = useState(false);
+
     // First, fetch the bond data using the project name from URL parameter
-    const { data: bondData, loading: bondLoading, error: bondError } = useBond(id || null);
+    const { data: bondData, loading: bondLoading, error: bondError, refetch } = useBond(id || null);
 
     // Always initialize these hooks with fallback values when bondData is undefined
     // This ensures hooks are always called in the same order
@@ -331,17 +340,145 @@ function BondDetail() {
     }, [authenticated, wallets]);
 
     // Mock functions for bond actions - these would be replaced with actual contract interactions
-    const handleWhitelist = () => {
-        alert('Whitelist function would be called here');
+    const handleWhitelist = async () => {
+        const walletClient = await createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+
+        setLoading(true)
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: bondId,
+                abi: BondABI,
+                functionName: "whitelist",
+                account
+            })
+
+            const hash = await walletClient.writeContract(request)
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt && receipt.status === "success") {
+                toast("Successfully Whitelisted")
+                await refetch()
+            }
+        } catch (error: any) {
+            console.log(error)
+            if (error.message.includes("User rejected the request")) {
+                toast("User Rejected the Request")
+                return;
+            }
+            if (error.message.includes("already whitelisted")) {
+                toast("Already Whitelisted")
+                return;
+            }
+            if (error.message.includes("whitelist has not begun")) {
+                toast("Whitelist has not begun")
+                return;
+            }
+            if (error.message.includes("staked amount less than requirement")) {
+                toast("Must stake in Lock & Stake to Participate")
+                return;
+            }
+            if (error.message.includes("sale has started")) {
+                toast("Whitelist is Over!")
+                return;
+            }
+            toast.error("Whitelist Failed! Please Try Again Later")
+        } finally {
+            setLoading(false)
+        }
     };
 
-    const handlePurchase = (amount: string) => {
+    const handlePurchase = async (amount: string) => {
         if (!amount) return;
-        alert(`Purchase function would be called with amount: ${amount}`);
+        const walletClient = await createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        const amountToPurchase = ethers.parseUnits(amount, bondData.paymentToken.decimals);
+
+        const signerAccount = privateKeyToAccount(import.meta.env.VITE_TRUSTED_SIGNER_PRIVATE_KEY);
+
+        const tokenAddress = bondData.saleToken.id;
+        const price = ethers.parseUnits("0.001", 18);
+        const timestamp = BigInt(Math.floor(Date.now() / 1000));
+        const packed = encodePacked(
+            ['address', 'uint256', 'uint256'],
+            [tokenAddress, price, timestamp]
+        );
+
+        const messageHash = keccak256(packed);
+        // Step 2: Sign with Ethereum Signed Message prefix
+        const signature = await signerAccount.signMessage({ message: { raw: messageHash } });
+
+        const priceData = {
+            token: tokenAddress,
+            price,
+            timestamp,
+            signature,
+        };
+
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: bondId,
+                abi: BondABI,
+                functionName: "purchase",
+                args: [amountToPurchase, priceData],
+                account
+            })
+
+            const hash = await walletClient.writeContract(request)
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt && receipt.status === "success") {
+                toast("Successfully Purchased Bond")
+            }
+            await refetch()
+        } catch (error: any) {
+            console.log(error)
+            if (error.message.includes("User rejected the request")) {
+                toast("User Rejected the Request")
+                return;
+            }
+            if (error.message.includes("sale has not begun")) {
+                toast('Sale has not started yet')
+                return
+            }
+            if (error.message.includes("not whitelisted")) {
+                toast("Must whitelist to Participate")
+                return;
+            }
+        } finally {
+
+        }
     };
 
-    const handleClaim = () => {
-        alert('Claim function would be called here');
+    const handleClaim = async () => {
+        const walletClient = await createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: bondId,
+                abi: BondABI,
+                functionName: "claim",
+                account
+            })
+
+            const hash = await walletClient.writeContract(request)
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt && receipt.status === "success") {
+                toast("Successfully Claimed Bond")
+                await refetch()
+            }
+        }
+        catch (error: any) {
+            console.error(error)
+            if (error.message.includes("claim period has not started")) {
+                toast("Claim Period has not started")
+            }
+            if (error.message.includes("Nothing to claim")) {
+                toast("No Claimable Tokens")
+            }
+            if (error.message.includes("No tokens unlocked")) {
+                toast("No Tokens Unlocked")
+            }
+        }
     };
 
     if (bondLoading) {
@@ -381,6 +518,8 @@ function BondDetail() {
             </Layout>
         );
     }
+
+
 
     return (
         <Layout>

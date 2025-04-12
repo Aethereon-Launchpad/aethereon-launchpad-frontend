@@ -87,6 +87,8 @@ function BondCard({ bond }: { bond: any }) {
     );
   }
 
+  console.log(bond)
+
   const totalSold = parseFloat(bond.totalSold || "0");
   const bondSize = parseFloat(bond.bondSize || "0");
   const progress = (totalSold / bondSize) * 100;
