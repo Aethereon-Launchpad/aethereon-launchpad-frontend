@@ -2,13 +2,13 @@
 export const service = {
     // Base Sepolia Testnet
     "84532": {
-        stakingPoolFactory: "0xa13019Be1C39625332D996b56A4555217035324e",
-        drxToken: "0x609C524338820a84fA1BeC5f5aBAd43A310EEC1A",
-        usdToken: "0x472158C2bBE156bAAe0D4cbeeb81774502768C65",
-        stakeLock: "0xAaDF28c729269AD1E0a775C70060b669985661e5",
-        presaleFactory: "0xbF9a21db747b5b3eD4F43B9e36971C7808fE8CC9",
-        airdropFactory: "0x2508dc55a2d52198694507Ad8E49307c78B2d6eb",
-        bondFactory:"0xCD885F14508fc3f52D3Bfe25840278f8d8426A23"
+        stakingPoolFactory: "0xc9762e2bc5f9A398b52e70B65c4620a85a2081DE",
+        drxToken: "0xFA64E2FDbf9ba4880043c16311C7b5A425c1c52F",
+        usdToken: "0xBaB33cC1E26ADa9be8E0a00b581bd3951EC94200",
+        stakeLock: "0xb054d93eB2ac18C5D4761198670AEaf8c2c03df0",
+        presaleFactory: "0xbe48cA8B76CE3c9cd71a459eF4cA86E57df84B01",
+        airdropFactory: "0x87A9A7121Dc25C41CfC88EeaE116Fea10029f8C4",
+        bondFactory:"0x7E4CD92749c00875cB56F542dF81D0B683Fc051A"
     }
 } as const;
 
