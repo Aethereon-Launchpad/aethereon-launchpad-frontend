@@ -6,14 +6,16 @@ import Hero from '../../components/Bonds/Hero'
 import FeaturedBonds from '../../components/Bonds/Featured'
 import LiveAndUpcoming from '../../components/Bonds/LiveAndUpcoming'
 import PastBonds from '../../components/Bonds/PastBonds'
+import { usePageTitleBonds } from '../../hooks/utils/index.tsx';
 
 function Bonds() {
-    return (
-      <Layout>
-        {/* <Hero/> */}
-        <FeaturedBonds/>
-        <LiveAndUpcoming/>
-        <PastBonds/>
+  usePageTitleBonds("Explore & Invest in Bonds")
+  return (
+    <Layout>
+      {/* <Hero/> */}
+      <FeaturedBonds />
+      <LiveAndUpcoming />
+      <PastBonds />
     </Layout>
   )
 }

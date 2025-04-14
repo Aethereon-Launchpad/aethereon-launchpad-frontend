@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAmountPaid, getClaimableTokensAmount, isUserWhitelisted } from '../../utils/web3/bond'
+import { getAmountPaid, getClaimableTokensAmount, isUserWhitelisted, getPurchasedTokensAmount } from '../../utils/web3/bond'
 
 interface UseBondUserReturn {
     loading: boolean;
@@ -8,6 +8,7 @@ interface UseBondUserReturn {
         amountPaid: number;
         claimableTokens: number;
         isWhitelisted: boolean;
+        purchasedTokens: number;
     };
     refetch: () => Promise<void>;
 }
@@ -34,7 +35,8 @@ export function useBondUser(
     const [data, setData] = useState<UseBondUserReturn['data']>({
         amountPaid: 0,
         claimableTokens: 0,
-        isWhitelisted: false
+        isWhitelisted: false,
+        purchasedTokens: 0
     });
 
     const fetchData = async () => {
@@ -47,18 +49,24 @@ export function useBondUser(
             const [
                 amountPaid,
                 claimableTokens,
-                isWhitelisted
+                isWhitelisted,
+                purchasedTokens
             ] = await Promise.all([
                 getAmountPaid(bondAddress, walletAddress),
                 getClaimableTokensAmount(bondAddress, walletAddress),
-                isUserWhitelisted(bondAddress, walletAddress)
+                isUserWhitelisted(bondAddress, walletAddress),
+                getPurchasedTokensAmount(bondAddress, walletAddress)
             ]);
 
-            setData({
+            console.log("Whitelist Check:", isWhitelisted)
+
+            setData((prevData) => ({
+                ...prevData,
                 amountPaid,
                 claimableTokens,
-                isWhitelisted
-            });
+                isWhitelisted,
+                purchasedTokens
+            }));
         } catch (err: any) {
             setError({ message: err.message || "Failed to fetch user bond data" });
         } finally {

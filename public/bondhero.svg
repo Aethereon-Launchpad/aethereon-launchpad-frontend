@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <rect width="400" height="300" rx="10" fill="url(#paint0_linear)" />
+  
+  <!-- Bond certificate -->
+  <rect x="100" y="70" width="200" height="160" rx="8" fill="#1A1A1A" stroke="#5325A9" stroke-width="2" />
+  
+  <!-- Certificate details -->
+  <rect x="120" y="90" width="160" height="20" rx="4" fill="#5325A9" opacity="0.7" />
+  <rect x="120" y="120" width="160" height="10" rx="2" fill="#5325A9" opacity="0.5" />
+  <rect x="120" y="140" width="160" height="10" rx="2" fill="#5325A9" opacity="0.5" />
+  <rect x="120" y="160" width="160" height="10" rx="2" fill="#5325A9" opacity="0.5" />
+  
+  <!-- Bond seal -->
+  <circle cx="200" cy="200" r="20" fill="#5325A9" />
+  <circle cx="200" cy="200" r="15" fill="#1A1A1A" stroke="#5325A9" stroke-width="2" />
+  
+  <!-- Coins/tokens -->
+  <circle cx="150" cy="230" r="15" fill="#FFD700" opacity="0.8" />
+  <circle cx="180" cy="240" r="15" fill="#FFD700" opacity="0.8" />
+  <circle cx="210" cy="235" r="15" fill="#FFD700" opacity="0.8" />
+  <circle cx="240" cy="225" r="15" fill="#FFD700" opacity="0.8" />
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="400" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111111" />
+      <stop offset="1" stop-color="#2A1654" />
+    </linearGradient>
+  </defs>
+</svg>

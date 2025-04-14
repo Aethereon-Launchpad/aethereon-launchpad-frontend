@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWallets, usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
-import Layout from '../../../layout';
+import Layout from '../../../layout/Admin';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { getBondDataByAddress } from '../../../utils/web3/bond';
 import { getContractAddress } from '../../../utils/source';
@@ -17,6 +17,7 @@ import { IoWalletSharp } from "react-icons/io5";
 import { createWalletClient, custom } from "viem";
 import { baseSepolia } from 'viem/chains';
 import { getTokenBalance, getTokenDecimals } from '../../../utils/web3/actions';
+import { usePageTitle } from '../../../hooks/utils/index.tsx';
 
 interface Bond {
     id: string;
@@ -66,11 +67,13 @@ function FundBond() {
     const [isApproving, setIsApproving] = useState(false);
     const [isFunding, setIsFunding] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
-    const [allowance, setAllowance] = useState<number>(0);
+    const [allowance, setAllowance] = useState<bigint>(BigInt(0));
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
     const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Funded Bond");
     const [txHash, setTxHash] = useState<string>("");
     const [tokenBalance, setTokenBalance] = useState<number>(0);
+
+    usePageTitle('Fund Bond');
 
     const {
         data: bond,
@@ -86,23 +89,56 @@ function FundBond() {
         }
     }, [authenticated, wallets]);
 
+    // Fetch token balance and allowance when component mounts or wallet/bond changes
     useEffect(() => {
         if (bond?.saleToken?.id && wallet?.address) {
-            const fetchBalance = async () => {
+            const fetchBalanceAndAllowance = async () => {
                 try {
+                    // Fetch token balance
                     const balance = await getTokenBalance(
                         bond.saleToken.id,
                         wallet.address as `0x${string}`
                     );
                     setTokenBalance(Number(balance));
+
+                    // Fetch token allowance
+                    const tokenAllowance = await client.readContract({
+                        address: bond.saleToken.id as `0x${string}`,
+                        abi: ERC20ABI,
+                        functionName: 'allowance',
+                        args: [wallet.address, bond.id]
+                    });
+
+                    setAllowance(tokenAllowance as bigint);
                 } catch (error) {
-                    console.error('Error fetching token balance:', error);
+                    console.error('Error fetching token data:', error);
                     setTokenBalance(0);
                 }
             };
-            fetchBalance();
+            fetchBalanceAndAllowance();
         }
     }, [bond, wallet]);
+
+    // Update allowance when amount changes
+    useEffect(() => {
+        if (amount && bond?.saleToken?.id && wallet?.address) {
+            const checkAllowance = async () => {
+                try {
+                    const tokenAllowance = await client.readContract({
+                        address: bond.saleToken.id as `0x${string}`,
+                        abi: ERC20ABI,
+                        functionName: 'allowance',
+                        args: [wallet.address, bond.id]
+                    });
+
+                    setAllowance(tokenAllowance as bigint);
+                } catch (error) {
+                    console.error('Error checking allowance:', error);
+                }
+            };
+            checkAllowance();
+        }
+    }, [amount, bond?.saleToken?.id, wallet?.address]);
 
     const handleApprove = async () => {
         const walletClient = createViemWalletClient();
@@ -126,6 +162,7 @@ function FundBond() {
             const hash = await walletClient.writeContract(request);
             await client.waitForTransactionReceipt({ hash });
 
+            // Fetch the new allowance after approval
             const newAllowance = await client.readContract({
                 address: bond.saleToken.id as `0x${string}`,
                 abi: ERC20ABI,
@@ -133,8 +170,8 @@ function FundBond() {
                 args: [account, bond.id]
             });
 
-            setAllowance(Number(newAllowance));
-            setSuccess('Token approval successful!');
+            setAllowance(newAllowance as bigint);
+            setSuccess('Token approval successful! You can now fund the bond.');
             toast.success('Token approval successful!');
         } catch (err: any) {
             console.error('Error approving tokens:', err);
@@ -153,46 +190,65 @@ function FundBond() {
             setIsFunding(true);
             setSuccess(null);
 
-            const amountToFund = ethers.parseUnits(amount.toString(), bond.saleToken.decimals);
+            // Format the amount correctly for the fundBond function
+            const amountToSend = ethers.parseUnits(amount.toString(), bond.saleToken.decimals);
 
             const { request } = await client.simulateContract({
                 address: bond.id as `0x${string}`,
                 abi: BondABI,
-                functionName: 'fund',
-                args: [amountToFund],
+                functionName: 'fundBond',
+                args: [amountToSend],
                 account
             });
 
             const hash = await walletClient.writeContract(request);
             await client.waitForTransactionReceipt({ hash });
 
+            // Refresh bond data and reset states
             await fetchBondData();
+
+            // Update the success message with the proper token symbol
+            const displayAmount = amount.toString();
+            const tokenSymbol = bond.saleToken?.symbol || 'tokens';
+            setSuccess(`Successfully funded bond with ${displayAmount} ${tokenSymbol}!`);
+
+            // Reset amount input
             setAmount(0);
-            setSuccess(`Successfully funded bond with ${amount} ${bond.saleToken.symbol}!`);
+
+            // Show success toast and transaction modal
             toast.success('Funding successful');
             setTxHash(hash);
             setShowTxModal(true);
+
+            // Refetch allowance after funding
+            if (bond.saleToken?.id && wallet?.address) {
+                const newAllowance = await client.readContract({
+                    address: bond.saleToken.id as `0x${string}`,
+                    abi: ERC20ABI,
+                    functionName: 'allowance',
+                    args: [account, bond.id]
+                });
+                setAllowance(newAllowance as bigint);
+            }
         } catch (err: any) {
             console.error('Error funding bond:', err);
-            toast.error('Funding failed');
+            toast.error(err.message || 'Funding failed');
         } finally {
             setIsFunding(false);
         }
     };
 
     const handleMaxAmount = () => {
-        if (tokenBalance > 0) {
-            setAmount(tokenBalance);
+        if (!bond?.bondSize || !bond?.saleToken?.decimals) return;
+
+        try {
+            // Convert bondSize to a displayable number format
+            // const maxAmount = Number(ethers.formatUnits(bond.bondSize, bond.saleToken.decimals));
+            setAmount(Number(bond.bondSize));
+        } catch (error) {
+            console.error('Error setting max amount:', error);
         }
     };
-
-    const formatAmount = (amount: bigint, decimals: number = 18) => {
-        return ethers.formatUnits(amount, decimals);
-    };
-
-    // Get token info with fallbacks
-    const tokenSymbol = bond?.saleToken?.symbol || '';
-    const tokenDecimals = bond?.saleToken?.decimals || 18;
 
     // Get bond name with fallbacks
     const bondName = bond?.bondInfo?.projectName || bond?.metadataURI || 'Bond';
@@ -200,16 +256,18 @@ function FundBond() {
     // Calculate amount in wei safely
     const amountInWei = useMemo(() => {
         try {
-            return amount ? ethers.parseUnits(amount.toString(), tokenDecimals) : BigInt(0);
+            return amount && bond?.saleToken?.decimals
+                ? ethers.parseUnits(amount.toString(), bond.saleToken.decimals)
+                : BigInt(0);
         } catch (error) {
             console.error('Error parsing amount:', error);
             return BigInt(0);
         }
-    }, [amount, tokenDecimals]);
+    }, [amount, bond?.saleToken?.decimals]);
 
-    // Check if approval is needed
+    // Check if approval is needed by comparing BigInt values directly
     const needsApproval = useMemo(() => {
-        return amount && amountInWei > allowance;
+        return amount > 0 && amountInWei > allowance;
     }, [amount, amountInWei, allowance]);
 
     // Check if user has enough balance
@@ -270,10 +328,6 @@ function FundBond() {
         );
     }
 
-    // Update bond size and total raised display
-    const bondSize = bond ? ethers.parseUnits(bond.bondSize, tokenDecimals) : BigInt(0);
-    const totalRaised = bond ? ethers.parseUnits(bond.totalSold, tokenDecimals) : BigInt(0);
-
     return (
         <Layout>
             <TxReceipt
@@ -330,15 +384,15 @@ function FundBond() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Token to Fund</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{tokenSymbol}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{bond.saleToken?.symbol || 'Token'}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Bond Size</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{Number(bondSize)} {tokenSymbol}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{Number(bond.bondSize)} {bond.saleToken?.symbol || 'tokens'}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Current Total Raised</p>
-                            <p className="font-medium text-gray-900 dark:text-white">{Number(totalRaised)} tokens</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{Number(bond.totalSold).toFixed(0)} tokens</p>
                         </div>
                     </div>
                 </div>
@@ -349,7 +403,7 @@ function FundBond() {
                         <div>
                             <div className="flex justify-between mb-2">
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Amount to Fund</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-300">Balance: {tokenBalance} {tokenSymbol}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Balance: {Number(tokenBalance).toLocaleString()} {bond.saleToken?.symbol || 'tokens'}</p>
                             </div>
                             <div className="flex space-x-2">
                                 <input
@@ -368,9 +422,9 @@ function FundBond() {
                                 </button>
                             </div>
 
-                            {amount && !hasEnoughBalance && (
+                            {amount && !hasEnoughBalance ? (
                                 <p className="text-red-600 dark:text-red-400 text-sm mt-2">Insufficient balance</p>
-                            )}
+                            ) : ""}
                         </div>
 
                         {needsApproval ? (
@@ -391,7 +445,7 @@ function FundBond() {
                                         <span className="ml-2">Approving...</span>
                                     </div>
                                 ) : (
-                                    `Approve ${tokenSymbol}`
+                                    `Approve ${bond.saleToken?.symbol || 'Token'}`
                                 )}
                             </button>
                         ) : (

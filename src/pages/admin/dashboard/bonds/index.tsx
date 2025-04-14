@@ -7,6 +7,7 @@ import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { useBond } from '../../../../hooks/web3/useBond';
 import { format } from 'date-fns';
 import { FaEdit, FaPause, FaPlay, FaMoneyBillWave, FaWallet } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 // Bond interface that matches the returned data from the hooks
 interface Bond {
@@ -212,7 +213,32 @@ function AdminManageBonds() {
                                                         )}
                                                         <div>
                                                             <p className="font-medium text-white">{bondName}</p>
-                                                            <p className="text-xs text-gray-400 truncate max-w-[200px]">{bond.id}</p>
+                                                            <div className="flex items-center gap-1">
+                                                                <p className="text-xs text-gray-400 truncate max-w-[200px]">{bond.id}</p>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(bond.id)
+                                                                            .then(() => toast.success('Copied to clipboard!'))
+                                                                            .catch(() => toast.error('Failed to copy address'));
+                                                                    }}
+                                                                    className="text-gray-400 hover:text-gray-200 transition-colors"
+                                                                    title="Copy to clipboard"
+                                                                >
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        className="h-4 w-4"
+                                                                        viewBox="0 0 24 24"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth="2"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                    >
+                                                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>

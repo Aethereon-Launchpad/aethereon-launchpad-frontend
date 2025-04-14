@@ -13,6 +13,7 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { createWalletClient, custom } from "viem";
 import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
+import { usePageTitle } from '../../../hooks/utils/index.tsx';
 
 interface TokenInfo {
     address: string;
@@ -37,7 +38,7 @@ function BondCreator() {
     const [wallet, setWallet] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    usePageTitle("Create Bond");
 
     const [txReceiptTitle] = useState<string>("Successfully Created New Bond");
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
@@ -45,8 +46,8 @@ function BondCreator() {
 
 
     // Token inputs and validation states
-    const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('0x472158C2bBE156bAAe0D4cbeeb81774502768C65');
-    const [saleTokenAddress, setSaleTokenAddress] = useState<string>('0x609C524338820a84fA1BeC5f5aBAd43A310EEC1A');
+    const [paymentTokenAddress, setPaymentTokenAddress] = useState<string>('0xBaB33cC1E26ADa9be8E0a00b581bd3951EC94200');
+    const [saleTokenAddress, setSaleTokenAddress] = useState<string>('0xFA64E2FDbf9ba4880043c16311C7b5A425c1c52F');
     const [paymentTokenInfo, setPaymentTokenInfo] = useState<TokenInfo | null>(null);
     const [saleTokenInfo, setSaleTokenInfo] = useState<TokenInfo | null>(null);
     const [validatingPaymentToken, setValidatingPaymentToken] = useState(false);
@@ -270,9 +271,6 @@ function BondCreator() {
                 throw new Error('sale end time before sale start');
             }
 
-            // Convert bond size to token decimals
-            const bondSizeInWei = ethers.parseUnits(bondSize, saleTokenInfo.decimals);
-
             // Convert fixed discount to basis points if applicable
             const fixedDiscountBps = bondType === 'Fixed' ?
                 Math.floor(parseFloat(fixedDiscount) * 100) : 0;
@@ -294,14 +292,13 @@ function BondCreator() {
                     saleEndTimestamp,
                     withdrawDelay,
                     wallet.address,
-                    bondSizeInWei,
+                    bondSize,
                     bondType === 'Dynamic' ? 0 : 1, // 0 for Dynamic, 1 for Fixed
                     fixedDiscountBps
                 ],
                 account: wallet.address as `0x${string}`
             });
             const hash = await walletClient.writeContract(request);
-            console.log(hash, request);
             setTxHash(hash);
             setShowTxModal(true)
 

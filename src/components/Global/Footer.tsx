@@ -13,12 +13,16 @@ function Footer() {
       link: "/staking-pool",
     },
     {
+      name: "Bonds",
+      link: "/deals/bonds",
+    },
+    {
       name: "Governance",
       link: "/governance",
     },
     {
-      name: "Dashboard",
-      link: "/dashboard",
+      name: "Giveaways",
+      link: "/deals/giveaways",
     },
     {
       name: "Community",

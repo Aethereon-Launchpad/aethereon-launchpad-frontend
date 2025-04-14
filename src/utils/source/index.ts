@@ -8,7 +8,7 @@ export const service = {
         stakeLock: "0xb054d93eB2ac18C5D4761198670AEaf8c2c03df0",
         presaleFactory: "0xbe48cA8B76CE3c9cd71a459eF4cA86E57df84B01",
         airdropFactory: "0x87A9A7121Dc25C41CfC88EeaE116Fea10029f8C4",
-        bondFactory:"0x7E4CD92749c00875cB56F542dF81D0B683Fc051A"
+        bondFactory:"0x0A03B6a30EA2cFB66e0B98261211aD6289083154"
     }
 } as const;
 

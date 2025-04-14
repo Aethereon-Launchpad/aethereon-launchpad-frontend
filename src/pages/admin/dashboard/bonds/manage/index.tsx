@@ -14,6 +14,7 @@ import { ethers } from "ethers";
 import erc20Abi from "../../../../../abis/ERC20.json";
 import BondABI from "../../../../../abis/Bond.json";
 import { Link } from "react-router-dom";
+import { getContractAddress } from "../../../../../utils/source";
 
 const createViemWalletClient = () => {
     return createWalletClient({
@@ -96,8 +97,11 @@ export default function AdminBondManageID() {
             });
 
             const hash = await walletClient.writeContract(request);
-            toast.success("Tax collector updated successfully");
-            await refetch();
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Tax collector updated successfully");
+                await refetch();
+            }
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to update tax collector");
@@ -121,8 +125,11 @@ export default function AdminBondManageID() {
             });
 
             const hash = await walletClient.writeContract(request);
-            toast.success("Tax percentage updated successfully");
-            await refetch();
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Tax percentage updated successfully");
+                await refetch();
+            }
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to update tax percentage");
@@ -146,8 +153,11 @@ export default function AdminBondManageID() {
             });
 
             const hash = await walletClient.writeContract(request);
-            toast.success("Staking pool updated successfully");
-            await refetch();
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Staking pool updated successfully");
+                await refetch();
+            }
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to update staking pool");
@@ -173,8 +183,11 @@ export default function AdminBondManageID() {
             });
 
             const hash = await walletClient.writeContract(request);
-            toast.success("Linear vesting end time updated successfully");
-            await refetch();
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Linear vesting end time updated successfully");
+                await refetch();
+            }
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to update linear vesting end time");
@@ -230,8 +243,11 @@ export default function AdminBondManageID() {
             });
 
             const hash = await walletClient.writeContract(request);
-            toast.success("Cliff period successfully set");
-            await refetch();
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Cliff period successfully set");
+                await refetch();
+            }
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to set cliff period");
@@ -345,6 +361,7 @@ export default function AdminBondManageID() {
                     {/* Staking Pool Settings */}
                     <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
                         <h3 className="text-xl font-semibold text-primary">Staking Pool Settings</h3>
+                        <span>Current StakeLock : {getContractAddress("stakeLock")}</span>
                         <div className="flex flex-col space-y-2">
                             <div className="flex justify-between items-center">
                                 <p className="text-[#C4C4C4] text-sm">Staking Pool Address</p>

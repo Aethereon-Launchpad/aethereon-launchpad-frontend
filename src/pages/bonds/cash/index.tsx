@@ -359,37 +359,37 @@ function CashBond() {
                 <div className="flex items-center mb-8">
                     <button
                         onClick={() => navigate(`/deals/bonds/${id}`)}
-                        className="mr-4 text-gray-400 hover:text-white"
+                        className="mr-4 text-gray-300 hover:text-white transition-colors"
                     >
                         ← Back
                     </button>
-                    <h1 className="text-2xl font-bold">Cash Bond</h1>
+                    <h1 className="text-2xl font-bold text-white">Cash Bond</h1>
                 </div>
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6">
+                    <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-lg mb-6">
                         {error}
                     </div>
                 )}
 
-                <div className="bg-[#1A1A1A] rounded-lg p-6 mb-6">
-                    <h2 className="text-xl font-bold mb-4">Bond Information</h2>
+                <div className="bg-[#1E1E1E] rounded-lg p-6 mb-6 border border-gray-700">
+                    <h2 className="text-xl font-bold mb-4 text-white">Bond Information</h2>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm text-gray-400">Bond ID</p>
-                            <p className="font-medium">{bond.address}</p>
+                            <p className="text-sm text-gray-300">Bond ID</p>
+                            <p className="font-medium text-gray-100">{bond.address}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Status</p>
+                            <p className="text-sm text-gray-300">Status</p>
                             <p className="font-medium">
-                                <span className="px-3 py-1 rounded-full text-sm bg-red-500/20 text-red-500">
+                                <span className="px-3 py-1 rounded-full text-sm bg-red-500/30 text-red-200">
                                     Ended
                                 </span>
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Total Raised</p>
-                            <p className="font-medium">
+                            <p className="text-sm text-gray-300">Total Raised</p>
+                            <p className="font-medium text-gray-100">
                                 {paymentToken ? formatAmount(BigInt(bond.totalRaised || '0'), paymentToken.decimals) : '0'} {paymentToken?.symbol || ''}
                             </p>
                         </div>
@@ -397,23 +397,23 @@ function CashBond() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div className="bg-[#1A1A1A] rounded-lg p-6">
-                        <h2 className="text-xl font-bold mb-4">Payment Tokens</h2>
+                    <div className="bg-[#1E1E1E] rounded-lg p-6 border border-gray-700">
+                        <h2 className="text-xl font-bold mb-4 text-white">Payment Tokens</h2>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-sm text-gray-400">Token</p>
-                                <p className="font-medium">{paymentToken?.symbol || 'Unknown'}</p>
+                                <p className="text-sm text-gray-300">Token</p>
+                                <p className="font-medium text-gray-100">{paymentToken?.symbol || 'Unknown'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">Available to Withdraw</p>
-                                <p className="font-medium">
+                                <p className="text-sm text-gray-300">Available to Withdraw</p>
+                                <p className="font-medium text-gray-100">
                                     {paymentToken ? formatAmount(withdrawablePaymentTokens, paymentToken.decimals) : '0'} {paymentToken?.symbol || ''}
                                 </p>
                             </div>
                             <button
                                 onClick={handleCashPaymentTokens}
                                 disabled={isCashing || withdrawablePaymentTokens <= 0}
-                                className="w-full bg-primary hover:bg-primary/80 disabled:bg-gray-700 text-white py-2 px-6 rounded-lg"
+                                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white py-2 px-6 rounded-lg transition-colors"
                             >
                                 {isCashing ? (
                                     <div className="flex items-center justify-center">
@@ -433,23 +433,23 @@ function CashBond() {
                         </div>
                     </div>
 
-                    <div className="bg-[#1A1A1A] rounded-lg p-6">
-                        <h2 className="text-xl font-bold mb-4">Sale Tokens</h2>
+                    <div className="bg-[#1E1E1E] rounded-lg p-6 border border-gray-700">
+                        <h2 className="text-xl font-bold mb-4 text-white">Sale Tokens</h2>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-sm text-gray-400">Token</p>
-                                <p className="font-medium">{saleToken?.symbol || 'Unknown'}</p>
+                                <p className="text-sm text-gray-300">Token</p>
+                                <p className="font-medium text-gray-100">{saleToken?.symbol || 'Unknown'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">Available to Withdraw</p>
-                                <p className="font-medium">
+                                <p className="text-sm text-gray-300">Available to Withdraw</p>
+                                <p className="font-medium text-gray-100">
                                     {saleToken ? formatAmount(withdrawableSaleTokens, saleToken.decimals) : '0'} {saleToken?.symbol || ''}
                                 </p>
                             </div>
                             <button
                                 onClick={handleCashSaleTokens}
                                 disabled={isCashing || withdrawableSaleTokens <= 0}
-                                className="w-full bg-primary hover:bg-primary/80 disabled:bg-gray-700 text-white py-2 px-6 rounded-lg"
+                                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white py-2 px-6 rounded-lg transition-colors"
                             >
                                 {isCashing ? (
                                     <div className="flex items-center justify-center">

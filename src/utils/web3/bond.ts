@@ -650,33 +650,55 @@ export const getAmountPaid = async (bond: `0x${string}`, walletAddress: `0x${str
     }
 }
 
+export const amountPaid = async (bond: `0x${string}`, walletAddress: `0x${string}`) => {
+    try {
+        const amountPaid = await client.readContract({
+            address: bond,
+            abi: Bond,
+            functionName: "amountPaid",
+            args: [
+                walletAddress
+            ]
+        })
+
+        return Number(ethers.formatUnits(amountPaid as string, 18))
+    } catch (error: any) {
+        console.error(error.message)
+        throw new Error("Failed to retrieve amount paid")
+    }
+}
+
 export const getClaimableTokensAmount = async (bond: `0x${string}`, walletAddress: `0x${string}`) => {
     try {
-        const claimableAmount = await client.readContract({
+        const claimableTokens = await client.readContract({
             address: bond,
             abi: Bond,
             functionName: "getCurrentClaimableToken",
             args: [
                 walletAddress
             ]
-        })
-
-        const saleToken = await client.readContract({
-            address: bond,
-            abi: Bond,
-            functionName: "saleToken"
         });
-
-        const decimals = await client.readContract({
-            address: saleToken as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: "decimals"
-        });
-
-        return Number(ethers.formatUnits(claimableAmount as string, decimals as number));
+        return Number(ethers.formatUnits(claimableTokens as string, 18));
     } catch (error: any) {
         console.error(error.message);
-        throw new Error("Failed to retrieve claimable amount");
+        throw new Error("Failed to retrieve unlocked token");
+    }
+}
+
+export const getPurchasedTokensAmount = async (bond: `0x${string}`, walletAddress: `0x${string}`) => {
+    try {
+        const purchasedTokens = await client.readContract({
+            address: bond,
+            abi: Bond,
+            functionName: "claimable",
+            args: [
+                walletAddress
+            ]
+        });
+        return Number(ethers.formatUnits(purchasedTokens as string, 18));
+    } catch (error: any) {
+        console.error(error.message);
+        throw new Error("Failed to retrieve purchased tokens");
     }
 }
 
@@ -690,7 +712,7 @@ export const isUserWhitelisted = async (bond: `0x${string}`, walletAddress: `0x$
                 walletAddress
             ]
         });
-
+        
         return Boolean(isWhitelisted);
     } catch (error: any) {
         console.error(error.message);

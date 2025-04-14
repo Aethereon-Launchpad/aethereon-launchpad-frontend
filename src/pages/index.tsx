@@ -12,6 +12,7 @@ import HowTo from "../components/Launchpad/HowTo"
 import CompletedIDO from "../components/Home/CompletedIDO"
 import { usePageTitle } from "../hooks/utils"
 import StakingCTA from "../components/Home/StakingCTA"
+import BondsCTA from "../components/Home/BondsCTA"
 import FAQ from "../components/Home/FAQ"
 import Access from "../components/Launchpad/Access"
 import StakingBadge from "../components/Launchpad/StakingBadge"
@@ -33,6 +34,7 @@ function Home() {
       <StakingBadge />
       <FeaturedIdo />
       <CompletedIDO />
+      <BondsCTA />
       <Guaranteed />
       <UpComingGiveaways />
       <div className="flex items-center justify-center w-full">
