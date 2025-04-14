@@ -49,7 +49,7 @@ function Home() {
       </div>
       <StakingCTA />
       <LaunchProject />
-      <Community />
+      {/* <Community /> */}
       <Access />
       <FAQ />
       <Subscribe />
