@@ -239,7 +239,7 @@ function BondStage({
                         Connect Wallet to Join Whitelist
                     </button>
                 ) : userData?.isWhitelisted ? (
-                    <div className="bg-gradient-to-b from-[#1A1A1A] to-[#131316] border border-green-500/20 p-5">
+                    <div className="bg-gradient-to-b from-[#1A1A1A] to-[#131316] border border-green-500/20 p-5 text-center">
                         <div className="flex flex-col items-center">
                             <div className="bg-green-500/10 p-3 mb-3">
                                 <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1133,7 +1133,7 @@ function BondDetail() {
                                         }
 
                                         return (
-                                            <div className={`bg-gradient-to-r ${stageClass} px-4 py-1.5 rounded-full`}>
+                                            <div className={`bg-gradient-to-r ${stageClass} px-4 py-1.5`}>
                                                 <span className={`${stageClass.split(' ').pop()} text-sm font-medium tracking-wide`}>
                                                     {stageLabel}
                                                 </span>
