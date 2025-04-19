@@ -30,15 +30,7 @@ export function getPublicClient() {
       // Create a custom HTTP transport with improved retry logic
       const customHttpTransport = http(undefined, {
         retryCount: 5, // Increased from 3 to 5
-        retryDelay: (attempt) => {
-          // Exponential backoff with jitter
-          const baseDelay = 1000; // 1 second base delay
-          const maxDelay = 30000; // 30 seconds max delay
-          const exponentialDelay = Math.min(maxDelay, baseDelay * Math.pow(2, attempt));
-          // Add jitter to avoid thundering herd problem
-          const jitter = Math.random() * 0.3 * exponentialDelay;
-          return exponentialDelay + jitter;
-        },
+        retryDelay: 1000, // Base delay of 1 second (will use exponential backoff automatically)
         timeout: 30000, // 30 second timeout (increased from default)
       });
 
