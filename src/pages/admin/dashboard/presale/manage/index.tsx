@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin"
 import { usePrivy } from "@privy-io/react-auth"
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../../../../config";
 import { usePresale } from "../../../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";
+import { useChain } from '../../../../../context/ChainContext';
 import { useParams } from "react-router-dom";
 import TxReceipt from "../../../../../components/Modal/TxReceipt";
 import { IoWalletSharp } from "react-icons/io5";
@@ -15,9 +14,8 @@ import erc20Abi from "../../../../../abis/ERC20.json";
 import Presale from "../../../../../abis/Presale.json"
 import { Link } from "react-router-dom";
 
-const createViemWalletClient = () => {
+const createViemWalletClient = (chainId?: string) => {
     return createWalletClient({
-        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -27,6 +25,19 @@ export default function AdminPresaleManageID() {
     const { authenticated, login, user } = usePrivy();
     const { id } = useParams<{ id: `0x${string}` }>();
     const { data, error, loading, refetch } = usePresale(id, { polling: false });
+    const { publicClient, selectedChain } = useChain();
+    const wallet = window.ethereum;
+
+    // Helper function to get the chain name
+    const getChainName = () => {
+        return selectedChain === "84532" ? "Base Sepolia" :
+            selectedChain === "57054" ? "Sonic" : "Rise";
+    };
+
+    // Log when the selected chain changes
+    useEffect(() => {
+        console.log(`PresaleManager: Chain changed to ${getChainName()} (${selectedChain})`);
+    }, [selectedChain]);
 
 
     const [taxSetting, setTaxSetting] = useState<{ taxCollector: `0x${string}`, taxPercent: number, loading: boolean }>({
@@ -105,9 +116,23 @@ export default function AdminPresaleManageID() {
     };
 
     async function handleSetCliffPeriod() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setCliffPeriods((prevState) => ({ ...prevState, loading: true }));
+
+        console.log(`Setting cliff period on chain ${getChainName()} (${selectedChain})`);
+
+        // Make sure wallet is on the correct chain
+        try {
+            if (wallet && wallet.chainId !== selectedChain) {
+                console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                await wallet.switchChain(parseInt(selectedChain));
+            }
+        } catch (error) {
+            console.error(`Error switching chain: ${error}`);
+            toast.error(`Failed to switch to ${getChainName()} chain. Please switch manually.`);
+            return;
+        }
 
         try {
             // Convert cliffForms to claimTimes and percentages
@@ -476,9 +501,17 @@ export default function AdminPresaleManageID() {
                                 className="h-[80px] w-[80px] object-contain rounded-full border-2 border-primary/30"
                                 alt=""
                             />
-                            <p className='text-primary text-center text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px]'>
-                                Manage {data?.presaleInfo?.projectName}
-                            </p>
+                            <div className="text-center">
+                                <p className='text-primary text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px] mb-2'>
+                                    Manage {data?.presaleInfo?.projectName}
+                                </p>
+                                <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
+                                    <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                    <span className="text-sm font-medium">
+                                        {getChainName()} Testnet
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

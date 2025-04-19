@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { Preloader, Oval } from 'react-preloader-icon';
@@ -6,11 +6,11 @@ import { toast } from 'react-hot-toast';
 import { isBefore, isAfter } from 'date-fns';
 import { ethers } from 'ethers';
 import Layout from '../../../layout/Admin';
-import { publicClient } from '../../../config';
 import { createViemWalletClient } from '../../../utils/web3/actions';
 import { getContractAddress } from '../../../utils/source';
 import AirdropFactoryABI from '../../../abis/AirdropFactory.json';
 import { isValidERC20 } from '../../../utils/web3/actions';
+import { useChain } from '../../../context/ChainContext';
 import CreateGiveawayStep1 from './Step1';
 import CreateGiveawayStep2 from './Step2';
 import CreateGiveawayStep3 from './Step3';
@@ -41,8 +41,20 @@ export default function GiveawayCreator() {
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
     const [txReceiptTitle] = useState<string>("Successfully Created New Giveaway");
     const [txHash, setTxHash] = useState<`0x${string}`>("0x");
+    const { publicClient, selectedChain } = useChain();
 
     const navigate = useNavigate();
+
+    // Helper function to get the chain name
+    const getChainName = () => {
+        return selectedChain === "84532" ? "Base Sepolia" :
+            selectedChain === "57054" ? "Sonic" : "Rise";
+    };
+
+    // Log when the selected chain changes
+    useEffect(() => {
+        console.log(`GiveawayCreator: Chain changed to ${getChainName()} (${selectedChain})`);
+    }, [selectedChain]);
 
     const components = [
         <CreateGiveawayStep1 formData={formData} setFormData={setFormData} />,
@@ -65,10 +77,19 @@ export default function GiveawayCreator() {
                 return;
             }
 
-            const isValidToken = await isValidERC20(airdropToken);
+            try {
+                // Use the current chain's publicClient to validate the token
+                console.log(`Validating ERC20 token ${airdropToken} on chain ${selectedChain}`);
+                const isValidToken = await isValidERC20(airdropToken);
 
-            if (!isValidToken) {
-                toast("Make sure airdrop token is a valid ERC20 Token");
+                if (!isValidToken) {
+                    toast.error(`Make sure airdrop token is a valid ERC20 Token on ${getChainName()} Testnet`);
+                    return;
+                }
+                console.log(`Token ${airdropToken} is valid on chain ${selectedChain}`);
+            } catch (error) {
+                console.error(`Error validating token on chain ${selectedChain}:`, error);
+                toast.error(`Error validating token on ${getChainName()} Testnet`);
                 return;
             }
 
@@ -122,6 +143,8 @@ export default function GiveawayCreator() {
             return;
         }
 
+        console.log(`Creating giveaway on chain: ${selectedChain}`);
+
         try {
             const { metadataURI, funder, airdropToken, whitelistStartTime, whitelistEndTime, withdrawDelay } = formData;
 
@@ -134,7 +157,15 @@ export default function GiveawayCreator() {
                 return;
             }
 
-            const { request, result } = await publicClient.simulateContract({
+            // Verify the contract exists on the current chain
+            if (!airdropFactoryCA) {
+                toast.error(`Airdrop factory contract not available on ${getChainName()} Testnet`);
+                return;
+            }
+
+            // Simulate the contract call
+            console.log(`Simulating contract call on chain ${selectedChain} with factory address: ${airdropFactoryCA}`);
+            const { request } = await publicClient.simulateContract({
                 address: airdropFactoryCA,
                 abi: AirdropFactoryABI,
                 functionName: "createAirdrop",
@@ -149,27 +180,51 @@ export default function GiveawayCreator() {
                 ]
             });
 
+            // Execute the transaction
+            console.log(`Executing transaction on chain ${selectedChain}`);
             const hash = await walletClient.writeContract(request);
-            console.log(hash, result);
+            console.log(`Transaction submitted with hash: ${hash}`);
             setTxHash(hash);
             setShowTxModal(true);
 
-            toast("Successfully Created New Giveaway");
+            toast.success("Successfully Created New Giveaway");
+
+            // Wait for transaction confirmation
             setTimeout(async () => {
-                // Verify Transaction is Complete
-                const receipt = await publicClient.getTransactionReceipt({ hash });
-                if (receipt && receipt.status === "success") {
-                    navigate("/admin/dashboard/giveaways");
+                try {
+                    // Verify Transaction is Complete
+                    console.log(`Checking transaction receipt on chain ${selectedChain}`);
+                    const receipt = await publicClient.getTransactionReceipt({ hash });
+
+                    if (receipt && receipt.status === "success") {
+                        console.log(`Transaction confirmed successfully on chain ${selectedChain}`);
+                        navigate("/admin/dashboard/giveaways");
+                    } else {
+                        console.warn(`Transaction failed or pending on chain ${selectedChain}`);
+                        toast.error("Transaction may have failed. Please check your wallet for details.");
+                    }
+                } catch (receiptError) {
+                    console.error(`Error getting transaction receipt on chain ${selectedChain}:`, receiptError);
+                    toast.error("Unable to verify transaction status. Please check your wallet.");
                 }
             }, 5000);
         } catch (error: any) {
-            console.error("Creating New Giveaway Failed", error);
+            console.error(`Creating New Giveaway Failed on chain ${selectedChain}:`, error);
+
             if (error.message.includes("User rejected the request")) {
                 toast("User rejected the request");
                 return;
             }
             if (error.message.includes("end timestamp before start should be least 1 hour")) {
                 toast("Increase time between start and end of giveaway");
+                return;
+            }
+            if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+                return;
+            }
+            if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
                 return;
             }
             toast.error("Creating New Giveaway Failed");
@@ -189,9 +244,17 @@ export default function GiveawayCreator() {
             <div className="p-[40px_20px] lg:p-[100px_40px] font-space">
                 <div className="flex flex-col items-center justify-center gap-[20px] text-white">
                     <div className="w-full h-full lg:w-[30%] ">
-                        <p className="text-[20px] lg:text-[36px] font-[500] text-center">
-                            DerHex Create Giveaway System
-                        </p>
+                        <div className="text-center">
+                            <p className="text-[20px] lg:text-[36px] font-[500] mb-2">
+                                DerHex Create Giveaway System
+                            </p>
+                            <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
+                                <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                <span className="text-sm font-medium">
+                                    {getChainName()} Testnet
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     <div className="w-full h-full lg:w-[70%] bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
                         {components[currentPage]}
@@ -208,7 +271,7 @@ export default function GiveawayCreator() {
                                         strokeColor="#FFF"
                                         duration={800}
                                     />
-                                ) : currentPage === 3 ? "Create Giveaway" : "Continue"}
+                                ) : currentPage === 3 ? `Create Giveaway on ${getChainName()} Testnet` : "Continue"}
                             </button>
                             {currentPage !== 0 && (
                                 <button
@@ -224,4 +287,4 @@ export default function GiveawayCreator() {
             </div>
         </Layout>
     );
-} 
+}

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin"
 import { usePrivy } from "@privy-io/react-auth"
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../../../../config";
+// We'll use publicClient from useChain instead of direct import
 import { useBond } from "../../../../../hooks/web3/useBond";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../../../../context/ChainContext";
 import { useParams } from "react-router-dom";
 import TxReceipt from "../../../../../components/Modal/TxReceipt";
 import { IoWalletSharp } from "react-icons/io5";
@@ -16,15 +16,19 @@ import BondABI from "../../../../../abis/Bond.json";
 import { Link } from "react-router-dom";
 import { getContractAddress } from "../../../../../utils/source";
 
-const createViemWalletClient = () => {
-    return createWalletClient({
-        chain: baseSepolia,
-        transport: custom(window.ethereum as any)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 export default function AdminBondManageID() {
-    const { authenticated, login, user } = usePrivy();
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum as any)
+        });
+    };
+
     const { id } = useParams<{ id: string }>();
     const { data: bondData, error, loading, refetch } = useBond(null, { polling: false }, id as `0x${string}`);
 
@@ -47,6 +51,14 @@ export default function AdminBondManageID() {
     });
 
     const [stakingPool, setStakingPool] = useState<{
+        address: `0x${string}`,
+        loading: boolean
+    }>({
+        address: '0x',
+        loading: false
+    });
+
+    const [trustedSigner, setTrustedSigner] = useState<{
         address: `0x${string}`,
         loading: boolean
     }>({
@@ -163,6 +175,34 @@ export default function AdminBondManageID() {
             toast.error("Failed to update staking pool");
         } finally {
             setStakingPool(prev => ({ ...prev, loading: false }));
+        }
+    }
+
+    async function handleSetTrustedSigner(address: `0x${string}`) {
+        const walletClient = createViemWalletClient();
+        const [account] = await walletClient.getAddresses();
+        setTrustedSigner(prev => ({ ...prev, loading: true }));
+
+        try {
+            const { request } = await publicClient.simulateContract({
+                address: id as `0x${string}`,
+                abi: BondABI,
+                functionName: "setTrustedSigner",
+                args: [address],
+                account
+            });
+
+            const hash = await walletClient.writeContract(request);
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            if (receipt.status === "success") {
+                toast.success("Trusted signer updated successfully");
+                await refetch();
+            }
+        } catch (error: any) {
+            console.error(error);
+            toast.error("Failed to update signer pool");
+        } finally {
+            setTrustedSigner(prev => ({ ...prev, loading: false }));
         }
     }
 
@@ -377,6 +417,30 @@ export default function AdminBondManageID() {
                                 />
                                 <button
                                     onClick={() => handleSetStakingPool(stakingPool.address)}
+                                    className="bg-primary/90 hover:bg-primary px-4 rounded-[8px] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                                >
+                                    Set
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
+                        <h3 className="text-xl font-semibold text-primary">Trusted Signer Settings</h3>
+                        <div className="flex flex-col space-y-2">
+                            <div className="flex justify-between items-center">
+                                <p className="text-[#C4C4C4] text-sm">Trusted Signer Address</p>
+                            </div>
+                            <div className="flex gap-x-2">
+                                <input
+                                    type="text"
+                                    value={trustedSigner.address}
+                                    onChange={(e) => setTrustedSigner(prev => ({ ...prev, address: e.target.value as `0x${string}` }))}
+                                    className="w-full h-[50px] bg-[#291254]/50 border border-primary/20 rounded-[8px] px-4 outline-none focus:ring-2 focus:ring-primary/50"
+                                    placeholder="0x..."
+                                />
+                                <button
+                                    onClick={() => handleSetTrustedSigner(trustedSigner.address)}
                                     className="bg-primary/90 hover:bg-primary px-4 rounded-[8px] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95"
                                 >
                                     Set

@@ -187,7 +187,7 @@ function BondCard({ bond }: { bond: any }) {
 }
 
 function LiveAndUpcoming() {
-  const { data, error, loading } = useBond(null, { polling: true });
+  const { data, error, loading } = useBond(null, { polling: false });
   const [filteredBonds, setFilteredBonds] = useState<any[]>([]);
 
   useEffect(() => {

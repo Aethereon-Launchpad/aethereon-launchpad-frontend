@@ -23,17 +23,19 @@ import { useLockStake } from '../../hooks/web3/useLockStake';
 import { getTokenBalance } from '../../utils/web3/actions';
 import { usePageTitleIDO } from '../../hooks/utils';
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 export default function IDOComponent() {
     const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
     const { id } = useParams<{ id: string }>();
     const { data, error, loading, refetch } = usePresale(id, { polling: false })
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(false);

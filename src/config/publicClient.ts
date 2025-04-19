@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http, HttpTransport } from 'viem';
 import { chainMapping } from './index';
 import { CHAIN_ID } from '../utils/source';
 
@@ -27,10 +27,29 @@ export function getPublicClient() {
     console.log(`Creating new public client for chain: ${currentChainId}`);
 
     try {
+      // Create a custom HTTP transport with improved retry logic
+      const customHttpTransport = http(undefined, {
+        retryCount: 5, // Increased from 3 to 5
+        retryDelay: (attempt) => {
+          // Exponential backoff with jitter
+          const baseDelay = 1000; // 1 second base delay
+          const maxDelay = 30000; // 30 seconds max delay
+          const exponentialDelay = Math.min(maxDelay, baseDelay * Math.pow(2, attempt));
+          // Add jitter to avoid thundering herd problem
+          const jitter = Math.random() * 0.3 * exponentialDelay;
+          return exponentialDelay + jitter;
+        },
+        timeout: 30000, // 30 second timeout (increased from default)
+      });
+
       // Create a new client and cache it
       clientCache[currentChainId] = createPublicClient({
         chain: chainMapping[currentChainId],
-        transport: http()
+        transport: customHttpTransport,
+        batch: {
+          multicall: true
+        },
+        pollingInterval: 4000, // Increase polling interval to reduce requests
       });
     } catch (error) {
       console.error(`Error creating public client for chain ${currentChainId}:`, error);

@@ -35,7 +35,16 @@ export const rise_testnet = defineChain({
         symbol: 'ETH',
     },
     rpcUrls: {
-        default: { http: ['https://testnet.riselabs.xyz'] },
+        default: {
+            http: [
+                // Primary RPC endpoint
+                'https://testnet.riselabs.xyz',
+                // Fallback RPC endpoints - using public providers
+                'https://sepolia.base.org',
+                'https://base-sepolia-rpc.publicnode.com',
+                'https://1rpc.io/base-sepolia'
+            ]
+        },
     },
     blockExplorers: {
         default: {

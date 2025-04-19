@@ -49,16 +49,20 @@ interface Bond {
 }
 
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum as any)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 function FundBond() {
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum as any)
+        });
+    };
+
     const { id } = useParams<{ id: `0x${string}` }>();
     const navigate = useNavigate();
     const { authenticated, login } = usePrivy();

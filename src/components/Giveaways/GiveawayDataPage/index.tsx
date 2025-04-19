@@ -30,16 +30,20 @@ import { usePageTitleGiveaway } from '../../../hooks/utils';
 import { isWhitelisted } from '../../../utils/web3/giveaway';
 import { useGiveawayPeriods } from '../../../hooks/web3/useGiveawayPeriods';
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 export default function GiveawaySelected() {
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
+
     const { id } = useParams<{ id: string }>();
     const { data, error, loading, refetch } = useGiveaway(id)
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(true);

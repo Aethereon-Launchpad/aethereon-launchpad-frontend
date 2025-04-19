@@ -13,16 +13,19 @@ import { createWalletClient, custom } from "viem";
 import { useNavigate } from "react-router-dom";
 import { getContractAddress } from "../../utils/source";
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
-  const { publicClient } = useChain();
-  return createWalletClient({
-    chain: publicClient.chain,
-    transport: custom(window.ethereum)
-  });
-};
+// The createViemWalletClient function will be defined inside the component
 
 function PoolForm() {
+  const { publicClient } = useChain();
+
+  // Add this function to create wallet client
+  const createViemWalletClient = () => {
+    return createWalletClient({
+      chain: publicClient.chain,
+      transport: custom(window.ethereum)
+    });
+  };
+
   // const abi = [ /* Your Contract ABI Here */ ];
   // const contractAddress = "0x6cE168E73C64a502d4850CCE952bb2b75a3F4711";
   // const provider = new ethers.JsonRpcProvider("https://your-rpc-url");

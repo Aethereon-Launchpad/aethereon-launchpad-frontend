@@ -66,16 +66,19 @@ function calculateYesToNoPercentage(yesVotes: number, noVotes: number) {
   return Math.round((yesVotes / total) * 100);
 }
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
-  const { publicClient } = useChain();
-  return createWalletClient({
-    chain: publicClient.chain,
-    transport: custom(window.ethereum)
-  });
-};
+// The createViemWalletClient function will be defined inside the component
 
 function ProposalCard({ item, refetch }: any) {
+  const { publicClient } = useChain();
+
+  // Add this function to create wallet client
+  const createViemWalletClient = () => {
+    return createWalletClient({
+      chain: publicClient.chain,
+      transport: custom(window.ethereum)
+    });
+  };
+
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [voteOption, setVoteOption] = useState<"yes" | "no" | "">("")
   const [voting, setVoting] = useState<boolean>(false)

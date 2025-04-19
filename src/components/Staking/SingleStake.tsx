@@ -25,17 +25,20 @@ import TxReceipt from "../Modal/TxReceipt";
 
 import ManageStaking from "../Modal/ManageStaking";
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
-  const { publicClient } = useChain();
-  return createWalletClient({
-    chain: publicClient.chain,
-    transport: custom(window.ethereum)
-  });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 function SingleStake() {
+  const { publicClient } = useChain();
+
+  // Add this function to create wallet client
+  const createViemWalletClient = () => {
+    return createWalletClient({
+      chain: publicClient.chain,
+      transport: custom(window.ethereum)
+    });
+  };
+
   const [coinGeckoData, setCoinGeckoData] = useState<any>(null);
   const { id } = useParams<{ id: `0x${string}` }>();
   // const { data, loading: loadingStakingPool, error: stakingPoolError } = useQuery(GET_STAKING_POOL_BY_ID, {
@@ -214,7 +217,7 @@ function SingleStake() {
           // Run Approval
           const txHash = await walletClient.writeContract(request);
           await new Promise(resolve => setTimeout(resolve, 2000));
-          const receipt = await publicClient.getTransactionReceipt({
+          const receipt = await publicClient.waitForTransactionReceipt({
             hash: txHash
           })
           return receipt

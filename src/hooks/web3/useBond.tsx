@@ -37,12 +37,24 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
             if (projectName) {
                 // Fetch by project name if provided
                 result = await getBondDataByProjectName(projectName);
+                if (!result) {
+                    console.warn(`No bond found for project name: ${projectName}`);
+                    throw new Error(`Bond not found for project: ${projectName}`);
+                }
             } else if (id) {
                 // Fetch single bond data if ID is provided
                 result = await getBondDataByAddress(id);
-                if (result) {
+                if (result && result.metadataURI) {
                     try {
-                        const response = await fetch(ensureRawGistURL(result.metadataURI as string));
+                        // Add timeout to fetch to prevent hanging
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+                        const response = await fetch(ensureRawGistURL(result.metadataURI as string), {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
                         if (response.ok) {
                             const data = await response.json();
                             result = {
@@ -50,21 +62,50 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
                                 bondInfo: data
                             };
                         } else {
-                            console.error('Failed to fetch bond info:', response.statusText);
+                            console.error(`Failed to fetch bond info for ${id}:`, response.statusText);
                         }
-                    } catch (err) {
-                        console.error('Error fetching metadata:', err);
+                    } catch (err: any) {
+                        console.error(`Error fetching metadata for bond ${id}:`,
+                            err.name === 'AbortError' ? 'Request timed out' : err.message);
                     }
+                } else if (!result) {
+                    console.warn(`No bond data found for ID: ${id}`);
+                    throw new Error(`Bond not found: ${id}`);
                 }
             } else {
                 // Fetch all bond data if no ID is provided
                 result = await getAllBondData();
-                result = await Promise.all(result.map(async (bond, index) => {
-                    // Add delay based on index (2 seconds between each request)
-                    await new Promise(resolve => setTimeout(resolve, index * 2000));
+
+                // Validate bond data before proceeding
+                if (!result || !Array.isArray(result)) {
+                    console.warn('Invalid bond data received:', result);
+                    result = [];
+                    throw new Error('Invalid bond data received');
+                }
+
+                // Filter out any invalid bond entries
+                const validBonds = result.filter(bond => {
+                    return bond && typeof bond === 'object' && bond.id && bond.metadataURI;
+                });
+
+                if (validBonds.length === 0 && result.length > 0) {
+                    console.warn('No valid bonds found in data');
+                }
+
+                result = await Promise.all(validBonds.map(async (bond, index) => {
+                    // Add delay based on index (1 second between each request - reduced from 2s)
+                    await new Promise(resolve => setTimeout(resolve, index * 1000));
 
                     try {
-                        const response = await fetch(ensureRawGistURL(bond.metadataURI as string));
+                        // Add timeout to fetch to prevent hanging
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+                        const response = await fetch(ensureRawGistURL(bond.metadataURI as string), {
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
                         if (response.ok) {
                             const data = await response.json();
                             return {
@@ -72,11 +113,12 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
                                 bondInfo: data
                             };
                         } else {
-                            console.error('Failed to fetch bond info:', response.statusText);
+                            console.error(`Failed to fetch bond info for ${bond.id}:`, response.statusText);
                             return bond;
                         }
-                    } catch (err) {
-                        console.error('Error fetching metadata:', err);
+                    } catch (err: any) {
+                        console.error(`Error fetching metadata for bond ${bond.id}:`,
+                            err.name === 'AbortError' ? 'Request timed out' : err.message);
                         return bond;
                     }
                 }));

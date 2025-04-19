@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../../layout/Admin';
 import CreatePresaleStep1 from "../../../components/CreatePresale/Step1.tsx"
 import CreatePresaleStep2 from "../../../components/CreatePresale/Step2.tsx"
@@ -8,8 +8,6 @@ import { FaCheck } from "react-icons/fa6";
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { Preloader, Oval } from 'react-preloader-icon';
 import PresaleFactoryABI from '../../../abis/PresaleFactory.json';
-import { baseSepolia } from 'viem/chains';
-import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { toast } from 'react-hot-toast';
@@ -19,6 +17,7 @@ import { isValidERC20 } from '../../../utils/web3/actions.ts';
 import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
 import { useNavigate } from 'react-router-dom';
 import { getContractAddress } from "../../../utils/source";
+import { useChain } from '../../../context/ChainContext';
 
 interface Presale {
     metadataURI: `https://${string}`;
@@ -35,10 +34,9 @@ interface Presale {
     withdrawDelay: number;
 }
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
+// Create wallet client function
+const createViemWalletClient = (chainId?: string) => {
     return createWalletClient({
-        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -66,8 +64,20 @@ export default function PresaleCreator() {
     const [txReceiptTitle] = useState<string>("Successfully Created New Presale");
     const [txHash, setTxHash] = useState<`0x${string}`>("0x");
     const { wallets } = useWallets();
+    const { publicClient, selectedChain } = useChain();
 
     const navigate = useNavigate();
+
+    // Helper function to get the chain name
+    const getChainName = () => {
+        return selectedChain === "84532" ? "Base Sepolia" :
+            selectedChain === "57054" ? "Sonic" : "Rise";
+    };
+
+    // Log when the selected chain changes
+    useEffect(() => {
+        console.log(`PresaleCreator: Chain changed to ${getChainName()} (${selectedChain})`);
+    }, [selectedChain]);
 
     const components = [
         <CreatePresaleStep1 formData={formData} setFormData={setFormData} />,
@@ -91,11 +101,20 @@ export default function PresaleCreator() {
                 return;
             }
 
-            const isValidPaymentToken = await isValidERC20(paymentToken);
-            const isValidSaleToken = await isValidERC20(saleToken);
+            try {
+                // Use the current chain's publicClient to validate the tokens
+                console.log(`Validating ERC20 tokens on chain ${getChainName()} (${selectedChain})`);
+                const isValidPaymentToken = await isValidERC20(paymentToken);
+                const isValidSaleToken = await isValidERC20(saleToken);
 
-            if (!isValidPaymentToken || !isValidSaleToken) {
-                toast("Make sure sale token and sale tokens are valid ERC20 Tokens")
+                if (!isValidPaymentToken || !isValidSaleToken) {
+                    toast.error(`Make sure payment and sale tokens are valid ERC20 Tokens on ${getChainName()} Testnet`);
+                    return;
+                }
+                console.log(`Tokens validated successfully on chain ${getChainName()}`);
+            } catch (error) {
+                console.error(`Error validating tokens on chain ${getChainName()}:`, error);
+                toast.error(`Error validating tokens on ${getChainName()} Testnet`);
                 return;
             }
 
@@ -173,9 +192,9 @@ export default function PresaleCreator() {
         setLoading(true)
         const formatEthValues = (amount: string) => ethers.parseEther(amount);
         const wallet = wallets[0];
-        const info = wallet.chainId;
-        const chainId = info.split(":")[1];
         const presaleFactoryCA = getContractAddress('presaleFactory');
+
+        console.log(`Creating presale on chain ${getChainName()} (${selectedChain})`);
 
         if (!authenticated) {
             login();
@@ -191,7 +210,7 @@ export default function PresaleCreator() {
             const salePrice = formatEthValues(formData.salePrice.toString());
 
             // Process Wallet
-            const walletClient = await createViemWalletClient();
+            const walletClient = await createViemWalletClient(selectedChain);
             const [account] = await walletClient.getAddresses();
 
             if (!account) {
@@ -199,9 +218,23 @@ export default function PresaleCreator() {
                 return;
             }
 
-            console.log(paymentToken, saleToken)
+            // Make sure wallet is on the correct chain
+            if (wallet.chainId !== selectedChain) {
+                console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                await wallet.switchChain(parseInt(selectedChain));
+            }
 
-            const { request, result } = await publicClient.simulateContract({
+            // Verify the contract exists on the current chain
+            if (!presaleFactoryCA) {
+                toast.error(`Presale factory contract not available on ${getChainName()} chain`);
+                return;
+            }
+
+            console.log(`Using payment token ${paymentToken} and sale token ${saleToken} on chain ${getChainName()}`);
+
+            // Simulate the contract call
+            console.log(`Simulating contract call on chain ${getChainName()} with factory address: ${presaleFactoryCA}`);
+            const { request } = await publicClient.simulateContract({
                 address: presaleFactoryCA,
                 abi: PresaleFactoryABI,
                 functionName: "initialize",
@@ -223,21 +256,36 @@ export default function PresaleCreator() {
                 ]
             })
 
+            // Execute the transaction
+            console.log(`Executing transaction on chain ${getChainName()}`);
             const hash = await walletClient.writeContract(request);
-            console.log(hash, result)
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             setTxHash(hash);
             setShowTxModal(true)
 
-            toast("Successfully Created New Presale")
+            toast.success("Successfully Created New Presale")
+
+            // Wait for transaction confirmation
             setTimeout(async () => {
-                // Verify Transaction is Complete
-                const receipt = await publicClient.getTransactionReceipt({ hash })
-                if (receipt && receipt.status === "success") {
-                    navigate("/admin/dashboard/presales")
+                try {
+                    // Verify Transaction is Complete
+                    console.log(`Checking transaction receipt on chain ${getChainName()}`);
+                    const receipt = await publicClient.getTransactionReceipt({ hash })
+
+                    if (receipt && receipt.status === "success") {
+                        console.log(`Transaction confirmed successfully on chain ${getChainName()}`);
+                        navigate("/admin/dashboard/presales")
+                    } else {
+                        console.warn(`Transaction failed or pending on chain ${getChainName()}`);
+                        toast.error("Transaction may have failed. Please check your wallet for details.");
+                    }
+                } catch (receiptError) {
+                    console.error(`Error getting transaction receipt on chain ${getChainName()}:`, receiptError);
+                    toast.error("Unable to verify transaction status. Please check your wallet.");
                 }
             }, 5000)
         } catch (error: any) {
-            console.error("Creating New Presale Failed", error)
+            console.error(`Creating New Presale Failed on chain ${getChainName()}:`, error)
             if (error.message.includes("softCap must be <= hardCap")) {
                 toast("softCap must be <= hardCap")
                 return;
@@ -249,6 +297,14 @@ export default function PresaleCreator() {
             if (error.message.includes("end timestamp before start should be least 1 hour")) {
                 toast("Increase time between start and end of presale")
                 return
+            }
+            if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on chain ${getChainName()}. Please try again later.`);
+                return;
+            }
+            if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on chain ${getChainName()}. Please switch to a supported chain.`);
+                return;
             }
             toast.error("Creating New Presale Failed")
         } finally {
@@ -268,9 +324,17 @@ export default function PresaleCreator() {
             <div className="p-[40px_20px] lg:p-[100px_40px] font-space">
                 <div className="flex flex-col items-center justify-center gap-[20px] text-white">
                     <div className="w-full h-full lg:w-[30%] ">
-                        <p className="text-[20px] lg:text-[36px] font-[500] text-center">
-                            DerHex Create Presale System
-                        </p>
+                        <div className="text-center">
+                            <p className="text-[20px] lg:text-[36px] font-[500] mb-2">
+                                DerHex Create Presale System
+                            </p>
+                            <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
+                                <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                <span className="text-sm font-medium">
+                                    {getChainName()} Testnet
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     <div className="w-full h-full lg:w-[70%]  bg-[#17043B] p-[20px] lg:p-[40px] flex flex-col items-center justify-center rounded-[16px] space-y-[20px] lg:space-y-[80px]">
                         {components[currentPage]}
@@ -287,7 +351,7 @@ export default function PresaleCreator() {
                                         strokeColor="#FFF"
                                         duration={800}
                                     />
-                                ) : currentPage === 2 ? "Create Presale" : "Continue"}
+                                ) : currentPage === 2 ? `Create Presale on ${getChainName()} Testnet` : "Continue"}
 
                             </button>
                             {currentPage !== 0 && (<button className={`bg-transparent border-2 border-white text-white p-[10px_20px] rounded-[8px] w-full h-[50px] flex items-center justify-center`} onClick={() => {

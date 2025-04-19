@@ -5,22 +5,44 @@ import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
 import { format } from "date-fns";
 import CurrentChain from "../Presale/CurrentChain";
+import { getClient } from "../../utils/web3/client";
 
 function PastBonds() {
-  const { data, error, loading } = useBond();
+  const { data, error, loading } = useBond(null, { polling: false });
   const [filteredBonds, setFilteredBonds] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
 
+
+
   useEffect(() => {
-    if (data) {
-      const currentTime = Date.now();
-      const filtered = data.filter((bond: any) => {
-        const endTime = Number(bond.saleEndTime) * 1000;
-        return !isBefore(currentTime, endTime);
-      });
-      setFilteredBonds(filtered);
+    try {
+      if (data && Array.isArray(data)) {
+        const currentTime = Date.now();
+        // Add validation to ensure we only process valid bond objects
+        const filtered = data.filter((bond: any) => {
+          // Check if bond is a valid object with required properties
+          if (!bond || typeof bond !== 'object' || bond.saleEndTime === undefined) {
+            return false;
+          }
+
+          try {
+            const endTime = Number(bond.saleEndTime) * 1000;
+            return !isBefore(currentTime, endTime);
+          } catch (err) {
+            console.error('Error processing bond end time:', err);
+            return false;
+          }
+        });
+        setFilteredBonds(filtered);
+      } else {
+        // If data is not an array, set filtered bonds to empty array
+        setFilteredBonds([]);
+      }
+    } catch (error) {
+      console.error('Error filtering bonds:', error);
+      setFilteredBonds([]);
     }
   }, [data]);
 
@@ -148,43 +170,89 @@ function PastBonds() {
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
-                currentItems.map((bond: any, index: number) => (
-                  <tr
-                    key={index}
-                    onClick={() => navigate(`/deals/bonds/${bond?.bondInfo?.projectName.toLowerCase()}`)}
-                    className="border-b border-gray-800 hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <td className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={bond.bondInfo?.images?.logo}
-                          alt={bond.bondInfo?.projectName}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <div>
-                          <p className="font-medium text-[#FAFAFA]">
-                            {bond.bondInfo?.projectName}
-                          </p>
-                          <p className="text-sm text-[#ACBBCC]">
-                            {bond.saleToken?.symbol}
-                          </p>
+                currentItems.map((bond: any, index: number) => {
+                  // Safely navigate properties with optional chaining and fallbacks
+                  const projectName = bond?.bondInfo?.projectName || 'Unknown Project';
+                  const projectUrl = bond?.bondInfo?.projectName?.toLowerCase() || 'unknown';
+                  const tokenSymbol = bond?.saleToken?.symbol || 'N/A';
+                  const logoUrl = bond?.bondInfo?.images?.logo || '';
+
+                  // Safely format numbers with fallbacks
+                  let totalSoldFormatted = 'N/A';
+                  if (bond?.totalSold !== undefined) {
+                    try {
+                      totalSoldFormatted = `${parseFloat(bond.totalSold).toLocaleString()} ${tokenSymbol}`;
+                    } catch (err) {
+                      console.error('Error formatting totalSold:', err);
+                    }
+                  }
+
+                  // Safely format discount percentages
+                  let discountFormatted = 'N/A';
+                  if (bond?.initialDiscountPercentage !== undefined && bond?.finalDiscountPercentage !== undefined) {
+                    try {
+                      discountFormatted = `${(bond.initialDiscountPercentage).toFixed()}% to ${(bond.finalDiscountPercentage).toFixed()}%`;
+                    } catch (err) {
+                      console.error('Error formatting discount percentages:', err);
+                    }
+                  }
+
+                  // Safely format end date
+                  let endDateFormatted = 'N/A';
+                  if (bond?.saleEndTime) {
+                    try {
+                      endDateFormatted = format(new Date(bond.saleEndTime * 1000), "dd MMM, HH:mm");
+                    } catch (err) {
+                      console.error('Error formatting end date:', err);
+                    }
+                  }
+
+                  return (
+                    <tr
+                      key={index}
+                      onClick={() => navigate(`/deals/bonds/${projectUrl}`)}
+                      className="border-b border-gray-800 hover:bg-white/5 transition-colors cursor-pointer"
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center space-x-3">
+                          {logoUrl ? (
+                            <img
+                              src={logoUrl}
+                              alt={projectName}
+                              className="w-8 h-8 rounded-full"
+                              onError={(e) => {
+                                // Fallback for broken images
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/32x32?text=?';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white">?</div>
+                          )}
+                          <div>
+                            <p className="font-medium text-[#FAFAFA]">
+                              {projectName}
+                            </p>
+                            <p className="text-sm text-[#ACBBCC]">
+                              {tokenSymbol}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-[#FAFAFA]">
-                      {parseFloat(bond.totalSold).toLocaleString()} {bond.saleToken?.symbol}
-                    </td>
-                    <td className="p-4 text-[#ACBBCC]">
-                      {(bond.initialDiscountPercentage).toFixed()}% to {(bond.finalDiscountPercentage).toFixed()}%
-                    </td>
-                    <td className="p-4 text-[#FAFAFA]">
-                      {format(new Date(bond.saleEndTime * 1000), "dd MMM, HH:mm")}
-                    </td>
-                    <td className="p-4">
-                      <CurrentChain chainId="84532" />
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="p-4 text-[#FAFAFA]">
+                        {totalSoldFormatted}
+                      </td>
+                      <td className="p-4 text-[#ACBBCC]">
+                        {discountFormatted}
+                      </td>
+                      <td className="p-4 text-[#FAFAFA]">
+                        {endDateFormatted}
+                      </td>
+                      <td className="p-4">
+                        <CurrentChain chainId={bond?.chainId || "11155931"} />
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={5} className="text-center p-8 text-[#ACBBCC]">

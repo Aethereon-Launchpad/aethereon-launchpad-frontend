@@ -7,7 +7,7 @@ import TxReceipt from "../Modal/TxReceipt";
 import { useLockStake } from "../../hooks/web3/useLockStake";
 import { usePrivy } from "@privy-io/react-auth";
 import { createWalletClient, custom } from 'viem';
-import { publicClient } from '../../config';
+// We'll use publicClient from useChain instead of direct import
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { IoWalletSharp } from "react-icons/io5";
 import { ethers } from 'ethers';
@@ -18,17 +18,16 @@ import erc20Abi from "../../abis/ERC20.json";
 import stakeLockABI from "../../abis/StakeLock.json";
 import { useChain } from "../../context/ChainContext";
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
-  const { publicClient } = useChain();
-  return createWalletClient({
-    chain: publicClient.chain,
-    transport: custom(window.ethereum)
-  });
-};
-
-
 function Dynamic() {
+  const { publicClient } = useChain();
+
+  // Add this function to create wallet client
+  const createViemWalletClient = () => {
+    return createWalletClient({
+      chain: publicClient.chain,
+      transport: custom(window.ethereum)
+    });
+  };
   const [stakeAmount, setStakeAmount] = useState<number>(0);
   const [multiplier, setMultiplier] = useState<string>("1x");
   const [estimatedRewards, setEstimatedRewards] = useState<number>(0);
@@ -190,7 +189,7 @@ function Dynamic() {
             // Run Approval
             const txHash = await walletClient.writeContract(request);
             await new Promise(resolve => setTimeout(resolve, 2000));
-            const receipt = await publicClient.getTransactionReceipt({
+            const receipt = await publicClient.waitForTransactionReceipt({
               hash: txHash
             })
             return receipt
@@ -206,9 +205,8 @@ function Dynamic() {
             toast("User Rejected the Request")
             return;
           }
-        } finally {
-          setIsStaking(false);
-        }
+          setIsStaking(false)
+        } 
       }
     }
 
@@ -227,19 +225,26 @@ function Dynamic() {
         })
 
         const hash = await walletClient.writeContract(request)
-        toast("Successfully staked")
-        setShowTxModal(false);
-        setTxReceiptTitle("Succesfully Staked")
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: hash
+        })
 
-        setTxHash(hash)
-        setTimeout(() => {
-          setShowTxModal(true)
-        }, 2000)
-        setStakeAmount(0)
-        setOpenConfirmStaking(false)
-        setTimeout(async () => {
-          await refetch();
-        }, 5000)
+        if (receipt.status === "success") {
+          toast("Successfully staked")
+          setShowTxModal(false);
+          setTxReceiptTitle("Succesfully Staked")
+
+          setTxHash(hash)
+          setTimeout(() => {
+            setShowTxModal(true)
+          }, 2000)
+          setStakeAmount(0)
+          setOpenConfirmStaking(false)
+          setTimeout(async () => {
+            await refetch();
+          }, 5000)
+        }
+
       } catch (error: any) {
         console.error(error.message)
         if (error.message.includes("User rejected the request")) {
@@ -462,7 +467,7 @@ function Dynamic() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-gray-400 mb-1">Estimated Rewards</p>
-                    <p className="text-2xl font-bold">{estimatedRewards} <span className="text-primary">DRX</span></p>
+                    <p className="text-2xl font-bold">{Number(estimatedRewards).toLocaleString()} <span className="text-primary">DRX</span></p>
                   </div>
                   <div className="text-right bg-primary/10 px-4 py-2 clip-path-polygon">
                     <p className="text-sm text-gray-300">APY</p>
@@ -520,7 +525,7 @@ function Dynamic() {
                     <p className="text-gray-400 mb-6">Withdraw your staked tokens and claim rewards</p>
                     <button
                       onClick={() => setOpenConfirmUnstaking(true)}
-                      disabled={isStaking || !data?.userData?.amountStaked}
+                      disabled={isStaking || data?.userData?.amountStaked === 0}
                       className="w-full border-2 border-primary text-primary p-4 clip-path-polygon hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
                     >
                       {isStaking ? (

@@ -7,7 +7,6 @@ import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { getContractAddress } from '../../../utils/source';
 import BondFactoryABI from '../../../abis/BondFactory.json';
 import ERC20ABI from '../../../abis/ERC20.json';
-import { publicClient as client } from '../../../config';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { createWalletClient, custom } from "viem";
@@ -22,17 +21,21 @@ interface TokenInfo {
     decimals: number;
 }
 
-// Add this function to create wallet client
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 function BondCreator() {
+    const { publicClient } = useChain();
+    const { publicClient: client } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
+
     const navigate = useNavigate();
     const { authenticated, login } = usePrivy();
     const { wallets } = useWallets();

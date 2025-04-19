@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { Preloader, Oval } from 'react-preloader-icon';
 import { getStakingPoolDataByAddress } from "../../../utils/web3/actions";
-import { usePrivy } from "@privy-io/react-auth";
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import stakingPoolAbi from "../../../abis/StakingPool.json";
 import { ethers } from "ethers";
 import { toast } from "react-hot-toast";
 import { getTokenBalance, getTokenAllowance } from "../../../utils/web3/actions";
 import erc20Abi from "../../../abis/ERC20.json";
+import { useChain, supportedChains } from '../../../context/ChainContext';
 
 interface ManageStakingProps {
     stakingPoolAddress: `0x${string}`;
@@ -18,9 +16,26 @@ interface ManageStakingProps {
     refetch: () => void;
 }
 
-const createViemWalletClient = () => {
+const createViemWalletClient = (chainId?: string) => {
+    if (!chainId) {
+        console.error('No chainId provided to createViemWalletClient');
+        return createWalletClient({
+            transport: custom(window.ethereum)
+        });
+    }
+
+    // Get the chain configuration from supportedChains
+    const chainConfig = supportedChains[chainId as keyof typeof supportedChains];
+    if (!chainConfig) {
+        console.error(`Chain ID ${chainId} not supported`);
+        return createWalletClient({
+            transport: custom(window.ethereum)
+        });
+    }
+
+    console.log(`Creating wallet client for chain ${chainConfig.name} (${chainId})`);
     return createWalletClient({
-        chain: baseSepolia,
+        chain: chainConfig.viemChain,
         transport: custom(window.ethereum)
     });
 };
@@ -28,14 +43,23 @@ const createViemWalletClient = () => {
 export default function ManageStaking({ stakingPoolAddress, onClose, userAddress, refetch }: ManageStakingProps) {
     const [loading, setLoading] = useState(true);
     const [poolData, setPoolData] = useState<any>(null);
-    const [input, setInput] = useState<string | number>(0.00);
-    const [option, setOption] = useState<string>("");
-    const [process, setProcessing] = useState<boolean>(false)
     const [rewardAmount, setRewardAmount] = useState<string>("0");
     const [newFeeReceiver, setNewFeeReceiver] = useState<string>("");
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const { user } = usePrivy();
+    // We don't need the user object from usePrivy() here
+    const { publicClient, selectedChain } = useChain();
+
+    // Helper function to get the chain name
+    const getChainName = () => {
+        return selectedChain === "84532" ? "Base Sepolia" :
+            selectedChain === "57054" ? "Sonic" : "Rise";
+    };
+
+    // Log when the selected chain changes
+    useEffect(() => {
+        console.log(`ManageStaking: Chain changed to ${getChainName()} (${selectedChain})`);
+    }, [selectedChain]);
 
     useEffect(() => {
         async function fetchData() {
@@ -54,15 +78,33 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
 
     const handleAddReward = async () => {
         setIsProcessing(true);
+        console.log(`Adding rewards on chain ${getChainName()} (${selectedChain})`);
+
         try {
-            const walletClient = createViemWalletClient();
+            const walletClient = createViemWalletClient(selectedChain);
             const [account] = await walletClient.getAddresses();
+
+            // Make sure wallet is on the correct chain
+            try {
+                if (window.ethereum && window.ethereum.chainId !== selectedChain) {
+                    console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: `0x${parseInt(selectedChain).toString(16)}` }],
+                    });
+                }
+            } catch (error) {
+                console.error(`Error switching chain: ${error}`);
+                toast.error(`Failed to switch to ${getChainName()} chain. Please switch manually.`);
+                setIsProcessing(false);
+                return;
+            }
 
             const tokenBalance = await getTokenBalance(poolData.stakingPool.rewardToken.id, userAddress);
             const amount = ethers.parseUnits(rewardAmount, poolData.stakingPool.rewardToken.decimals);
 
             if (Number(rewardAmount) > Number(tokenBalance)) {
-                toast("Not enough balance");
+                toast.error("Not enough balance");
                 setIsProcessing(false);
                 return;
             }
@@ -74,35 +116,62 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
                 userAddress
             );
 
-            if (Number(allowance) < Number(amount)) {
-                // Approve token spending
-                const { request: approveRequest } = await publicClient.simulateContract({
-                    address: poolData.stakingPool.rewardToken.id,
-                    abi: erc20Abi,
-                    account,
-                    functionName: "approve",
-                    args: [stakingPoolAddress, amount]
-                });
+            async function callAllowance() {
+                if (Number(allowance) < Number(amount)) {
+                    console.log(`Approving token spending on chain ${getChainName()}`);
+                    // Approve token spending
+                    const { request: approveRequest } = await publicClient.simulateContract({
+                        address: poolData.stakingPool.rewardToken.id,
+                        abi: erc20Abi,
+                        account,
+                        functionName: "approve",
+                        args: [stakingPoolAddress, amount]
+                    });
 
-                const approveHash = await walletClient.writeContract(approveRequest);
-                await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                    const approveHash = await walletClient.writeContract(approveRequest);
+                    console.log(`Approval transaction submitted with hash: ${approveHash}`);
+                    const receipt = await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                    console.log(`Approval confirmed on chain ${getChainName()}`);
+                    return receipt;
+                }
             }
 
-            const { request } = await publicClient.simulateContract({
-                address: stakingPoolAddress,
-                abi: stakingPoolAbi,
-                account,
-                functionName: "addReward",
-                args: [amount]
-            });
+            const receipt = await callAllowance();
 
-            const hash = await walletClient.writeContract(request);
-            await publicClient.waitForTransactionReceipt({ hash });
-            toast.success("Rewards added successfully!");
-            await refetch();
-        } catch (error) {
-            console.error("Error adding rewards:", error);
-            toast.error("Failed to add rewards");
+            if (receipt.status === "success") {
+                console.log(`Approval confirmed on chain ${getChainName()}`);
+
+                console.log(`Adding reward on chain ${getChainName()}`);
+
+                const { request } = await publicClient.simulateContract({
+                    address: stakingPoolAddress,
+                    abi: stakingPoolAbi,
+                    account,
+                    functionName: "addReward",
+                    args: [amount]
+                });
+
+                const hash = await walletClient.writeContract(request);
+
+                console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
+                const rewardAddTxReceipt = await publicClient.waitForTransactionReceipt({ hash });
+                if (rewardAddTxReceipt.status === "success") {
+                    console.log(`Transaction confirmed on chain ${getChainName()}`);
+                    toast.success("Rewards added successfully!");
+                    refetch(); // Call refetch without await since it doesn't return a promise
+                }
+            }
+        } catch (error: any) {
+            console.error(`Error adding rewards on chain ${getChainName()}:`, error);
+            if (error.message?.includes("User rejected the request")) {
+                toast.error("User rejected the request");
+            } else if (error.message?.includes("network disconnected") || error.message?.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message?.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
+            } else {
+                toast.error("Failed to add rewards");
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -110,12 +179,32 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
 
     const handleDrainRewards = async () => {
         setIsProcessing(true);
+        console.log(`Draining rewards on chain ${getChainName()} (${selectedChain})`);
+
         try {
-            const walletClient = createViemWalletClient();
+            const walletClient = createViemWalletClient(selectedChain);
             const [account] = await walletClient.getAddresses();
+
+            // Make sure wallet is on the correct chain
+            try {
+                if (window.ethereum && window.ethereum.chainId !== selectedChain) {
+                    console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: `0x${parseInt(selectedChain).toString(16)}` }],
+                    });
+                }
+            } catch (error) {
+                console.error(`Error switching chain: ${error}`);
+                toast.error(`Failed to switch to ${getChainName()} chain. Please switch manually.`);
+                setIsProcessing(false);
+                return;
+            }
+
             const rewardTokenAmount = await getTokenBalance(poolData.stakingPool.rewardToken.id, poolData.stakingPool.id);
             const rewardTokenEther = ethers.parseUnits(rewardTokenAmount, poolData.stakingPool.rewardToken.decimals);
 
+            console.log(`Draining ${rewardTokenAmount} ${poolData.stakingPool.rewardToken.symbol} on chain ${getChainName()}`);
             const { request } = await publicClient.simulateContract({
                 address: stakingPoolAddress,
                 abi: stakingPoolAbi,
@@ -125,12 +214,22 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             });
 
             const hash = await walletClient.writeContract(request);
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await publicClient.waitForTransactionReceipt({ hash });
+            console.log(`Transaction confirmed on chain ${getChainName()}`);
             toast.success("Rewards drained successfully!");
-            await refetch();
-        } catch (error) {
-            console.error("Error draining rewards:", error);
-            toast.error("Failed to drain rewards");
+            refetch(); // Call refetch without await since it doesn't return a promise
+        } catch (error: any) {
+            console.error(`Error draining rewards on chain ${getChainName()}:`, error);
+            if (error.message?.includes("User rejected the request")) {
+                toast.error("User rejected the request");
+            } else if (error.message?.includes("network disconnected") || error.message?.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message?.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
+            } else {
+                toast.error("Failed to drain rewards");
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -138,10 +237,35 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
 
     const handleUpdateFeeReceiver = async () => {
         setIsProcessing(true);
+        console.log(`Updating fee receiver on chain ${getChainName()} (${selectedChain})`);
+
         try {
-            const walletClient = createViemWalletClient();
+            const walletClient = createViemWalletClient(selectedChain);
             const [account] = await walletClient.getAddresses();
 
+            // Make sure wallet is on the correct chain
+            try {
+                if (window.ethereum && window.ethereum.chainId !== selectedChain) {
+                    console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: `0x${parseInt(selectedChain).toString(16)}` }],
+                    });
+                }
+            } catch (error) {
+                console.error(`Error switching chain: ${error}`);
+                toast.error(`Failed to switch to ${getChainName()} chain. Please switch manually.`);
+                setIsProcessing(false);
+                return;
+            }
+
+            if (!ethers.isAddress(newFeeReceiver)) {
+                toast.error("Invalid address format");
+                setIsProcessing(false);
+                return;
+            }
+
+            console.log(`Setting fee receiver to ${newFeeReceiver} on chain ${getChainName()}`);
             const { request } = await publicClient.simulateContract({
                 address: stakingPoolAddress,
                 abi: stakingPoolAbi,
@@ -151,11 +275,22 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
             });
 
             const hash = await walletClient.writeContract(request);
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await publicClient.waitForTransactionReceipt({ hash });
+            console.log(`Transaction confirmed on chain ${getChainName()}`);
             toast.success("Fee receiver updated successfully!");
-        } catch (error) {
-            console.error("Error updating fee receiver:", error);
-            toast.error("Failed to update fee receiver");
+            refetch(); // Call refetch without await since it doesn't return a promise
+        } catch (error: any) {
+            console.error(`Error updating fee receiver on chain ${getChainName()}:`, error);
+            if (error.message?.includes("User rejected the request")) {
+                toast.error("User rejected the request");
+            } else if (error.message?.includes("network disconnected") || error.message?.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message?.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
+            } else {
+                toast.error("Failed to update fee receiver");
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -195,7 +330,15 @@ export default function ManageStaking({ stakingPoolAddress, onClose, userAddress
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
             <div className="bg-[#17043B] border border-primary/50 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
-                    <h2 className="text-white text-2xl font-bold mb-6 text-center">Staking Pool Management</h2>
+                    <div className="text-center mb-6">
+                        <h2 className="text-white text-2xl font-bold mb-2">Staking Pool Management</h2>
+                        <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
+                            <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                            <span className="text-sm font-medium">
+                                {getChainName()} Testnet
+                            </span>
+                        </div>
+                    </div>
 
                     {/* Pool Details Section */}
                     <div className="space-y-4 mb-8">

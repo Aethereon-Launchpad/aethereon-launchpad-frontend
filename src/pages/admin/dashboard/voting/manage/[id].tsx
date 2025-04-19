@@ -11,15 +11,19 @@ import { toast } from "react-hot-toast";
 import { IoWalletSharp } from "react-icons/io5";
 import VotingSlot from "../../../../../abis/VotingSlot.json";
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 export default function ManageVotingSlot() {
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
+
     const { authenticated, login } = usePrivy();
     const { id } = useParams<{ id: `0x${string}` }>();
     const { data, error, loading, refetch } = useVoting(id, { polling: false });

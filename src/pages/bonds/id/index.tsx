@@ -553,16 +553,20 @@ function BondStage({
 }
 
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 function BondDetail() {
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
+
     const { id } = useParams();
     const navigate = useNavigate();
     const { authenticated, login } = usePrivy();
@@ -996,7 +1000,7 @@ function BondDetail() {
                                 </div>
                                 <div className="ml-auto">
                                     <div className="bg-[#291254] p-3 px-4 shadow flex items-center gap-2">
-                                        <CurrentChain chainId={currentChain} />
+                                        <CurrentChain chainId={bondData?.chainId || currentChain} />
                                     </div>
                                 </div>
                             </div>

@@ -8,7 +8,7 @@ import { differenceInDays, format } from 'date-fns';
 
 function FeaturedBonds() {
     const { selectedChain } = useChain();
-    const { data, loading, error, refetch } = useBond(null, { polling: true });
+    const { data, loading, error, refetch } = useBond(null, { polling: false });
     const [featuredBond, setFeaturedBond] = useState<any>(null);
     const navigate = useNavigate();
 
@@ -24,15 +24,31 @@ function FeaturedBonds() {
     // Select the most recent upcoming bond as the featured bond
     useEffect(() => {
         if (data && Array.isArray(data) && data.length > 0) {
-            // Sort bonds by start time, most recent first
-            const sortedBonds = [...data].sort((a, b) => b.saleStartTime - a.saleStartTime);
+            try {
+                // Sort bonds by start time, most recent first
+                const sortedBonds = [...data].sort((a, b) => b.saleStartTime - a.saleStartTime);
 
-            // Find the first bond that has metadata and take it as featured
-            const featured = sortedBonds.find(bond => bond.bondInfo && bond.metadataURI);
+                // Find the first bond that has metadata and take it as featured
+                const featured = sortedBonds.find(bond => {
+                    return bond && bond.bondInfo && bond.metadataURI &&
+                           bond.initialDiscountPercentage !== undefined &&
+                           bond.finalDiscountPercentage !== undefined;
+                });
 
-            if (featured) {
-                setFeaturedBond(featured);
+                if (featured) {
+                    console.log('Found featured bond:', featured.bondInfo?.projectName);
+                    setFeaturedBond(featured);
+                } else {
+                    console.log('No suitable bond found for featuring');
+                    setFeaturedBond(null);
+                }
+            } catch (error) {
+                console.error('Error processing bond data:', error);
+                setFeaturedBond(null);
             }
+        } else {
+            console.log('No bond data available');
+            setFeaturedBond(null);
         }
     }, [data]);
 

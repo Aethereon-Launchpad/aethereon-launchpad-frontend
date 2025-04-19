@@ -9,15 +9,19 @@ import VotingSlotFactory from "../../../../abis/VotingSlotFactory.json";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { IoWalletSharp } from "react-icons/io5";
 
-const createViemWalletClient = () => {
-    const { publicClient } = useChain();
-    return createWalletClient({
-        chain: publicClient.chain,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 export default function CreateVotingSlot() {
+    const { publicClient } = useChain();
+
+    // Add this function to create wallet client
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain,
+            transport: custom(window.ethereum)
+        });
+    };
+
     const { authenticated, login } = usePrivy();
     const [formData, setFormData] = useState({
         name: '',

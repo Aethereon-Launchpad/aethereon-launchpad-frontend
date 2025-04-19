@@ -4,6 +4,7 @@ import AirdropABI from "../../abis/Airdrop.json";
 import { getClient } from "./client";
 import { ethers } from 'ethers';
 import { getContractAddress } from '../source';
+import { ensureRawGistURL } from '../tools';
 
 export const getAllAirdropAddresses = async () => {
     try {
@@ -349,7 +350,7 @@ export const getGiveawayByProjectName = async (projectName: string) => {
     const matchingGiveaway = await Promise.all(allGiveaways.map(async (giveaway) => {
         if (!giveaway.metadataURI) return null;
         try {
-            const response = await fetch(giveaway.metadataURI.toString());
+            const response = await fetch(ensureRawGistURL(giveaway.metadataURI.toString()));
             if (!response.ok) return null;
             const metadata = await response.json() as { projectName?: string };
             if (metadata.projectName?.toLowerCase() === projectName.toLowerCase()) {

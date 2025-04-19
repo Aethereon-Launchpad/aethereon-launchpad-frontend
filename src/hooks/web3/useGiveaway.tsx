@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAllAirdropData, getAirdropDataByAddress, getGiveawayByProjectName } from '../../utils/web3/giveaway';
+import { ensureRawGistURL } from '../../utils/tools';
 
 interface UseGiveawayReturn {
     loading: boolean;
@@ -38,7 +39,7 @@ export function useGiveaway(projectName?: string | null, options?: UseGiveawayOp
                     result = await getAirdropDataByAddress(id);
                     if (result) {
                         try {
-                            const response = await fetch(result.metadataURI as string);
+                            const response = await fetch(ensureRawGistURL(result.metadataURI as string));
                             if (response.ok) {
                                 const data = await response.json();
                                 result = {
@@ -75,7 +76,7 @@ export function useGiveaway(projectName?: string | null, options?: UseGiveawayOp
                         await new Promise(resolve => setTimeout(resolve, index * 2000));
 
                         try {
-                            const response = await fetch(giveaway.metadataURI as string);
+                            const response = await fetch(ensureRawGistURL(giveaway.metadataURI as string));
                             if (response.ok) {
                                 const data = await response.json();
                                 return {

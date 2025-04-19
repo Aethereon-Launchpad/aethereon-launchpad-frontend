@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Layout from "../../../../../layout/Admin";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../../../../config";
 import { useGiveaway } from "../../../../../hooks/web3/useGiveaway";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../../../../context/ChainContext";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
@@ -15,9 +14,8 @@ import { IoWalletSharp } from "react-icons/io5";
 import { formatSeconds } from "../../../../../utils/timeFormatter";
 import { getContractAddress } from "../../../../../utils/source";
 
-const createViemWalletClient = () => {
+const createViemWalletClient = (chainId?: string) => {
     return createWalletClient({
-        chain: baseSepolia,
         transport: custom(window.ethereum)
     });
 };
@@ -29,6 +27,18 @@ export default function AdminGiveawayManageID() {
     const { data, error, loading, refetch } = useGiveaway(id, { polling: false });
     const { wallets } = useWallets();
     const wallet = wallets[0];
+    const { publicClient, selectedChain } = useChain();
+
+    // Helper function to get the chain name
+    const getChainName = () => {
+        return selectedChain === "84532" ? "Base Sepolia" :
+            selectedChain === "57054" ? "Sonic" : "Rise";
+    };
+
+    // Log when the selected chain changes
+    useEffect(() => {
+        console.log(`GiveawayManager: Chain changed to ${getChainName()} (${selectedChain})`);
+    }, [selectedChain]);
 
     // State variables for different settings
     const [airdropTypeSetting, setAirdropTypeSetting] = useState<{ loading: boolean }>({
@@ -118,9 +128,11 @@ export default function AdminGiveawayManageID() {
     };
 
     async function handleToggleAirdropType() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setAirdropTypeSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Toggling airdrop type on chain ${getChainName()} (${selectedChain})`);
 
         try {
             const { request } = await publicClient.simulateContract({
@@ -133,20 +145,28 @@ export default function AdminGiveawayManageID() {
             const hash = await walletClient.writeContract(request);
             toast.success(`Successfully changed airdrop type to ${data.isPrivateAirdrop ? "Public" : "Private"}`);
 
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await new Promise(resolve => setTimeout(resolve, 3000));
+
+            console.log(`Checking transaction receipt on chain ${getChainName()}`);
             const receipt = await publicClient.getTransactionReceipt({
                 hash
             });
 
             if (receipt.status === "success") {
+                console.log(`Transaction confirmed successfully on chain ${getChainName()}`);
                 await refetch();
             }
         } catch (error: any) {
-            console.error(error.message);
+            console.error(`Error toggling airdrop type on chain ${getChainName()}:`, error.message);
             if (error.message.includes("User rejected the request")) {
                 toast.error("User rejected the request");
             } else if (error.message.includes("whitelist already started")) {
                 toast.error("Cannot change airdrop type after whitelist has started");
+            } else if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
             } else {
                 toast.error("Failed to change airdrop type");
             }
@@ -156,9 +176,11 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetStakingPool() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setStakingPoolSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting staking pool on chain ${getChainName()} (${selectedChain})`);
 
         if (stakingPoolSetting.address === "0x") {
             setStakingPoolSetting(prev => ({ ...prev, loading: false }));
@@ -167,9 +189,10 @@ export default function AdminGiveawayManageID() {
         }
 
         try {
-            // Switch to Base Sepolia if not already on it
-            if (wallet.chainId !== "84532") {
-                await wallet.switchChain(84532);
+            // Make sure wallet is on the correct chain
+            if (wallet.chainId !== selectedChain) {
+                console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                await wallet.switchChain(parseInt(selectedChain));
             }
 
             const { request } = await publicClient.simulateContract({
@@ -183,20 +206,28 @@ export default function AdminGiveawayManageID() {
             const hash = await walletClient.writeContract(request);
             toast.success("Successfully set staking pool");
 
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await new Promise(resolve => setTimeout(resolve, 3000));
+
+            console.log(`Checking transaction receipt on chain ${getChainName()}`);
             const receipt = await publicClient.getTransactionReceipt({
                 hash
             });
 
             if (receipt.status === "success") {
+                console.log(`Transaction confirmed successfully on chain ${getChainName()}`);
                 await refetch();
             }
         } catch (error: any) {
-            console.error(error.message);
+            console.error(`Error setting staking pool on chain ${getChainName()}:`, error.message);
             if (error.message.includes("User rejected the request")) {
                 toast.error("User rejected the request");
             } else if (error.message.includes("not owner")) {
                 toast.error("Only the owner can set the staking pool");
+            } else if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
             } else {
                 toast.error("Failed to set staking pool");
             }
@@ -206,9 +237,11 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetTokenPerUser() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setTokenPerUserSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting token per user on chain ${getChainName()} (${selectedChain})`);
 
         if (tokenPerUserSetting.amount <= 0) {
             setTokenPerUserSetting(prev => ({ ...prev, loading: false }));
@@ -217,6 +250,12 @@ export default function AdminGiveawayManageID() {
         }
 
         try {
+            // Make sure wallet is on the correct chain
+            if (wallet.chainId !== selectedChain) {
+                console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                await wallet.switchChain(parseInt(selectedChain));
+            }
+
             const { request } = await publicClient.simulateContract({
                 address: data.id as `0x${string}`,
                 abi: AirdropABI,
@@ -228,22 +267,30 @@ export default function AdminGiveawayManageID() {
             const hash = await walletClient.writeContract(request);
             toast.success("Successfully set token per user");
 
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await new Promise(resolve => setTimeout(resolve, 3000));
+
+            console.log(`Checking transaction receipt on chain ${getChainName()}`);
             const receipt = await publicClient.getTransactionReceipt({
                 hash
             });
 
             if (receipt.status === "success") {
+                console.log(`Transaction confirmed successfully on chain ${getChainName()}`);
                 await refetch();
             }
         } catch (error: any) {
-            console.error(error.message);
+            console.error(`Error setting token per user on chain ${getChainName()}:`, error.message);
             if (error.message.includes("User rejected the request")) {
                 toast.error("User rejected the request");
             } else if (error.message.includes("not owner")) {
                 toast.error("Only the owner can set token per user");
             } else if (error.message.includes("whitelist already started")) {
                 toast.error("Cannot change token per user after whitelist has started");
+            } else if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
             } else {
                 toast.error("Failed to set token per user");
             }
@@ -253,9 +300,11 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetMultiplier() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setMultiplierSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting multiplier on chain ${getChainName()} (${selectedChain})`);
 
         if (multiplierSetting.value <= 0 || multiplierSetting.value > 100000) {
             setMultiplierSetting(prev => ({ ...prev, loading: false }));
@@ -264,6 +313,12 @@ export default function AdminGiveawayManageID() {
         }
 
         try {
+            // Make sure wallet is on the correct chain
+            if (wallet.chainId !== selectedChain) {
+                console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+                await wallet.switchChain(parseInt(selectedChain));
+            }
+
             const { request } = await publicClient.simulateContract({
                 address: data.id as `0x${string}`,
                 abi: AirdropABI,
@@ -275,22 +330,30 @@ export default function AdminGiveawayManageID() {
             const hash = await walletClient.writeContract(request);
             toast.success("Successfully set multiplier");
 
+            console.log(`Transaction submitted with hash: ${hash} on chain ${getChainName()}`);
             await new Promise(resolve => setTimeout(resolve, 3000));
+
+            console.log(`Checking transaction receipt on chain ${getChainName()}`);
             const receipt = await publicClient.getTransactionReceipt({
                 hash
             });
 
             if (receipt.status === "success") {
+                console.log(`Transaction confirmed successfully on chain ${getChainName()}`);
                 await refetch();
             }
         } catch (error: any) {
-            console.error(error.message);
+            console.error(`Error setting multiplier on chain ${getChainName()}:`, error.message);
             if (error.message.includes("User rejected the request")) {
                 toast.error("User rejected the request");
             } else if (error.message.includes("not owner")) {
                 toast.error("Only the owner can set multiplier");
             } else if (error.message.includes("Invalid multiplier")) {
                 toast.error("Invalid multiplier value");
+            } else if (error.message.includes("network disconnected") || error.message.includes("network error")) {
+                toast.error(`Network error on ${getChainName()} Testnet. Please try again later.`);
+            } else if (error.message.includes("contract not deployed")) {
+                toast.error(`Contract not deployed on ${getChainName()} Testnet. Please switch to a supported chain.`);
             } else {
                 toast.error("Failed to set multiplier");
             }
@@ -300,9 +363,17 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetWhitelistPeriod() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setWhitelistPeriodSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting whitelist period on chain ${getChainName()} (${selectedChain})`);
+
+        // Make sure wallet is on the correct chain
+        if (wallet.chainId !== selectedChain) {
+            console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+            await wallet.switchChain(parseInt(selectedChain));
+        }
 
         const now = Math.floor(Date.now() / 1000);
 
@@ -366,9 +437,17 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetWithdrawDelay() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setWithdrawDelaySetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting withdraw delay on chain ${getChainName()} (${selectedChain})`);
+
+        // Make sure wallet is on the correct chain
+        if (wallet.chainId !== selectedChain) {
+            console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+            await wallet.switchChain(parseInt(selectedChain));
+        }
 
         if (withdrawDelaySetting.delay <= 0) {
             setWithdrawDelaySetting(prev => ({ ...prev, loading: false }));
@@ -415,9 +494,17 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetLinearVesting() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setLinearVestingSetting(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting linear vesting on chain ${getChainName()} (${selectedChain})`);
+
+        // Make sure wallet is on the correct chain
+        if (wallet.chainId !== selectedChain) {
+            console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+            await wallet.switchChain(parseInt(selectedChain));
+        }
 
         const withdrawTime = data.whitelistEndTime + data.withdrawDelay;
         if (linearVestingSetting.endOfLinearVesting <= withdrawTime) {
@@ -463,9 +550,17 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetCliffPeriod() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
         setCliffPeriods(prev => ({ ...prev, loading: true }));
+
+        console.log(`Setting cliff period on chain ${getChainName()} (${selectedChain})`);
+
+        // Make sure wallet is on the correct chain
+        if (wallet.chainId !== selectedChain) {
+            console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+            await wallet.switchChain(parseInt(selectedChain));
+        }
 
         try {
             // Convert cliffForms to claimTimes and percentages
@@ -553,12 +648,20 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleAddUserToWhitelist() {
-        const walletClient = createViemWalletClient();
+        const walletClient = createViemWalletClient(selectedChain);
         const [account] = await walletClient.getAddresses();
+
+        console.log(`Adding user to whitelist on chain ${getChainName()} (${selectedChain})`);
 
         if (!ethers.isAddress(userAddress)) {
             toast.error("Invalid address");
             return;
+        }
+
+        // Make sure wallet is on the correct chain
+        if (wallet.chainId !== selectedChain) {
+            console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
+            await wallet.switchChain(parseInt(selectedChain));
         }
 
         setIsAddingToWhitelist(true);
@@ -655,9 +758,17 @@ export default function AdminGiveawayManageID() {
                                     alt=""
                                 />
                             )}
-                            <p className='text-primary text-center text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px]'>
-                                Manage {data?.giveawayInfo?.projectName || "Giveaway"}
-                            </p>
+                            <div className="text-center">
+                                <p className='text-primary text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px] mb-2'>
+                                    Manage {data?.giveawayInfo?.projectName || "Giveaway"}
+                                </p>
+                                <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
+                                    <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                                    <span className="text-sm font-medium">
+                                        {getChainName()} Testnet
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1200,4 +1311,4 @@ export default function AdminGiveawayManageID() {
             </section>
         </Layout>
     );
-} 
+}
