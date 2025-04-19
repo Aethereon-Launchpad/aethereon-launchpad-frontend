@@ -1,7 +1,7 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { IoWalletSharp } from "react-icons/io5";
 import { Preloader, Oval } from 'react-preloader-icon';
-import toast from 'react-hot-toast';
+import { useChain } from "../../../context/ChainContext";
 
 interface ConfirmStakingModalProps {
     stakeAmount: number;
@@ -21,6 +21,7 @@ function ConfirmStakingModal({
     APY
 }: ConfirmStakingModalProps) {
     const { authenticated, login } = usePrivy();
+    const { chainName } = useChain();
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -34,7 +35,7 @@ function ConfirmStakingModal({
 
                     <div className="space-y-4">
                         {/* Staking Amount Card */}
-                        <div className="relative p-4 overflow-hidden group-card rounded-xl">
+                        <div className="relative p-4 overflow-hidden group-card clip-path-polygon">
                             <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-card-hover:opacity-100 transition-opacity duration-300"></span>
                             <span className="absolute inset-[2px] bg-[#291254] clip-path-polygon transition-all duration-300 border border-primary/20"></span>
                             <div className="relative">
@@ -46,13 +47,13 @@ function ConfirmStakingModal({
                         </div>
 
                         {/* Network & APY Card */}
-                        <div className="relative p-4 overflow-hidden group-card rounded-xl">
+                        <div className="relative p-4 overflow-hidden group-card clip-path-polygon">
                             <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-card-hover:opacity-100 transition-opacity duration-300"></span>
                             <span className="absolute inset-[2px] bg-[#291254] clip-path-polygon transition-all duration-300 border border-primary/10"></span>
                             <div className="relative grid grid-cols-2 gap-4 text-white">
                                 <div>
                                     <p className="text-[#C4C4C4] text-sm">Network</p>
-                                    <p className="font-medium">Sonic</p>
+                                    <p className="font-medium">{chainName}</p>
                                 </div>
                                 <div>
                                     <p className="text-[#C4C4C4] text-sm">Est. Annual Rewards</p>

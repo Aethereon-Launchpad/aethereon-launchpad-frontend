@@ -10,6 +10,7 @@ import BondABI from '../../../abis/Bond.json';
 import ERC20ABI from '../../../abis/ERC20.json';
 import { publicClient as client } from '../../../config';
 import { toast } from 'react-hot-toast';
+import { useChain } from '../../../context/ChainContext';
 
 interface Bond {
     id: string;

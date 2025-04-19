@@ -9,7 +9,7 @@ import { FaDiscord, FaGlobe, FaTelegram, FaTwitter } from 'react-icons/fa6';
 import CurrentChain from '../../../components/Presale/CurrentChain';
 import { publicClient } from '../../../config';
 import { createWalletClient, custom, http, encodePacked, keccak256, toHex } from 'viem';
-import { baseSepolia } from 'viem/chains';
+import { useChain } from '../../../context/ChainContext';
 import BondABI from "../../../abis/Bond.json";
 import erc20Abi from "../../../abis/ERC20.json";
 import toast from 'react-hot-toast';
@@ -554,8 +554,9 @@ function BondStage({
 
 
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum)
     });
 };
@@ -1180,4 +1181,4 @@ function BondDetail() {
     );
 }
 
-export default BondDetail; 
+export default BondDetail;

@@ -52,7 +52,7 @@ export default function ChainSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg z-50">
+        <div className="absolute top-full right-0 mt-2 w-48 bg-[#1A1A1A] rounded-lg shadow-lg z-[100]">
           {Object.keys(supportedChains).map((chainId) => (
             <button
               key={chainId}

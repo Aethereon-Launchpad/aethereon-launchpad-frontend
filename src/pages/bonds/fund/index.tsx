@@ -15,9 +15,9 @@ import { Oval } from 'react-preloader-icon';
 import TxReceipt from "../../../components/Modal/TxReceipt";
 import { IoWalletSharp } from "react-icons/io5";
 import { createWalletClient, custom } from "viem";
-import { baseSepolia } from 'viem/chains';
 import { getTokenBalance, getTokenDecimals } from '../../../utils/web3/actions';
 import { usePageTitle } from '../../../hooks/utils/index.tsx';
+import { useChain } from '../../../context/ChainContext';
 
 interface Bond {
     id: string;
@@ -50,8 +50,9 @@ interface Bond {
 
 
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum as any)
     });
 };

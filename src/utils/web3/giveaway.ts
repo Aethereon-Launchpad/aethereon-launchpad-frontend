@@ -1,12 +1,13 @@
 import AirdropFactoryABI from "../../abis/AirdropFactory.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import AirdropABI from "../../abis/Airdrop.json";
-import { publicClient as client } from "../../config";
+import { getClient } from "./client";
 import { ethers } from 'ethers';
 import { getContractAddress } from '../source';
 
 export const getAllAirdropAddresses = async () => {
     try {
+        const client = await getClient();
         const airdropFactoryAddress = getContractAddress('airdropFactory');
         let addressList: `0x${string}`[] = [];
         let index = 0;
@@ -39,6 +40,7 @@ export const getAllAirdropAddresses = async () => {
 };
 
 export const getAllAirdropData = async () => {
+    const client = await getClient();
     const allAirdrops = await getAllAirdropAddresses();
 
     const airdropData = await Promise.all(allAirdrops.map(async (airdrop: `0x${string}`) => {
@@ -165,6 +167,7 @@ export const getAllAirdropData = async () => {
 };
 
 export const getAirdropDataByAddress = async (airdrop: `0x${string}`) => {
+    const client = await getClient();
     const airdropContract = {
         address: airdrop,
         abi: AirdropABI
@@ -326,6 +329,7 @@ export const getAirdropDataByAddress = async (airdrop: `0x${string}`) => {
 
 export const getClaimableTokens = async (airdrop: `0x${string}`, walletAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const claimableAmount = await client.readContract({
             address: airdrop,
             abi: AirdropABI,
@@ -369,6 +373,7 @@ export const getGiveawayByProjectName = async (projectName: string) => {
 
 export const isWhitelisted = async (airdrop: `0x${string}`, walletAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const isWhitelisted = await client.readContract({
             address: airdrop,
             abi: AirdropABI,

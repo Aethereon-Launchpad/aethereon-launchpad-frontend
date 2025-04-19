@@ -15,9 +15,9 @@ import { noOfDays } from "../../utils/tools";
 import { getTokenBalance, getStakingPoolPauseStatus, getTotalSupply, getAmountStaked, getTokenDecimals, getTokenAllowance, getNextRewardWithdrawTime, getStakingPoolRewardsAmount, getLastStakeTime, getStakingPoolDataByAddress, getStakingPoolOwner } from "../../utils/web3/actions";
 import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../context/ChainContext";
+import { publicClient } from "../../config";
 import stakingPoolABI from "../../abis/StakingPool.json";
 import erc20Abi from "../../abis/ERC20.json";
 import { ethers } from "ethers";
@@ -27,8 +27,9 @@ import ManageStaking from "../Modal/ManageStaking";
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
+  const { publicClient } = useChain();
   return createWalletClient({
-    chain: baseSepolia,
+    chain: publicClient.chain,
     transport: custom(window.ethereum)
   });
 };

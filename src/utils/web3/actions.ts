@@ -3,7 +3,7 @@ import stakingPoolABI from "../../abis/StakingPool.json"
 import votingSlotFactory from "../../abis/VotingSlotFactory.json";
 import votingSlotABI from "../../abis/VotingSlot.json";
 import ERC20ABI from "../../abis/ERC20.json";
-import { getPublicClient } from "../../config/publicClient"
+import { getClient } from "./client";
 import { ethers } from 'ethers';
 import { createWalletClient, custom, WalletClient } from 'viem';
 import { baseSepolia } from 'viem/chains';
@@ -21,7 +21,7 @@ export const createViemWalletClient = async (): Promise<WalletClient> => {
     }
 
     // Get the current chain from the public client
-    const client = getPublicClient();
+    const client = await getClient();
 
     const walletClient = createWalletClient({
         chain: client.chain,
@@ -38,7 +38,7 @@ export const isValidERC20 = async (tokenAddress: string): Promise<boolean> => {
             return false;
         }
 
-        const client = getPublicClient();
+        const client = await getClient();
 
         // Try to read basic ERC20 functions
         await Promise.all([
@@ -68,7 +68,7 @@ export const isValidERC20 = async (tokenAddress: string): Promise<boolean> => {
 
 export const getTokenSymbol = async (tokenAddress: `0x${string}`) => {
     try {
-        const client = getPublicClient();
+        const client = await getClient();
         const symbol = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
@@ -84,6 +84,7 @@ export const getTokenSymbol = async (tokenAddress: `0x${string}`) => {
 
 export const getTokenDecimals = async (tokenAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const decimals = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
@@ -102,6 +103,7 @@ export const getTokenBalance = async (
     walletAddress: `0x${string}`
 ): Promise<string> => {
     try {
+        const client = await getClient();
         const balance = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
@@ -124,6 +126,7 @@ export const getTokenBalance = async (
 
 export const getTokenAllowance = async (tokenAddress: `0x${string}`, spenderAddress: `0x${string}`, userWallet: `0x${string}`) => {
     try {
+        const client = await getClient();
         const allowance = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
@@ -150,6 +153,7 @@ export const getTokenAllowance = async (tokenAddress: `0x${string}`, spenderAddr
 
 export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const totalSupply = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,
@@ -171,6 +175,7 @@ export const getTotalSupply = async (tokenAddress: `0x${string}`) => {
 
 export const getStakingPoolFactoryFee = async () => {
     try {
+        const client = await getClient();
         const fee = await client.readContract({
             address: getContractAddress("stakingPoolFactory"),
             abi: stakingPoolActionsABI,
@@ -187,6 +192,7 @@ export const getStakingPoolFactoryFee = async () => {
 export const getAmountStaked = async (CA: `0x${string}`, userAddress: `0x${string}`) => {
     try {
         // Get Stake Token
+        const client = await getClient();
         const stakeTokenAddress = await client.readContract({
             address: CA,
             abi: stakingPoolABI,
@@ -221,6 +227,7 @@ export const getAmountStaked = async (CA: `0x${string}`, userAddress: `0x${strin
 
 export const calculateStakeRewards = async (CA: `0x${string}`, userAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         // Get Reward Token
         const rewardTokenAddress = await client.readContract({
             address: CA,
@@ -255,8 +262,9 @@ export const calculateStakeRewards = async (CA: `0x${string}`, userAddress: `0x$
 
 export const getStakingPoolRewardsAmount = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const rewards = await client.readContract({
-            address: stakingPoolAddress,
+            address: stakingPoolAddress,    
             abi: stakingPoolABI,
             functionName: "calculateReward",
             args: [userAddress]
@@ -285,7 +293,8 @@ export const getStakingPoolRewardsAmount = async (stakingPoolAddress: `0x${strin
 
 
 export const getNextRewardWithdrawTime = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
-    try {
+    try {        
+        const client = await getClient();
         const nextRewardTime = await client.readContract({
             address: stakingPoolAddress,
             abi: stakingPoolABI,
@@ -302,6 +311,7 @@ export const getNextRewardWithdrawTime = async (stakingPoolAddress: `0x${string}
 
 export const getLastStakeTime = async (stakingPoolAddress: `0x${string}`, userAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const lastStakeTime = await client.readContract({
             address: stakingPoolAddress,
             abi: stakingPoolABI,
@@ -317,7 +327,8 @@ export const getLastStakeTime = async (stakingPoolAddress: `0x${string}`, userAd
 }
 
 export const getStakingPoolPauseStatus = async (CA: `0x${string}`) => {
-    try {
+    try { 
+        const client = await getClient();
         const pauseStatus = await client.readContract({
             address: CA,
             abi: stakingPoolABI,
@@ -333,6 +344,7 @@ export const getStakingPoolPauseStatus = async (CA: `0x${string}`) => {
 
 export const getStakingPoolOwner = async (CA: `0x${string}`) => {
     try {
+        const client = await getClient();
         const owner = await client.readContract({
             address: CA,
             abi: stakingPoolABI,
@@ -404,6 +416,7 @@ export const getAllVotingPoolAddresses = async () => {
     // Testnet Voting Factory
     const votingPoolFactory = '0xDEb50f80349B5159D058e666134E611C99006b3a'
     try {
+        const client = await getClient();
         let addressList: `0x${string}`[] = []
         let index = 0
 
@@ -440,6 +453,7 @@ export const getAllVotingPoolAddresses = async () => {
 
 export const getVotingSlotData = async () => {
     const allSlots = await getAllVotingPoolAddresses();
+    const client = await getClient();
 
     const votingSlotData = await Promise.all(allSlots.map(async (slot) => {
         const slotContract = {
@@ -486,6 +500,7 @@ export const getVotingSlotData = async () => {
 };
 
 export const getVotingSlotByID = async (votingSlotAddress: `0x${string}`) => {
+    const client = await getClient();
     const slotContract = {
         address: votingSlotAddress,
         abi: votingSlotABI
@@ -528,6 +543,7 @@ export const getVotingSlotByID = async (votingSlotAddress: `0x${string}`) => {
 
 export const getAllStakingPoolAddress = async () => {
     const stakingPoolFactory = getContractAddress("stakingPoolFactory");
+    const client = await getClient();
 
     try {
         let addressList: `0x${string}`[] = []
@@ -567,6 +583,7 @@ export const getAllStakingPoolAddress = async () => {
 export const getAllStakingPoolData = async () => {
     try {
         const allPools = await getAllStakingPoolAddress();
+        const client = await getClient();
 
         const stakingPoolData = await Promise.all(allPools.map(async (pool: `0x${string}`) => {
             const poolContract = {
@@ -684,6 +701,7 @@ export const getStakingPoolDataByAddress = async (stakingPool: `0x${string}`) =>
         address: stakingPool,
         abi: stakingPoolABI
     };
+    const client = await getClient();
 
     const results = await client.multicall({
         contracts: [

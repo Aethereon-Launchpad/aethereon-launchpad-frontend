@@ -1,7 +1,7 @@
 import PresaleFactoryABI from "../../abis/PresaleFactory.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import Presale from "../../abis/Presale.json";
-import { publicClient as client } from "../../config"
+import { getClient } from "./client";
 import { ethers } from 'ethers';
 import { getContractAddress } from '../source';
 
@@ -15,6 +15,7 @@ const commonReadConfig = (presale: `0x${string}`, functionName: string) => ({
 export const getAllPresaleAddress = async () => {
     const presaleFactoryAddress = getContractAddress("presaleFactory")
     try {
+        const client = await getClient();
         let addressList: `0x${string}`[] = []
         let index = 0
 
@@ -51,6 +52,7 @@ export const getAllPresaleAddress = async () => {
 
 export const getAllPresaleData = async () => {
     const allPresales = await getAllPresaleAddress();
+    const client = await getClient();
 
     const presaleData = await Promise.all(allPresales.map(async (presale: `0x${string}`) => {
         const presaleContract = {
@@ -269,6 +271,7 @@ export const getAllPresaleData = async () => {
 }
 
 export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
+    const client = await getClient();
     const presaleContract = {
         address: presale,
         abi: Presale
@@ -524,6 +527,7 @@ export const getPresaleDataByAddress = async (presale: `0x${string}`) => {
 
 export const paymentMade = async (presale: `0x${string}`, walletAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const paymentReceived = await client.readContract({
             address: presale,
             abi: Presale,
@@ -542,6 +546,7 @@ export const paymentMade = async (presale: `0x${string}`, walletAddress: `0x${st
 
 export const getClaimableTokensAmount = async (presale: `0x${string}`, walletAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const claimableAmount = await client.readContract({
             address: presale,
             abi: Presale,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../../../../../layout/Admin";
 import { usePrivy } from "@privy-io/react-auth";
-import { baseSepolia } from "../../../../../config/chain";
+import { useChain } from "../../../../../context/ChainContext";
 import { publicClient } from "../../../../../config";
 import { useVoting } from "../../../../../hooks/web3/useVoting";
 import { createWalletClient, custom } from "viem";
@@ -12,8 +12,9 @@ import { IoWalletSharp } from "react-icons/io5";
 import VotingSlot from "../../../../../abis/VotingSlot.json";
 
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum)
     });
 };
@@ -155,4 +156,4 @@ export default function ManageVotingSlot() {
             </section>
         </Layout>
     );
-} 
+}

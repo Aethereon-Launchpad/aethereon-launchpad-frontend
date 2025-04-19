@@ -1,6 +1,6 @@
 import LockStakeABI from "../../abis/StakeLock.json";
 import ERC20ABI from "../../abis/ERC20.json";
-import { publicClient as client } from "../../config";
+import { getClient } from "./client";
 import { ethers } from "ethers";
 import { getTotalSupply } from "./actions";
 import { parseAbiItem } from "viem";
@@ -9,6 +9,7 @@ import { getContractAddress } from "../../utils/source";
 const stakeLock = getContractAddress("stakeLock");
 
 export const getLockAndStake = async () => {
+    const client = await getClient();
     const stakeLockContract = {
         address: stakeLock,
         abi: LockStakeABI
@@ -141,6 +142,7 @@ export const getLockAndStake = async () => {
 
 export const getUserLockStakeData = async (userAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const stakeLockContract = {
             address: stakeLock,
             abi: LockStakeABI
@@ -223,6 +225,7 @@ export const getUserLockStakeData = async (userAddress: `0x${string}`) => {
 
 export const estimateRewards = async (stakeAmount: bigint) => {
     try {
+        const client = await getClient();
         const stakeLockContract = {
             address: stakeLock,
             abi: LockStakeABI

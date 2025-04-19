@@ -17,9 +17,9 @@ import { PresaleCountdownTimer } from '../../Countdown';
 import { toast } from 'react-hot-toast';
 import TxReceipt from '../../Modal/TxReceipt';
 import AirdropABI from "../../../abis/Airdrop.json";
-import { baseSepolia } from "viem/chains";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../../context/ChainContext";
 // import ConfirmClaim from '../../Modal/ConfirmClaim';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
@@ -31,8 +31,9 @@ import { isWhitelisted } from '../../../utils/web3/giveaway';
 import { useGiveawayPeriods } from '../../../hooks/web3/useGiveawayPeriods';
 
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum)
     });
 };

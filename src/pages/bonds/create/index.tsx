@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallets, usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
-import { baseSepolia } from 'viem/chains';
 import Layout from '../../../layout/Admin';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { getContractAddress } from '../../../utils/source';
@@ -14,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import { createWalletClient, custom } from "viem";
 import TxReceipt from '../../../components/Modal/TxReceipt/index.tsx';
 import { usePageTitle } from '../../../hooks/utils/index.tsx';
+import { useChain } from '../../../context/ChainContext';
 
 interface TokenInfo {
     address: string;
@@ -24,8 +24,9 @@ interface TokenInfo {
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum)
     });
 };
@@ -576,4 +577,4 @@ function BondCreator() {
     );
 }
 
-export default BondCreator; 
+export default BondCreator;

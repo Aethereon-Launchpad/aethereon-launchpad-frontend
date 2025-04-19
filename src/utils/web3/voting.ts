@@ -1,4 +1,4 @@
-import { publicClient as client } from "../../config";
+import { getClient } from "./client";
 import { ethers } from 'ethers';
 import VotingSlotFactory from "../../abis/VotingSlotFactory.json";
 import VotingSlot from "../../abis/VotingSlot.json";
@@ -6,6 +6,7 @@ import VotingSlot from "../../abis/VotingSlot.json";
 export const getAllVotingSlots = async () => {
     const votingSlotFactory = '0xDEb50f80349B5159D058e666134E611C99006b3a';
     try {
+        const client = await getClient();
         let addressList: `0x${string}`[] = [];
         let index = 0;
 
@@ -38,6 +39,7 @@ export const getAllVotingSlots = async () => {
 
 export const getVotingSlotData = async (votingSlotAddress: `0x${string}`) => {
     try {
+        const client = await getClient();
         const [
             name,
             description,

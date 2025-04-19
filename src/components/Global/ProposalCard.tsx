@@ -6,8 +6,8 @@ import { useWallets } from '@privy-io/react-auth';
 import votingSlotAbi from "../../abis/VotingSlot.json"
 import toast from 'react-hot-toast';
 import { createWalletClient, custom } from 'viem';
-import { sonic } from 'viem/chains';
 import { publicClient } from '../../config';
+import { useChain } from '../../context/ChainContext';
 import ConfirmVoteModal from '../Modal/ConfirmVoteOption';
 import { isAfter, isBefore } from 'date-fns';
 
@@ -68,8 +68,9 @@ function calculateYesToNoPercentage(yesVotes: number, noVotes: number) {
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
+  const { publicClient } = useChain();
   return createWalletClient({
-    chain: sonic,
+    chain: publicClient.chain,
     transport: custom(window.ethereum)
   });
 };

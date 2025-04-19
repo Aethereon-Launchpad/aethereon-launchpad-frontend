@@ -7,7 +7,7 @@ import { isValidERC20, getTokenSymbol, getStakingPoolFactoryFee } from "../../ut
 import { Preloader, Oval } from 'react-preloader-icon';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import stakingPoolActionsABI from "../../abis/StakingPoolActions.json";
-import { baseSepolia } from "viem/chains";
+import { useChain } from "../../context/ChainContext";
 import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
 import { useNavigate } from "react-router-dom";
@@ -15,8 +15,9 @@ import { getContractAddress } from "../../utils/source";
 
 // Add this function to create wallet client
 const createViemWalletClient = () => {
+  const { publicClient } = useChain();
   return createWalletClient({
-    chain: baseSepolia,
+    chain: publicClient.chain,
     transport: custom(window.ethereum)
   });
 };
