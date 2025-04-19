@@ -1,7 +1,7 @@
 import BondFactoryABI from "../../abis/BondFactory.json";
 import ERC20ABI from "../../abis/ERC20.json";
 import Bond from "../../abis/Bond.json";
-import { publicClient as client } from "../../config"
+import { getClient } from "./client"
 import { ethers } from 'ethers';
 import { getContractAddress } from '../source';
 import { ensureRawGistURL } from "../tools";
@@ -21,6 +21,7 @@ export const getAllBondAddress = async () => {
 
         while (true) {
             try {
+                const client = getClient();
                 const address: any = await client.readContract({
                     address: bondFactoryAddress,
                     abi: BondFactoryABI,
@@ -57,6 +58,7 @@ export const getAllBondData = async () => {
             address: bond,
             abi: Bond
         }
+        const client = getClient();
         const results = await client.multicall({
             contracts: [
                 {
@@ -182,7 +184,7 @@ export const getAllBondData = async () => {
 
         if (!paymentToken.result) throw new Error('Invalid payment token address');
 
-        const paymentTokenData = await client.multicall({
+        const paymentTokenData = await getClient().multicall({
             contracts: [
                 {
                     address: paymentToken.result as `0x${string}`,
@@ -210,7 +212,7 @@ export const getAllBondData = async () => {
             paymentTokenDecimals
         ] = paymentTokenData;
 
-        const saleTokenData = await client.multicall({
+        const saleTokenData = await getClient().multicall({
             contracts: [
                 {
                     address: saleToken.result as `0x${string}`,
@@ -248,7 +250,7 @@ export const getAllBondData = async () => {
             let cliffPeriod: CliffVesting[] = []
             while (true) {
                 try {
-                    const currentPeriod: any = await client.readContract({
+                    const currentPeriod: any = await getClient().readContract({
                         address: bond,
                         abi: Bond,
                         functionName: 'cliffPeriod',
@@ -324,6 +326,7 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
         abi: Bond
     }
 
+    const client = getClient();
     const results = await client.multicall({
         contracts: [
             {
@@ -449,7 +452,7 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
 
     if (!paymentToken.result) throw new Error('Invalid payment token address');
 
-    const paymentTokenData = await client.multicall({
+    const paymentTokenData = await getClient().multicall({
         contracts: [
             {
                 address: paymentToken.result as `0x${string}`,
@@ -477,7 +480,7 @@ export const getBondDataByAddress = async (bond: `0x${string}`) => {
         paymentTokenDecimals
     ] = paymentTokenData;
 
-    const saleTokenData = await client.multicall({
+    const saleTokenData = await getClient().multicall({
         contracts: [
             {
                 address: saleToken.result as `0x${string}`,
@@ -712,7 +715,7 @@ export const isUserWhitelisted = async (bond: `0x${string}`, walletAddress: `0x$
                 walletAddress
             ]
         });
-        
+
         return Boolean(isWhitelisted);
     } catch (error: any) {
         console.error(error.message);
@@ -747,4 +750,4 @@ export const getBondDataByProjectName = async (projectName: string) => {
     // Filter out null values and return the first match
     const result = matchingBond.filter(p => p !== null);
     return result.length > 0 ? result[0] : null;
-} 
+}

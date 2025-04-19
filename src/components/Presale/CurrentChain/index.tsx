@@ -9,13 +9,13 @@ export default function CurrentChain({ chainId }: { chainId: string }) {
             )
         case "84532":
             return (
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                     {/* <!-- Icon from Web3 Icons by 0xa3k5 - https://github.com/0xa3k5/web3icons/blob/main/LICENCE --> */}
                     <path fill="#FFFFFF" d="M11.984 21C16.964 21 21 16.97 21 12s-4.036-9-9.016-9C7.26 3 3.384 6.627 3 11.244h11.917v1.513H3C3.385 17.373 7.26 21 11.984 21" /></svg>
             )
         case "11155931":
             return (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 252 303">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="20" height="20" viewBox="0 0 252 303">
                     <path fill="#fff"
                         d="M176.12.391H.5888v50.3245H176.12c13.848 0 25.076 11.2676 25.076 25.1628v25.1627H77.3556c-42.3973 0-76.7668 34.369-76.7668 76.767V302.34H50.741V184.002L177.663 302.334h73.697L89.4198 151.366H201.196v-50.08h50.164V75.8783C251.36 34.1876 217.664.391 176.12.391Z"
                         style={{ fill: '#fff', fillOpacity: 1 }} />

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { getAllBondData, getBondDataByAddress, getBondDataByProjectName } from '../../utils/web3/bond'
 import { ensureRawGistURL } from '../../utils/tools';
+import { CHAIN_ID } from '../../utils/source';
+import { useChain } from '../../context/ChainContext';
 
 interface UseBondReturn {
     loading: boolean;
@@ -23,9 +25,11 @@ interface UseBondOptions {
  */
 export function useBond(projectName?: string | null, options?: UseBondOptions, id?: `0x${string}` | null): UseBondReturn {
     const { polling = true } = options || {};
+    const { selectedChain } = useChain();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<{ message: string }>({ message: "" });
     const [data, setData] = useState<any[] | any>([]);
+    const [currentChainId, setCurrentChainId] = useState<string>(CHAIN_ID);
 
     const fetchData = async () => {
         try {
@@ -85,8 +89,50 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
         }
     };
 
+    // Effect to track global CHAIN_ID changes
+    useEffect(() => {
+        // Check if the chain has changed
+        if (currentChainId !== CHAIN_ID) {
+            console.log(`useBond: Global CHAIN_ID changed from ${currentChainId} to ${CHAIN_ID}, refetching...`);
+            setCurrentChainId(CHAIN_ID);
+            setLoading(true);
+            // Clear any cached data
+            setData([]);
+            // Fetch new data with a slight delay to ensure chain change is complete
+            setTimeout(() => {
+                fetchData();
+            }, 100);
+        }
+    }, [CHAIN_ID, currentChainId]);
+
+    // Effect to track selectedChain from context
+    useEffect(() => {
+        console.log(`useBond: selectedChain changed to ${selectedChain}, refetching...`);
+        setLoading(true);
+        fetchData();
+    }, [selectedChain]);
+
+    // Listen for the chainChanged custom event
+    useEffect(() => {
+        const handleChainChanged = (event: any) => {
+            console.log(`useBond: Received chainChanged event with chainId ${event.detail.chainId}`);
+            setLoading(true);
+            setData([]);
+            setTimeout(() => {
+                fetchData();
+            }, 100);
+        };
+
+        window.addEventListener('chainChanged', handleChainChanged);
+
+        return () => {
+            window.removeEventListener('chainChanged', handleChainChanged);
+        };
+    }, []);
+
     useEffect(() => {
         // Initial fetch
+        console.log(`useBond: Initial fetch with chain ${CHAIN_ID}`);
         fetchData();
 
         // Set up polling every 10 seconds if enabled
@@ -109,4 +155,4 @@ export function useBond(projectName?: string | null, options?: UseBondOptions, i
         data,
         refetch: fetchData
     };
-} 
+}

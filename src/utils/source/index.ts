@@ -33,10 +33,65 @@ export const service = {
     }
 } as const;
 
-// Default chain ID (Base Sepolia Testnet)
-export const CHAIN_ID = "84532";
+
+export const getChainName = (chainId: string): string => {
+    switch (chainId) {
+        case "84532":
+            return "Base Sepolia Testnet";
+        case "57054":
+            return "Sonic Testnet";
+        case "11155931":
+            return "Rise Testnet";
+        default:
+            return "Unknown Chain";
+    }
+}
+
+// Default chain ID (Rise Testnet)
+export const DEFAULT_CHAIN_ID = "11155931" as const;
+
+// Helper function to get the current chain ID
+// This will be used by components that don't have access to the context
+// Initialize from localStorage if available
+const savedChain = typeof window !== 'undefined' ? localStorage.getItem('selected_chain_id') : null;
+const initialChain = (savedChain && savedChain in service) ? savedChain as keyof typeof service : DEFAULT_CHAIN_ID;
+
+// Global variable to track the current chain ID
+export let CHAIN_ID: keyof typeof service = initialChain;
+
+console.log(`source/index.ts: Initial CHAIN_ID set to ${CHAIN_ID}`);
+
+// Function to update the current chain ID
+export const setCurrentChainId = (chainId: keyof typeof service) => {
+    try {
+        if (!(chainId in service)) {
+            console.error(`source/index.ts: Invalid chain ID: ${chainId}`);
+            return;
+        }
+
+        console.log(`source/index.ts: Setting CHAIN_ID from ${CHAIN_ID} to ${chainId}`);
+        CHAIN_ID = chainId;
+
+        // Save to localStorage for persistence
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('selected_chain_id', chainId);
+        }
+
+        return true;
+    } catch (error) {
+        console.error(`source/index.ts: Error setting chain ID:`, error);
+        return false;
+    }
+};
+
+export const getOwnerAddress = (chainId: keyof typeof service = CHAIN_ID) => {
+    return service[chainId].owner;
+}
 
 // Helper function to get contract addresses
-export const getContractAddress = (contractName: keyof typeof service[typeof CHAIN_ID]): `0x${string}` => {
-    return service[CHAIN_ID][contractName] as `0x${string}`;
+export const getContractAddress = <T extends keyof typeof service[typeof DEFAULT_CHAIN_ID]>(
+    contractName: T,
+    chainId: keyof typeof service = CHAIN_ID
+): `0x${string}` => {
+    return service[chainId][contractName];
 };

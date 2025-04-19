@@ -3,7 +3,7 @@ import stakingPoolABI from "../../abis/StakingPool.json"
 import votingSlotFactory from "../../abis/VotingSlotFactory.json";
 import votingSlotABI from "../../abis/VotingSlot.json";
 import ERC20ABI from "../../abis/ERC20.json";
-import { publicClient as client } from "../../config"
+import { getPublicClient } from "../../config/publicClient"
 import { ethers } from 'ethers';
 import { createWalletClient, custom, WalletClient } from 'viem';
 import { baseSepolia } from 'viem/chains';
@@ -20,8 +20,11 @@ export const createViemWalletClient = async (): Promise<WalletClient> => {
         throw new Error('No ethereum provider found');
     }
 
+    // Get the current chain from the public client
+    const client = getPublicClient();
+
     const walletClient = createWalletClient({
-        chain: baseSepolia,
+        chain: client.chain,
         transport: custom(window.ethereum)
     });
 
@@ -34,6 +37,8 @@ export const isValidERC20 = async (tokenAddress: string): Promise<boolean> => {
         if (!tokenAddress || tokenAddress.length !== 42 || !tokenAddress.startsWith('0x')) {
             return false;
         }
+
+        const client = getPublicClient();
 
         // Try to read basic ERC20 functions
         await Promise.all([
@@ -63,6 +68,7 @@ export const isValidERC20 = async (tokenAddress: string): Promise<boolean> => {
 
 export const getTokenSymbol = async (tokenAddress: `0x${string}`) => {
     try {
+        const client = getPublicClient();
         const symbol = await client.readContract({
             address: tokenAddress,
             abi: ERC20ABI,

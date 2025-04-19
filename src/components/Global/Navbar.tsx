@@ -6,6 +6,7 @@ import { HiMenuAlt3 } from "react-icons/hi";
 import { LuPlus } from "react-icons/lu";
 import { usePrivy } from "@privy-io/react-auth";
 import toast from "react-hot-toast";
+import ChainSelector from "../ChainSelector";
 
 function Navbar() {
   const [show, setShow] = React.useState(false);
@@ -152,13 +153,10 @@ function Navbar() {
         ))}
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
-        <Link
-          to="/explore"
-          className="hidden xl:flex items-center space-x-[5px]"
-        >
-          <img src="/ido.svg" alt="" />
-          <p>Join IDO</p>
-        </Link>
+        {/* Chain Selector */}
+        <div className="hidden xl:block">
+          <ChainSelector />
+        </div>
 
         <button
           className="relative px-6 py-2 font-[500] text-white flex items-center space-x-[5px] overflow-hidden group"
@@ -195,18 +193,11 @@ function Navbar() {
           </button>
         </div>
         <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895] ">
-          {/* {links.map((link, index) => (
-            <Link
-              onClick={() => setShow(!show)}
-              className={`text-[20px] font-[500] ${
-                isActive(link.link) ? "text-white" : "text-primary"
-              }`}
-              to={link.link}
-              key={index}
-            >
-              {link.title}
-            </Link>
-          ))} */}
+          {/* Chain Selector for Mobile */}
+          <div className="w-full mb-4">
+            <p className="text-[20px] font-[600] text-white mb-3">Select Chain</p>
+            <ChainSelector />
+          </div>
 
           {links.map((link, index) => (
             <div key={index} className="w-full">

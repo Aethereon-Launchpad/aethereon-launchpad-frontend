@@ -5,15 +5,13 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from "react-hot-toast"
 
-
-
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { apolloClient } from './graphql/client.ts';
 import { ApolloProvider } from '@apollo/client'
 import { privyConfig, config as wagmiConfig } from './config/index.ts'
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
+import { ChainProvider } from './context/ChainContext';
 
 const APP_ID = "cm7mrovwa02hggvx2noy1itlu"
 
@@ -26,7 +24,9 @@ createRoot(document.getElementById('root')!).render(
         <PrivyProvider appId={APP_ID} config={privyConfig}>
           <QueryClientProvider client={queryClient}>
             <WagmiProvider config={wagmiConfig}>
-              <App />
+              <ChainProvider>
+                <App />
+              </ChainProvider>
             </WagmiProvider>
           </QueryClientProvider>
         </PrivyProvider>

@@ -8,9 +8,8 @@ import { PresaleCountdownTimer } from '../Countdown';
 import { toast } from 'react-hot-toast';
 import TxReceipt from '../Modal/TxReceipt';
 import PresaleABI from "../../abis/Presale.json";
-import { baseSepolia } from 'viem/chains';
-import { publicClient } from "../../config";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../context/ChainContext";
 import ConfirmPurchase from '../Modal/ConfirmPurchase';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
@@ -25,14 +24,16 @@ import { getTokenBalance } from '../../utils/web3/actions';
 import { usePageTitleIDO } from '../../hooks/utils';
 
 const createViemWalletClient = () => {
+    const { publicClient } = useChain();
     return createWalletClient({
-        chain: baseSepolia,
+        chain: publicClient.chain,
         transport: custom(window.ethereum)
     });
 };
 
 
 export default function IDOComponent() {
+    const { publicClient } = useChain();
     const { id } = useParams<{ id: string }>();
     const { data, error, loading, refetch } = usePresale(id, { polling: false })
     const [showPaymentConfirmModal, setShowPaymentConfirmModal] = useState<boolean>(false);

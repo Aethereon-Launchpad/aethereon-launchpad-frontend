@@ -2,12 +2,24 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBond } from '../../hooks/web3/useBond';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
+import { useChain } from '../../context/ChainContext';
+import { CHAIN_ID } from '../../utils/source';
 import { differenceInDays, format } from 'date-fns';
 
 function FeaturedBonds() {
-    const { data, loading, error } = useBond(null, { polling: true });
+    const { selectedChain } = useChain();
+    const { data, loading, error, refetch } = useBond(null, { polling: true });
     const [featuredBond, setFeaturedBond] = useState<any>(null);
     const navigate = useNavigate();
+
+    // Log the current chain when the component renders
+    useEffect(() => {
+        console.log(`FeaturedBonds: Rendering with chain ${selectedChain} (Global: ${CHAIN_ID})`);
+
+        // Force a refetch when the chain changes
+        console.log(`FeaturedBonds: Chain changed, refetching data...`);
+        refetch();
+    }, [selectedChain, CHAIN_ID, refetch]);
 
     // Select the most recent upcoming bond as the featured bond
     useEffect(() => {
@@ -48,10 +60,10 @@ function FeaturedBonds() {
                 <div className='w-full min-h-full relative h-full col-span-4'
                 >
                     <div className="bg-black bg-opacity-50 flex flex-col items-center justify-center p-6 h-full text-center" style={
-                        featuredBond?.bondInfo?.images?.bg ? { 
-                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${featuredBond?.bondInfo?.images?.bg})`, 
-                            backgroundSize: 'cover', 
-                            backgroundPosition: 'center', 
+                        featuredBond?.bondInfo?.images?.bg ? {
+                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${featuredBond?.bondInfo?.images?.bg})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
                             height: "100%",
                             display: 'flex',
