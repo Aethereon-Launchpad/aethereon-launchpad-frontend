@@ -7,7 +7,7 @@ const chains: string[] = [
   "/icons/blockchain/binance.svg",
   "/icons/blockchain/polygon.svg",
   "/icons/blockchain/avalanche.svg",
-  "/icons/blockchain/sonic.svg"
+  "/icons/blockchain/sonic.svg",
 ]
 
 function HomeHero() {
