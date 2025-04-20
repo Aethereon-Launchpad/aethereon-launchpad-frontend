@@ -103,7 +103,7 @@ function ConfirmPurchase({
                     </div>
                     {!isRefundPeriod && (
                         <div className="bg-[#291254]/80 p-4  border border-primary/20">
-                            <p className="text-[#C4C4C4] text-sm mb-1">You can only contribute: Min: {minAmount} {tokenSymbol} | Max: {maxAmount} {tokenSymbol}</p>
+                            <p className="text-[#C4C4C4] text-sm mb-1">You can contribute: Min: {minAmount} {tokenSymbol} | Max: {maxAmount} {tokenSymbol}</p>
                             <p className="text-white text-3xl font-bold flex">
                                 <input type="number" value={purchaseAmount} className="outline-none border-none bg-transparent w-28" min={minAmount} max={maxAmount} onChange={(e) => setPurchaseAmount(Number(e.target.value))} /> <span className="text-primary">{tokenSymbol}</span>
                             </p>
