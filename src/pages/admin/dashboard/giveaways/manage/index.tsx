@@ -14,11 +14,7 @@ import { IoWalletSharp } from "react-icons/io5";
 import { formatSeconds } from "../../../../../utils/timeFormatter";
 import { getContractAddress } from "../../../../../utils/source";
 
-const createViemWalletClient = (chainId?: string) => {
-    return createWalletClient({
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 export default function AdminGiveawayManageID() {
     const { authenticated, login, user } = usePrivy();
@@ -27,7 +23,16 @@ export default function AdminGiveawayManageID() {
     const { data, error, loading, refetch } = useGiveaway(id, { polling: false });
     const { wallets } = useWallets();
     const wallet = wallets[0];
+    console.log(wallet)
     const { publicClient, selectedChain } = useChain();
+
+    // Define createViemWalletClient inside the component to access the chain context
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain, // Use the chain from the ChainContext
+            transport: custom(window.ethereum as any)
+        });
+    };
 
     // Helper function to get the chain name
     const getChainName = () => {
@@ -128,7 +133,7 @@ export default function AdminGiveawayManageID() {
     };
 
     async function handleToggleAirdropType() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setAirdropTypeSetting(prev => ({ ...prev, loading: true }));
 
@@ -176,7 +181,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetStakingPool() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setStakingPoolSetting(prev => ({ ...prev, loading: true }));
 
@@ -190,7 +195,7 @@ export default function AdminGiveawayManageID() {
 
         try {
             // Make sure wallet is on the correct chain
-            if (wallet.chainId !== selectedChain) {
+            if (!wallet.chainId.includes(selectedChain)) {
                 console.log(`Switching wallet to chain ${getChainName()} (${selectedChain})`);
                 await wallet.switchChain(parseInt(selectedChain));
             }
@@ -237,7 +242,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetTokenPerUser() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setTokenPerUserSetting(prev => ({ ...prev, loading: true }));
 
@@ -300,7 +305,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetMultiplier() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setMultiplierSetting(prev => ({ ...prev, loading: true }));
 
@@ -363,7 +368,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetWhitelistPeriod() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setWhitelistPeriodSetting(prev => ({ ...prev, loading: true }));
 
@@ -437,7 +442,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetWithdrawDelay() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setWithdrawDelaySetting(prev => ({ ...prev, loading: true }));
 
@@ -494,7 +499,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetLinearVesting() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setLinearVestingSetting(prev => ({ ...prev, loading: true }));
 
@@ -550,7 +555,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleSetCliffPeriod() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setCliffPeriods(prev => ({ ...prev, loading: true }));
 
@@ -648,7 +653,7 @@ export default function AdminGiveawayManageID() {
     }
 
     async function handleAddUserToWhitelist() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
 
         console.log(`Adding user to whitelist on chain ${getChainName()} (${selectedChain})`);

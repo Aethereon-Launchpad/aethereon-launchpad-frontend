@@ -402,7 +402,7 @@ export default function GiveawaySelected() {
                         <div>
                             <img
                                 src={data?.giveawayInfo?.images?.logo}
-                                className="h-[40px] w-full object-contain"
+                                className="h-[30px] w-full object-contain"
                                 alt=""
                             />
                         </div>
