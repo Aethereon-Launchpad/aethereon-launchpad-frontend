@@ -34,12 +34,7 @@ interface Presale {
     withdrawDelay: number;
 }
 
-// Create wallet client function
-const createViemWalletClient = (chainId?: string) => {
-    return createWalletClient({
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 export default function PresaleCreator() {
@@ -65,6 +60,14 @@ export default function PresaleCreator() {
     const [txHash, setTxHash] = useState<`0x${string}`>("0x");
     const { wallets } = useWallets();
     const { publicClient, selectedChain } = useChain();
+
+    // Define createViemWalletClient inside the component to access the chain context
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain, // Use the chain from the ChainContext
+            transport: custom(window.ethereum as any)
+        });
+    };
 
     const navigate = useNavigate();
 
@@ -210,7 +213,7 @@ export default function PresaleCreator() {
             const salePrice = formatEthValues(formData.salePrice.toString());
 
             // Process Wallet
-            const walletClient = await createViemWalletClient(selectedChain);
+            const walletClient = createViemWalletClient();
             const [account] = await walletClient.getAddresses();
 
             if (!account) {

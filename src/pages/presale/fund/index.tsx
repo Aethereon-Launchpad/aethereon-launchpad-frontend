@@ -1,9 +1,8 @@
 import { useParams } from "react-router-dom"
 import { useState, useEffect } from "react";
-import { baseSepolia } from "viem/chains";
-import { publicClient } from "../../../config";
 import { usePresale } from "../../../hooks/web3/usePresale";
 import { createWalletClient, custom } from "viem";
+import { useChain } from "../../../context/ChainContext";
 import { Oval, Preloader, ThreeDots } from 'react-preloader-icon';
 import TxReceipt from "../../../components/Modal/TxReceipt";
 import Presale from '../../../abis/Presale.json';
@@ -14,12 +13,7 @@ import { getTokenAllowance, getTokenDecimals } from "../../../utils/web3/actions
 import { toast } from "react-hot-toast";
 import { IoWalletSharp } from "react-icons/io5";
 
-const createViemWalletClient = () => {
-    return createWalletClient({
-        chain: baseSepolia,
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 export default function Fund() {
     const { id } = useParams<{ id: `0x${string}` }>();
@@ -30,6 +24,15 @@ export default function Fund() {
     const [showTxModal, setShowTxModal] = useState<boolean>(false);
     const [txReceiptTitle, setTxReceiptTitle] = useState<string>("Successfully Funded Presale");
     const [txHash, setTxHash] = useState<string>("");
+    const { publicClient, selectedChain } = useChain();
+
+    // Define createViemWalletClient inside the component to access the chain context
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain, // Use the chain from the ChainContext
+            transport: custom(window.ethereum as any)
+        });
+    };
 
     if (loading) {
         return (
@@ -51,6 +54,13 @@ export default function Fund() {
 
     async function fundPresale() {
         setFunding(true);
+        if (!authenticated) {
+            toast("Please connect your wallet");
+            login();
+            setFunding(false);
+            return;
+        }
+
         const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         const decimals = await getTokenDecimals(data.saleToken.id)

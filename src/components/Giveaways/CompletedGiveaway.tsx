@@ -7,6 +7,7 @@ import { useGiveaway } from "../../hooks/web3/useGiveaway";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
 import CurrentChain from "../Presale/CurrentChain";
+import { useChain } from "../../context/ChainContext";
 
 function CompletedGiveaways() {
     const { data, error, loading } = useGiveaway();
@@ -15,6 +16,7 @@ function CompletedGiveaways() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const navigate = useNavigate();
+    const { selectedChain } = useChain();
 
     useEffect(() => {
         if (data) {
@@ -22,7 +24,7 @@ function CompletedGiveaways() {
             const filtered = data.filter((giveaway: any) => {
                 const endTime = Number(giveaway.whitelistEndTime) * 1000;
                 return !isBefore(currentTime, endTime);
-            }).filter((giveaway: any) => 
+            }).filter((giveaway: any) =>
                 giveaway.giveawayInfo?.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 giveaway.airdropToken?.symbol.toLowerCase().includes(searchTerm.toLowerCase())
             );
@@ -43,11 +45,10 @@ function CompletedGiveaways() {
     const PaginationButton = ({ page, isActive }: { page: number, isActive: boolean }) => (
         <button
             onClick={() => paginate(page)}
-            className={`px-3 py-1 mx-1 rounded ${
-                isActive 
-                    ? 'bg-primary text-white' 
-                    : 'bg-[#1A1A1A] text-gray-400 hover:bg-primary/20'
-            }`}
+            className={`px-3 py-1 mx-1 rounded ${isActive
+                ? 'bg-primary text-white'
+                : 'bg-[#1A1A1A] text-gray-400 hover:bg-primary/20'
+                }`}
         >
             {page}
         </button>
@@ -58,17 +59,17 @@ function CompletedGiveaways() {
         for (let i = 1; i <= totalPages; i++) {
             // Show first page, last page, current page, and one page before and after current
             if (
-                i === 1 || 
+                i === 1 ||
                 i === totalPages ||
                 i === currentPage ||
                 i === currentPage - 1 ||
                 i === currentPage + 1
             ) {
                 pages.push(
-                    <PaginationButton 
-                        key={i} 
-                        page={i} 
-                        isActive={currentPage === i} 
+                    <PaginationButton
+                        key={i}
+                        page={i}
+                        isActive={currentPage === i}
                     />
                 );
             } else if (
@@ -134,15 +135,15 @@ function CompletedGiveaways() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full md:w-[300px] px-4 py-2 bg-[#1A1A1A] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-primary"
                     />
-                    <svg 
-                        className="absolute right-3 top-2.5 text-gray-400" 
-                        width="20" 
-                        height="20" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
+                    <svg
+                        className="absolute right-3 top-2.5 text-gray-400"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
                         strokeLinejoin="round"
                     >
                         <circle cx="11" cy="11" r="8"></circle>
@@ -166,15 +167,15 @@ function CompletedGiveaways() {
                         <tbody>
                             {currentItems.length > 0 ? (
                                 currentItems.map((giveaway: any, index: number) => (
-                                    <tr 
+                                    <tr
                                         key={index}
                                         onClick={() => navigate(`/deals/giveaways/${giveaway?.giveawayInfo?.projectName.toLowerCase()}`)}
                                         className="border-b border-gray-800 hover:bg-white/5 transition-colors cursor-pointer"
                                     >
                                         <td className="p-4">
                                             <div className="flex items-center space-x-3">
-                                                <img 
-                                                    src={giveaway.giveawayInfo?.images?.logo} 
+                                                <img
+                                                    src={giveaway.giveawayInfo?.images?.logo}
                                                     alt={giveaway.giveawayInfo?.projectName}
                                                     className="w-8 h-8 rounded-full"
                                                 />
@@ -192,7 +193,7 @@ function CompletedGiveaways() {
                                             {giveaway.giveawayInfo?.totalReward.toLocaleString()} {giveaway.airdropToken?.symbol}
                                         </td>
                                         <td className="p-4 text-[#ACBBCC]">
-                                            {giveaway.linearVestingEndTime && giveaway.linearVestingEndTime > 0 
+                                            {giveaway.linearVestingEndTime && giveaway.linearVestingEndTime > 0
                                                 ? `${Math.floor((giveaway.linearVestingEndTime - giveaway.startTime) / 86400)} days`
                                                 : "No vesting"
                                             }
@@ -206,7 +207,7 @@ function CompletedGiveaways() {
                                             })}
                                         </td>
                                         <td className="p-4">
-                                            <CurrentChain chainId="84532" />
+                                            <CurrentChain chainId={giveaway.chainId || selectedChain} />
                                         </td>
                                     </tr>
                                 ))
@@ -221,7 +222,7 @@ function CompletedGiveaways() {
                     </table>
                 </div>
             </div>
-            
+
             {filteredGiveaways.length > itemsPerPage && <Pagination />}
         </div>
     );

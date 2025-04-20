@@ -66,7 +66,7 @@ function ConfirmPurchase({
         if (paymentMadeAmount === 0) {
             return (
                 <div className="space-y-6">
-                    <div className="bg-[#291254]/80 p-6 rounded-2xl border border-primary/20">
+                    <div className="bg-[#291254]/80 p-6  border border-primary/20">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="text-[#C4C4C4]">Min Contribution</span>
@@ -78,7 +78,7 @@ function ConfirmPurchase({
                             </div>
                         </div>
                     </div>
-                    <div className="bg-[#291254]/80 p-6 rounded-2xl border border-primary/20">
+                    <div className="bg-[#291254]/80 p-6  border border-primary/20">
                         <p className="text-[#C4C4C4] text-sm mb-3">You are about to spend:</p>
                         <div className="flex items-center gap-3">
                             <input
@@ -97,12 +97,12 @@ function ConfirmPurchase({
         } else {
             return (
                 <div className="space-y-4">
-                    <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
+                    <div className="bg-[#291254]/80 p-4  border border-primary/20">
                         <p className="text-[#C4C4C4] text-sm mb-1">Current Contribution:</p>
                         <p className="text-3xl font-bold">{paymentMadeAmount} {tokenSymbol}</p>
                     </div>
                     {!isRefundPeriod && (
-                        <div className="bg-[#291254]/80 p-4 rounded-xl border border-primary/20">
+                        <div className="bg-[#291254]/80 p-4  border border-primary/20">
                             <p className="text-[#C4C4C4] text-sm mb-1">You can only contribute: Min: {minAmount} {tokenSymbol} | Max: {maxAmount} {tokenSymbol}</p>
                             <p className="text-white text-3xl font-bold flex">
                                 <input type="number" value={purchaseAmount} className="outline-none border-none bg-transparent w-28" min={minAmount} max={maxAmount} onChange={(e) => setPurchaseAmount(Number(e.target.value))} /> <span className="text-primary">{tokenSymbol}</span>
@@ -122,12 +122,12 @@ function ConfirmPurchase({
     if (isRefundPeriod && paymentMadeAmount === 0) {
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-                <div className="bg-[#17043B] border border-primary/50 rounded-2xl w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100 space-y-3">
+                <div className="bg-[#17043B] border border-primary/50  w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100 space-y-3">
                     <h2 className="text-white text-2xl font-bold mb-6 text-center">Confirm Purchase</h2>
                     <p className="text-white text-center">You have not made any payment for this presale</p>
                     <button
                         onClick={onClose}
-                        className="w-full py-2.5 text-[#C4C4C4] hover:text-white rounded-lg hover:bg-white/5 transition-colors duration-200"
+                        className="w-full py-2.5 text-[#C4C4C4] hover:text-white  hover:bg-white/5 transition-colors duration-200"
                     >
                         Close
                     </button>
@@ -140,7 +140,7 @@ function ConfirmPurchase({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className="bg-[#17043B] border border-primary/50 rounded-2xl w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100">
+            <div className="bg-[#17043B] border border-primary/50  w-full max-w-md p-6 transform transition-all duration-300 scale-95 hover:scale-100">
                 <h2 className="text-white text-2xl font-bold mb-6 text-center">Confirm Purchase</h2>
 
                 <AmountProcess />
@@ -149,7 +149,7 @@ function ConfirmPurchase({
                     {!authenticated ? (
                         <button
                             onClick={login}
-                            className="bg-primary/90 hover:bg-primary w-full py-3 rounded-xl text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                            className="bg-primary/90 hover:bg-primary w-full py-3  text-white font-medium flex items-center justify-center space-x-2 transition-all duration-200 hover:scale-[1.02] active:scale-95"
                         >
                             <IoWalletSharp className="w-5 h-5" />
                             <span>Connect Wallet</span>
@@ -160,7 +160,7 @@ function ConfirmPurchase({
                                 <button
                                     onClick={requestRefund}
                                     disabled={refunding}
-                                    className="border border-white/90 hover:border-white w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    className="border border-white/90 hover:border-white w-full py-3  text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 >
                                     {refunding ? (
                                         <Preloader
@@ -179,7 +179,7 @@ function ConfirmPurchase({
                                 <button
                                     onClick={onConfirm}
                                     disabled={loading}
-                                    className="bg-primary/90 hover:bg-primary w-full py-3 rounded-xl text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    className="bg-primary/90 hover:bg-primary w-full py-3  text-white font-medium flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 >
                                     {loading ? (
                                         <Preloader
@@ -199,7 +199,7 @@ function ConfirmPurchase({
 
                     <button
                         onClick={onClose}
-                        className="w-full py-2.5 text-[#C4C4C4] hover:text-white rounded-lg hover:bg-white/5 transition-colors duration-200"
+                        className="w-full py-2.5 text-[#C4C4C4] hover:text-white  hover:bg-white/5 transition-colors duration-200"
                     >
                         Cancel
                     </button>

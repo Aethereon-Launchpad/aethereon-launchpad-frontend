@@ -131,6 +131,8 @@ function Navbar() {
                         <p className="text-sm text-gray-400">
                           {child.title === "Giveaways"
                             ? "Join campaigns and earn free tokens"
+                            : child.title === "IDO"
+                            ? "Participate in token launches with exclusive early access"
                             : "Get exchange-listed tokens at a discount"}
                         </p>
                       </div>

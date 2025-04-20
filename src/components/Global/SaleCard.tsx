@@ -111,6 +111,18 @@ function SaleCard({ presale }: any) {
                   {totalRaised.toLocaleString()} {presale.paymentToken?.symbol}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Soft Cap</span>
+                <span className="text-white">
+                  {Number(presale.softCap).toLocaleString()} {presale.paymentToken?.symbol}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Hard Cap</span>
+                <span className="text-white">
+                  {Number(presale.hardCap).toLocaleString()} {presale.paymentToken?.symbol}
+                </span>
+              </div>
               {presale.presaleInfo.hiddenData && presale.presaleInfo.hiddenData.tokenPrice === "TBA" ? (
                 <div className="flex justify-between">
                   <span className="text-[#ACBBCC]">Token Price</span>
@@ -188,7 +200,7 @@ function SaleCard({ presale }: any) {
         </div>
 
         <button
-          onClick={() => navigation(`/launchpad/${presale.presaleInfo.projectName.toLowerCase()}`)}
+          onClick={() => navigation(`/deals/launchpad/${presale.presaleInfo.projectName.toLowerCase()}`)}
           className="w-full bg-primary hover:bg-primary/90 transition-all mt-6 text-white py-3 uppercase flex items-center justify-center cursor-pointer max-h-[35px]"
         >
           Join Now

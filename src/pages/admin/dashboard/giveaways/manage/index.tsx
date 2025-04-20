@@ -13,6 +13,7 @@ import erc20Abi from "../../../../../abis/ERC20.json";
 import { IoWalletSharp } from "react-icons/io5";
 import { formatSeconds } from "../../../../../utils/timeFormatter";
 import { getContractAddress } from "../../../../../utils/source";
+import { FaCopy } from "react-icons/fa6";
 
 // The createViemWalletClient function will be defined inside the component
 
@@ -766,6 +767,12 @@ export default function AdminGiveawayManageID() {
                             <div className="text-center">
                                 <p className='text-primary text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px] mb-2'>
                                     Manage {data?.giveawayInfo?.projectName || "Giveaway"}
+                                </p>
+                                <p className="py-3 flex gap-x-1 items-center justify-center space-x-2 cursor-pointer" onClick={() => {
+                                    navigator.clipboard.writeText(data.id)
+                                    toast.success("Copied to clipboard!")
+                                }}>
+                                    {data.id} <FaCopy />
                                 </p>
                                 <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
                                     <span className="w-3 h-3 rounded-full bg-green-500"></span>

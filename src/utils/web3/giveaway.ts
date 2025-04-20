@@ -3,7 +3,7 @@ import ERC20ABI from "../../abis/ERC20.json";
 import AirdropABI from "../../abis/Airdrop.json";
 import { getClient } from "./client";
 import { ethers } from 'ethers';
-import { getContractAddress } from '../source';
+import { getContractAddress, CHAIN_ID } from '../source';
 import { ensureRawGistURL } from '../tools';
 
 export const getAllAirdropAddresses = async () => {
@@ -160,7 +160,8 @@ export const getAllAirdropData = async () => {
             tokenPerUser: Number(tokenPerUser.result),
             multiplier: Number(multiplier.result),
             stakingPool: stakingPool.result,
-            isPrivateAirdrop: isPrivateAirdrop.result
+            isPrivateAirdrop: isPrivateAirdrop.result,
+            chainId: CHAIN_ID // Add the current chain ID
         };
     }));
 
@@ -324,7 +325,8 @@ export const getAirdropDataByAddress = async (airdrop: `0x${string}`) => {
         multiplier: Number(multiplier.result),
         stakingPool: stakingPool.result,
         isPrivateAirdrop: isPrivateAirdrop.result,
-        cliffPeriod
+        cliffPeriod,
+        chainId: CHAIN_ID // Add the current chain ID
     };
 };
 

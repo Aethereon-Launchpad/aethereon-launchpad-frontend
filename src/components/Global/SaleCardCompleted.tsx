@@ -109,6 +109,18 @@ function SaleCardCompleted({ presale }: any) {
                 </span>
               </div>
               <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Soft Cap</span>
+                <span className="text-white">
+                  {Number(presale.softCap).toLocaleString()} {presale.paymentToken?.symbol}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#ACBBCC]">Hard Cap</span>
+                <span className="text-white">
+                  {Number(presale.hardCap).toLocaleString()} {presale.paymentToken?.symbol}
+                </span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-[#ACBBCC]">Token Price</span>
                 <span className="text-white">
                   ${presale.salePrice}

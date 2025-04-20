@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAllPresaleData, getPresaleDataByAddress, getPresaleDataByProjectName } from '../../utils/web3/presale'
+import { ensureRawGistURL } from '../../utils/tools';
 
 interface UsePresaleReturn {
     loading: boolean;
@@ -36,7 +37,7 @@ export function usePresale(projectName?: string | null, options?: UsePresaleOpti
                 result = await getPresaleDataByAddress(id);
                 if (result) {
                     try {
-                        const response = await fetch(result.metadataURI as string);
+                        const response = await fetch(ensureRawGistURL(result.metadataURI as string));
                         if (response.ok) {
                             const data = await response.json();
                             result = {
@@ -58,7 +59,7 @@ export function usePresale(projectName?: string | null, options?: UsePresaleOpti
                     await new Promise(resolve => setTimeout(resolve, index * 2000));
 
                     try {
-                        const response = await fetch(presale.metadataURI as string);
+                        const response = await fetch(ensureRawGistURL(presale.metadataURI as string));
                         if (response.ok) {
                             const data = await response.json();
                             return {

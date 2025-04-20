@@ -13,12 +13,10 @@ import { ethers } from "ethers";
 import erc20Abi from "../../../../../abis/ERC20.json";
 import Presale from "../../../../../abis/Presale.json"
 import { Link } from "react-router-dom";
+import { FaCopy } from "react-icons/fa";
+import { getContractAddress } from "../../../../../utils/source";
 
-const createViemWalletClient = (chainId?: string) => {
-    return createWalletClient({
-        transport: custom(window.ethereum)
-    });
-};
+// The createViemWalletClient function will be defined inside the component
 
 
 export default function AdminPresaleManageID() {
@@ -27,6 +25,14 @@ export default function AdminPresaleManageID() {
     const { data, error, loading, refetch } = usePresale(id, { polling: false });
     const { publicClient, selectedChain } = useChain();
     const wallet = window.ethereum;
+
+    // Define createViemWalletClient inside the component to access the chain context
+    const createViemWalletClient = () => {
+        return createWalletClient({
+            chain: publicClient.chain, // Use the chain from the ChainContext
+            transport: custom(window.ethereum as any)
+        });
+    };
 
     // Helper function to get the chain name
     const getChainName = () => {
@@ -116,7 +122,7 @@ export default function AdminPresaleManageID() {
     };
 
     async function handleSetCliffPeriod() {
-        const walletClient = createViemWalletClient(selectedChain);
+        const walletClient = createViemWalletClient();
         const [account] = await walletClient.getAddresses();
         setCliffPeriods((prevState) => ({ ...prevState, loading: true }));
 
@@ -355,7 +361,7 @@ export default function AdminPresaleManageID() {
                 toast("Invalid Tax Collector")
                 return;
             }
-            toast.error("Tax Collector Setting Failed, Please Try Again later")
+            toast.error("Lock & Stake Setting Failed, Please Try Again later")
         } finally {
             setStakingPool((prevState) => ({ ...prevState, loading: false }))
         }
@@ -505,6 +511,12 @@ export default function AdminPresaleManageID() {
                                 <p className='text-primary text-[28px] lg:text-[36px] font-[700] uppercase tracking-[3px] mb-2'>
                                     Manage {data?.presaleInfo?.projectName}
                                 </p>
+                                <p className="py-3 flex gap-x-1 items-center justify-center space-x-2 cursor-pointer" onClick={() => {
+                                    navigator.clipboard.writeText(data.id)
+                                    toast.success("Copied to clipboard!")
+                                }}>
+                                    {data.id} <FaCopy />
+                                </p>
                                 <div className="inline-flex items-center gap-2 bg-[#291254] px-4 py-2 rounded-full">
                                     <span className="w-3 h-3 rounded-full bg-green-500"></span>
                                     <span className="text-sm font-medium">
@@ -573,6 +585,7 @@ export default function AdminPresaleManageID() {
                     {/* Staking Pool Section */}
                     <div className="w-full bg-[#12092B]/50 p-6 rounded-xl border border-primary/20 space-y-6">
                         <h3 className="text-xl font-semibold text-primary">Lock & Stake</h3>
+                        <span>Current StakeLock : {getContractAddress("stakeLock")}</span>
                         <div className="space-y-4">
                             <div className="flex flex-col space-y-2">
                                 <label htmlFor="lockStakeAddress" className="text-[#C4C4C4] text-sm">

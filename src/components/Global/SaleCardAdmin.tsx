@@ -165,7 +165,7 @@ function SaleCardAdmin({ presale }: any) {
         </div>
 
         <button
-          onClick={() => navigation(`/admin/dashboard/presales/manage/${presale.id}`)}
+          onClick={() => navigation(`/admin/dashboard/presales/manage/${presale.presaleInfo.projectName.toLowerCase()}`)}
           className="w-full bg-primary hover:bg-primary/90 transition-all mt-6 text-white py-3 uppercase flex items-center justify-center cursor-pointer max-h-[35px]"
         >
           Manage Sale
