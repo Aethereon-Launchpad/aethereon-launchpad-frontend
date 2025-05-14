@@ -721,50 +721,78 @@ export default function GiveawaySelected() {
 
                     <div className="relative space-y-6">
                         <div>
-                            <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
+                            <motion.h1
+                                className="text-4xl font-bold font-orbitron"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                            >
                                 {data?.giveawayInfo?.projectName}
-                            </p>
-                            <p className='text-primary text-lg uppercase font-medium tracking-[0.2em] mt-2'>
+                            </motion.h1>
+                            <motion.p
+                                className="text-skyblue text-lg font-space mt-2"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.5 }}
+                            >
                                 Participate in the Future
-                            </p>
+                            </motion.p>
                         </div>
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                            <div className='bg-[#17043B]/50 p-6 border border-primary/20'>
-                                <h3 className='text-xl font-semibold mb-4 text-primary'>Airdrop Details</h3>
+                            <motion.div
+                                className='bg-deepspace/50 p-6 rounded-lg border border-cosmic/20'
+                                whileHover={{ borderColor: "rgba(108, 92, 231, 0.5)" }}
+                            >
+                                <div className="flex items-center gap-3 mb-4">
+                                    <FaGift className="text-cosmic" />
+                                    <h3 className='text-xl font-semibold text-white font-orbitron'>Airdrop Details</h3>
+                                </div>
                                 <ul className='space-y-3'>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Whitelist Start Date</span>
-                                        <span className='font-medium'>{format(new Date(data.whitelistStartTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                        <span className='text-skyblue font-space'>Whitelist Start Date</span>
+                                        <span className='font-medium text-white font-orbitron'>{format(new Date(data.whitelistStartTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Whitelist End Date</span>
-                                        <span className='font-medium'>{format(new Date(data.whitelistEndTime * 1000), 'dd MMM yyyy HH:mm')}</span>
+                                        <span className='text-skyblue font-space'>Whitelist End Date</span>
+                                        <span className='font-medium text-white font-orbitron'>{format(new Date(data.whitelistEndTime * 1000), 'dd MMM yyyy HH:mm')}</span>
                                     </li>
                                     <li className='flex justify-between'>
-                                        <span className='text-gray-300'>Total Reward</span>
-                                        <span className='font-medium'>{data.giveawayInfo?.totalReward.toLocaleString()} {data.airdropToken.symbol}</span>
+                                        <span className='text-skyblue font-space'>Total Reward</span>
+                                        <span className='font-medium text-white font-orbitron'>{data.giveawayInfo?.totalReward.toLocaleString()} {data.airdropToken.symbol}</span>
                                     </li>
                                     <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300'>Giveaway Access</span>
-                                        <span
-                                            className='font-medium flex items-center gap-2 hover:text-primary cursor-pointer'
-                                        >
+                                        <span className='text-skyblue font-space'>Giveaway Access</span>
+                                        <span className='font-medium text-white font-orbitron'>
                                             {data.isPrivateAirdrop ? "Private" : "Public"}
                                         </span>
                                     </li>
                                     <li className='flex justify-between items-center'>
-                                        <span className='text-gray-300 text-nowrap'>Mainnet Contract</span>
-                                        <span
-                                            className='font-medium underline flex items-center gap-2 hover:text-primary cursor-pointer'
-                                            onClick={() => copyAddress(data.airdropToken.id)}
-                                        >
-                                            {`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}
-                                            <FaCopy />
-                                        </span>
+                                        <span className='text-skyblue font-space text-nowrap'>Mainnet Contract</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className='font-medium text-white font-orbitron'>{`${data.airdropToken.id.slice(0, 5)}...${data.airdropToken.id.slice(-6)}`}</span>
+                                            <motion.button
+                                                onClick={() => copyAddress(data.airdropToken.id)}
+                                                className="text-cosmic hover:text-cosmic/80 transition-all"
+                                                whileHover={{ scale: 1.2 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <FaCopy className="w-4 h-4" />
+                                            </motion.button>
+                                            <motion.a
+                                                href={`https://solscan.io/token/${data.airdropToken.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-cosmic hover:text-cosmic/80 transition-all"
+                                                whileHover={{ scale: 1.2 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <FaExternalLinkAlt className="w-4 h-4" />
+                                            </motion.a>
+                                        </div>
                                     </li>
                                 </ul>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </motion.div>
@@ -781,65 +809,105 @@ export default function GiveawaySelected() {
                     <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
                     <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
 
-                    <div className="relative space-y-3">
-                        <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
-                            About {data?.giveawayInfo?.projectName}
-                        </p>
-                        <div className='text-[15px] lg:text-[18px] mt-[20px]'>
-                            <p>{data?.giveawayInfo?.description}</p>
+                    <div className="flex items-center gap-3 mb-4">
+                        <FaRocket className="text-xl text-cosmic" />
+                        <h2 className="text-2xl font-semibold font-orbitron text-white">About {data?.giveawayInfo?.projectName}</h2>
+                    </div>
 
+                    <div className="text-white/90 font-space">
+                        <p className="mb-4">{data?.giveawayInfo?.description}</p>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-cosmic/20">
+                        <h3 className="text-skyblue font-orbitron mb-2">Terms & Conditions</h3>
+                        <p className="text-white/90 font-space">Airdrop tokens are subject to project's determined allocation's vesting schedule also specified in the Airdrop page of the project.</p>
+
+                        <p className="text-white/90 font-space mt-2">
+                            {data.isPrivateAirdrop ?
+                                "This is a private airdrop. Only whitelisted addresses can participate." :
+                                "This is a public airdrop. All addresses can participate."}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-6 border-t border-cosmic/20">
+                        <div className="space-y-2">
+                            <h3 className="text-skyblue font-orbitron">Website</h3>
+                            <motion.a
+                                className="text-cosmic flex items-center gap-2"
+                                href={data?.giveawayInfo?.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ x: 3 }}
+                            >
+                                <span>{data?.giveawayInfo?.website}</span>
+                                <FaExternalLinkAlt className="text-xs" />
+                            </motion.a>
                         </div>
 
-                        <p className="text-primary text-[14px] uppercase font-normal tracking-[3px]">
-                            Terms & Conditions
-                        </p>
-                        <p>Airdrop tokens are subject to project's determined allocation's vesting schedule also specified in the Airdrop page of the project.</p>
-
-                        {data.isPrivateAirdrop ? (
-                            <p>This is a private airdrop. Only whitelisted addresses can participate.</p>
-                        ) : (
-                            <p>
-                                This is a public airdrop. All addresses can participate.
-                            </p>
-                        )}
-
-                        <div className='grid grid-cols-3 gap-x-5 my-10'>
-                            <div>
-                                <h3>Website</h3>
-                                <a className='text-primary' href={data?.giveawayInfo?.website}>{data?.giveawayInfo?.website}</a>
-                            </div>
-                            <div>
-                                <h3>Documents</h3>
-                                <a href={data?.giveawayInfo?.website} className='text-primary'>Whitepaper</a>
-                            </div>
-                            <div>
-                                <img
-                                    src={data?.giveawayInfo?.images?.logo}
-                                    className="h-[40px] w-full object-contain"
-                                    alt=""
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <h3 className="text-skyblue font-orbitron">Documents</h3>
+                            <motion.a
+                                className="text-cosmic flex items-center gap-2"
+                                href={data?.giveawayInfo?.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ x: 3 }}
+                            >
+                                <span>Whitepaper</span>
+                                <FaExternalLinkAlt className="text-xs" />
+                            </motion.a>
                         </div>
 
-                        <div >
-                            <h3>Social Media</h3>
-                            <div className="flex space-x-4 mt-6">
-                                {data?.giveawayInfo?.socials?.twitter && (
-                                    <a href={data.giveawayInfo.socials.twitter} target="_blank" rel="noopener noreferrer">
-                                        <FaTwitter className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.giveawayInfo?.socials?.telegram && (
-                                    <a href={data.giveawayInfo.socials.telegram} target="_blank" rel="noopener noreferrer">
-                                        <FaTelegramPlane className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                                {data?.giveawayInfo?.socials?.discord && (
-                                    <a href={data.giveawayInfo.socials.discord} target="_blank" rel="noopener noreferrer">
-                                        <FaDiscord className='hover:text-primary' size={20} />
-                                    </a>
-                                )}
-                            </div>
+                        <div className="flex justify-center items-center">
+                            <motion.img
+                                src={data?.giveawayInfo?.images?.logo}
+                                className="h-[50px] object-contain"
+                                alt={data?.giveawayInfo?.projectName}
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-cosmic/20">
+                        <h3 className="text-skyblue font-orbitron mb-4">Social Media</h3>
+                        <div className="flex space-x-6">
+                            {data?.giveawayInfo?.socials?.twitter && (
+                                <motion.a
+                                    href={data.giveawayInfo.socials.twitter}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-cosmic hover:text-cosmic/80 transition-all"
+                                    whileHover={{ scale: 1.2, rotate: 5 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <FaTwitter className="w-6 h-6" />
+                                </motion.a>
+                            )}
+                            {data?.giveawayInfo?.socials?.telegram && (
+                                <motion.a
+                                    href={data.giveawayInfo.socials.telegram}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-cosmic hover:text-cosmic/80 transition-all"
+                                    whileHover={{ scale: 1.2, rotate: 5 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <FaTelegramPlane className="w-6 h-6" />
+                                </motion.a>
+                            )}
+                            {data?.giveawayInfo?.socials?.discord && (
+                                <motion.a
+                                    href={data.giveawayInfo.socials.discord}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-cosmic hover:text-cosmic/80 transition-all"
+                                    whileHover={{ scale: 1.2, rotate: 5 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <FaDiscord className="w-6 h-6" />
+                                </motion.a>
+                            )}
                         </div>
                     </div>
                 </motion.div>
