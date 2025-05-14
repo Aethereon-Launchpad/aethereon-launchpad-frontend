@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { usePresale } from "../../hooks/web3/usePresale";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { isBefore } from "date-fns";
+import { motion } from "framer-motion";
+import { FaHistory, FaExclamationCircle, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { SiSolana } from "react-icons/si";
 
 function CompletedIDO() {
   const { data, error, loading } = usePresale();
@@ -32,33 +35,34 @@ function CompletedIDO() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const PaginationButton = ({ page, isActive }: { page: number, isActive: boolean }) => (
-    <button
+    <motion.button
       onClick={() => paginate(page)}
-      className={`px-3 py-1 mx-1 rounded ${
-        isActive 
-          ? 'bg-primary text-white' 
-          : 'bg-[#1A1A1A] text-gray-400 hover:bg-primary/20'
-      }`}
+      className={`px-3 py-1 mx-1 rounded-lg ${isActive
+        ? 'bg-cosmic text-white sci-fi-text-glow'
+        : 'bg-deepspace/50 text-gray-300 hover:bg-cosmic/20 border border-cosmic/30'
+        }`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
       {page}
-    </button>
+    </motion.button>
   );
 
   const Pagination = () => {
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
       if (
-        i === 1 || 
+        i === 1 ||
         i === totalPages ||
         i === currentPage ||
         i === currentPage - 1 ||
         i === currentPage + 1
       ) {
         pages.push(
-          <PaginationButton 
-            key={i} 
-            page={i} 
-            isActive={currentPage === i} 
+          <PaginationButton
+            key={i}
+            page={i}
+            isActive={currentPage === i}
           />
         );
       } else if (
@@ -66,147 +70,221 @@ function CompletedIDO() {
         i === currentPage + 2
       ) {
         pages.push(
-          <span key={i} className="px-2 text-gray-400">...</span>
+          <span key={i} className="px-2 text-skyblue">...</span>
         );
       }
     }
     return (
-      <div className="flex items-center justify-center mt-6 space-x-2">
-        <button
+      <div className="flex items-center justify-center mt-8 space-x-2">
+        <motion.button
           onClick={() => paginate(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className="px-4 py-1 text-gray-400 bg-[#1A1A1A] rounded hover:bg-primary/20 disabled:opacity-50 disabled:hover:bg-[#1A1A1A]"
+          className="px-4 py-1 text-white bg-deepspace/50 rounded-lg border border-cosmic/30 hover:bg-cosmic/20 disabled:opacity-50 disabled:hover:bg-deepspace/50 flex items-center"
+          whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
+          whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
         >
-          Previous
-        </button>
+          <FaHistory className="mr-1 text-xs" /> Previous
+        </motion.button>
         {pages}
-        <button
+        <motion.button
           onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className="px-4 py-1 text-gray-400 bg-[#1A1A1A] rounded hover:bg-primary/20 disabled:opacity-50 disabled:hover:bg-[#1A1A1A]"
+          className="px-4 py-1 text-white bg-deepspace/50 rounded-lg border border-cosmic/30 hover:bg-cosmic/20 disabled:opacity-50 disabled:hover:bg-deepspace/50 flex items-center"
+          whileHover={currentPage !== totalPages ? { scale: 1.05 } : {}}
+          whileTap={currentPage !== totalPages ? { scale: 0.95 } : {}}
         >
-          Next
-        </button>
+          Next <FaHistory className="ml-1 text-xs rotate-180" />
+        </motion.button>
       </div>
     );
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100 }
+    }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[200px]">
-        <Preloader
-          use={ThreeDots}
-          size={60}
-          strokeWidth={6}
-          strokeColor="#5325A9"
-          duration={2000}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Preloader
+            use={ThreeDots}
+            size={60}
+            strokeWidth={6}
+            strokeColor="#6c5ce7"
+            duration={2000}
+          />
+        </motion.div>
       </div>
     );
   }
 
   if (error.message) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h3 className="text-red-500 text-xl font-medium">Oops! Something went wrong</h3>
-        <p className="text-gray-400 max-w-md">
+      <motion.div
+        className="flex flex-col items-center justify-center space-y-4 p-8 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <FaExclamationCircle className="text-6xl text-red-500" />
+        <h3 className="text-red-500 text-xl font-medium font-orbitron">Oops! Something went wrong</h3>
+        <p className="text-gray-400 max-w-md font-space">
           We're having trouble loading the completed IDOs. Please try refreshing the page or check back later.
         </p>
-        <button
+        <motion.button
           onClick={() => window.location.reload()}
-          className="mt-4 px-6 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+          className="mt-4 px-6 py-2 rounded-lg bg-cosmic hover:bg-cosmic/80 text-white transition-colors font-orbitron"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Refresh Page
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     );
   }
 
   return (
-    <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]">
-      <div className="flex flex-col items-start text-white mb-8">
-        <h1 className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">
-          Past IDOs
-        </h1>
-      </div>
+    <div className="font-orbitron flex flex-col p-[60px_20px] lg:p-[60px] bg-gradient-to-b from-deepspace/10 to-deepspace/30">
+      <motion.div
+        className="flex flex-col items-start text-white mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <motion.div
+            animate={{
+              rotate: [0, 5, 0, -5, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <FaHistory className="text-cosmic text-4xl" />
+          </motion.div>
+          <h1 className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px] sci-fi-text-glow">
+            Completed <span className="text-cosmic">Solana</span> IDOs
+          </h1>
+        </div>
+        <p className="text-[16px] lg:text-[18px] text-[#CDCDCD] mt-[10px] font-space max-w-3xl">
+          Explore our track record of successful Solana token launches. These projects have completed their initial fundraising phase.
+        </p>
+      </motion.div>
 
-      <div className="w-full bg-[#0D0D0D] rounded-xl overflow-hidden">
+      <motion.div
+        className="w-full sci-fi-panel rounded-xl overflow-hidden"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left border-b border-gray-800">
-                <th className="p-4 text-gray-400 font-normal">Project</th>
-                <th className="p-4 text-gray-400 font-normal">Total Raise</th>
-                <th className="p-4 text-gray-400 font-normal">Participants</th>
-                <th className="p-4 text-gray-400 font-normal">Status</th>
-                <th className="p-4 text-gray-400 font-normal">Exchanges</th>
+              <tr className="text-left border-b border-cosmic/20">
+                <th className="p-4 text-skyblue font-medium">Project</th>
+                <th className="p-4 text-skyblue font-medium">Total Raise</th>
+                <th className="p-4 text-skyblue font-medium">Participants</th>
+                <th className="p-4 text-skyblue font-medium">Status</th>
+                <th className="p-4 text-skyblue font-medium">Chain</th>
               </tr>
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((presale: any, index: number) => (
-                  <tr 
+                  <motion.tr
                     key={index}
                     onClick={() => navigate(`/deals/launchpad/${presale?.presaleInfo?.projectName.toLowerCase()}`)}
-                    className="border-b border-gray-800 hover:bg-white/5 transition-colors cursor-pointer"
+                    className="border-b border-cosmic/10 hover:bg-cosmic/5 transition-colors cursor-pointer"
+                    variants={itemVariants}
                   >
                     <td className="p-4">
                       <div className="flex items-center space-x-3">
-                        <img 
-                          src={presale.presaleInfo?.images?.logo} 
+                        <img
+                          src={presale.presaleInfo?.images?.logo}
                           alt={presale.presaleInfo?.projectName}
-                          className="w-8 h-8 rounded-full"
+                          className="w-10 h-10 rounded-full border-2 border-cosmic/30"
                         />
                         <div>
-                          <p className="font-medium text-[#FAFAFA]">
+                          <p className="font-medium text-[#FAFAFA] sci-fi-text-glow">
                             {presale.presaleInfo?.projectName}
                           </p>
-                          <p className="text-sm text-[#ACBBCC]">
+                          <p className="text-sm text-skyblue font-space">
                             {presale.saleToken?.symbol}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-[#FAFAFA]">
+                    <td className="p-4 text-[#FAFAFA] font-space">
                       {Number(presale.totalPaymentReceived).toLocaleString()} {presale.paymentToken?.symbol}
                     </td>
-                    <td className="p-4 text-[#ACBBCC]">
+                    <td className="p-4 text-[#CDCDCD] font-space">
                       {Number(presale.purchaserCount).toLocaleString()} Investors
                     </td>
                     <td className="p-4 text-[#FAFAFA]">
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      presale.isSoftCapReached 
-                        ? 'bg-green-500/20 text-green-500' 
+                      <span className={`px-3 py-1 rounded-full text-sm flex items-center w-fit ${presale.isSoftCapReached
+                        ? 'bg-green-500/20 text-green-500'
                         : 'bg-red-500/20 text-red-500'
-                    }`}>
-                      {presale.isSoftCapReached ? 'Success' : 'Failed'}
-                    </span>
+                        }`}>
+                        {presale.isSoftCapReached ?
+                          <><FaCheckCircle className="mr-1" /> Success</> :
+                          <><FaTimesCircle className="mr-1" /> Failed</>
+                        }
+                      </span>
                     </td>
                     <td className="p-4">
-                      {/* <img 
-                        src={`/images/chains/${presale.chainId}.svg`}
-                        alt="Chain"
-                        className="w-6 h-6"
-                      /> */}
+                      <SiSolana className="text-cosmic text-xl" />
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               ) : (
-                <tr>
-                  <td colSpan={5} className="text-center p-8 text-[#ACBBCC]">
-                    No completed IDOs at the moment
+                <motion.tr variants={itemVariants}>
+                  <td colSpan={5} className="text-center p-12 text-[#CDCDCD] font-space">
+                    <SiSolana className="text-4xl text-cosmic mx-auto mb-4" />
+                    <p className="text-xl sci-fi-text-glow mb-2">No completed IDOs at the moment</p>
+                    <p>Check back later for our track record of successful launches</p>
                   </td>
-                </tr>
+                </motion.tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
-      
-      {filteredSales.length > itemsPerPage && <Pagination />}
+      </motion.div>
+
+      {filteredSales.length > itemsPerPage && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <Pagination />
+        </motion.div>
+      )}
     </div>
   );
 }

@@ -17,7 +17,7 @@ Aethereon addresses the critical challenges in decentralized fundraising and com
 ## 🛠️ Tech Stack
 
 - **Blockchain**: Solana for high-performance, low-cost transactions
-- **Smart Contracts**: Rust-based Solana programs for secure on-chain logic
+- **Smart Contracts**: Solidity contracts ported to Solana via [NeonEVM](https://neonevm.org/) for EVM compatibility
 - **Frontend**: React 18.3 with TypeScript for type safety and better developer experience
 - **Build Tools**: Vite for lightning-fast development and optimized production builds
 - **Styling**: TailwindCSS for responsive, utility-first design
@@ -108,8 +108,8 @@ Aethereon is built on Solana and currently supports:
 
 ## 🏆 Technical Innovations
 
-- **Solana Integration**: Leveraging Solana's high throughput for fast and inexpensive transactions
-- **SPL Token Support**: Full compatibility with Solana's token standard
+- **NeonEVM Integration**: Using [NeonEVM](https://neonevm.org/) to run Solidity contracts on Solana, combining EVM compatibility with Solana's performance
+- **Cross-Chain Compatibility**: Leveraging Solidity's mature ecosystem while benefiting from Solana's high throughput
 - **Optimized Transaction Handling**: Minimizing transaction costs through batching and program optimization
 - **Enhanced Security**: Multiple audit layers and fail-safe mechanisms
 - **Responsive Design**: Fully functional on both desktop and mobile devices
@@ -127,7 +127,7 @@ Aethereon is built on Solana and currently supports:
 
 - **Alex Chen** - Blockchain Architect - [GitHub](https://github.com/alexchen)
 - **Sarah Johnson** - Frontend Developer - [GitHub](https://github.com/sarahjohnson)
-- **Michael Rodriguez** - Solana Program Engineer - [GitHub](https://github.com/mrodriguez)
+- **Michael Rodriguez** - Smart Contract Engineer - [GitHub](https://github.com/mrodriguez)
 - **Emma Williams** - UX/UI Designer - [Portfolio](https://emmawilliams.design)
 
 ## 📄 License

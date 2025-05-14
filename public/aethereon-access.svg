@@ -1,0 +1,106 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#12092B" />
+  
+  <!-- Grid lines -->
+  <g opacity="0.2">
+    <line x1="0" y1="50" x2="400" y2="50" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="100" x2="400" y2="100" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="150" x2="400" y2="150" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="200" x2="400" y2="200" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="250" x2="400" y2="250" stroke="#3498db" stroke-width="1" />
+    
+    <line x1="50" y1="0" x2="50" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="100" y1="0" x2="100" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="150" y1="0" x2="150" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="200" y1="0" x2="200" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="250" y1="0" x2="250" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="300" y1="0" x2="300" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="350" y1="0" x2="350" y2="300" stroke="#3498db" stroke-width="1" />
+  </g>
+  
+  <!-- Access Portal -->
+  <g filter="url(#filter0_d)">
+    <!-- Portal frame -->
+    <circle cx="200" cy="150" r="100" fill="none" stroke="#6c5ce7" stroke-width="4" stroke-dasharray="10 5"/>
+    
+    <!-- Inner portal -->
+    <circle cx="200" cy="150" r="80" fill="#2c3e50" stroke="#3498db" stroke-width="2"/>
+    
+    <!-- Portal energy -->
+    <circle cx="200" cy="150" r="60" fill="#4B0082" opacity="0.3">
+      <animate attributeName="opacity" values="0.3;0.5;0.3" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Access key -->
+    <g transform="translate(170, 120)">
+      <rect x="0" y="0" width="60" height="20" rx="5" fill="#6c5ce7"/>
+      <rect x="10" y="20" width="10" height="20" fill="#6c5ce7"/>
+      <rect x="40" y="20" width="10" height="20" fill="#6c5ce7"/>
+    </g>
+    
+    <!-- Lock symbol -->
+    <circle cx="200" cy="180" r="15" fill="#3498db" opacity="0.8"/>
+    <rect x="190" y="175" width="20" height="15" rx="2" fill="#3498db"/>
+    <rect x="195" y="165" width="10" height="15" rx="5" stroke="#3498db" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Tier levels -->
+  <g>
+    <!-- Tier 1 -->
+    <circle cx="120" cy="80" r="15" fill="#B1B1B1" opacity="0.7">
+      <animate attributeName="r" values="15;17;15" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <text x="120" y="84" font-family="Arial" font-size="10" fill="white" text-anchor="middle">T1</text>
+  </g>
+  
+  <g>
+    <!-- Tier 2 -->
+    <circle cx="280" cy="80" r="15" fill="#87ceeb" opacity="0.7">
+      <animate attributeName="r" values="15;17;15" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="280" y="84" font-family="Arial" font-size="10" fill="white" text-anchor="middle">T2</text>
+  </g>
+  
+  <g>
+    <!-- Tier 3 -->
+    <circle cx="120" cy="220" r="15" fill="#9575cd" opacity="0.7">
+      <animate attributeName="r" values="15;17;15" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="120" y="224" font-family="Arial" font-size="10" fill="white" text-anchor="middle">T3</text>
+  </g>
+  
+  <g>
+    <!-- Tier 4 -->
+    <circle cx="280" cy="220" r="15" fill="#6c5ce7" opacity="0.7">
+      <animate attributeName="r" values="15;17;15" dur="4.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="280" y="224" font-family="Arial" font-size="10" fill="white" text-anchor="middle">T4</text>
+  </g>
+  
+  <!-- Connecting lines -->
+  <line x1="135" y1="80" x2="180" y2="120" stroke="#B1B1B1" stroke-width="1" opacity="0.5"/>
+  <line x1="265" y1="80" x2="220" y2="120" stroke="#87ceeb" stroke-width="1" opacity="0.5"/>
+  <line x1="135" y1="220" x2="180" y2="180" stroke="#9575cd" stroke-width="1" opacity="0.5"/>
+  <line x1="265" y1="220" x2="220" y2="180" stroke="#6c5ce7" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Aethereon logo -->
+  <g transform="translate(50, 30) scale(0.3)">
+    <path d="M17.6501 35.0833L13.0368 37.6971L12.499 38.0018L9.2502 36.1612L7.92927 35.4131L5.10751 33.8142L0 30.9209V15.8309L0.21622 15.7083L5.10751 12.9376V27.979L7.92927 29.5779L9.2502 30.326L13.0368 32.4694L14.3995 33.2427L17.6501 35.0833Z" fill="#6c5ce7"/>
+    <path d="M25.8101 4.6148L22.8067 2.9149L17.6574 0L12.5062 2.9149L9.49733 4.62021L7.92747 5.50712L5.10571 7.10607V12.9395L7.92747 11.3423L9.49552 10.4554L13.035 8.44905L14.6466 7.5351L17.6574 5.83159L20.659 7.5315L22.1471 8.37334V11.7822L17.6501 9.23681L13.0368 11.8489L12.4972 12.1553L7.92929 14.7421V25.9132L12.4863 28.4946L13.0368 28.8065L17.6374 31.4113L22.1471 28.8587L22.7867 28.4964L27.2528 25.9673V11.2666L30.2617 12.9701V7.13672L25.8101 4.6148ZM22.1471 23.0235L17.6374 25.5761L13.0368 22.9694V17.6841L17.6501 15.0702L22.1471 17.6156V23.0199V23.0235Z" fill="#3498db"/>
+    <path d="M35.3691 15.8616V25.0498L35.3183 25.0786L35.3691 25.1074V30.885L30.2616 33.7782L27.2527 35.4817L26.0372 36.1703L22.7993 38.0036L22.147 37.6341L17.65 35.0869L20.8861 33.2536L22.147 32.5416L26.0372 30.3387L27.2527 29.6483L30.2616 27.9448V12.9738L35.0802 15.703L35.3691 15.867V15.8616Z" fill="#6c5ce7"/>
+  </g>
+  
+  <!-- Glow effects -->
+  <defs>
+    <filter id="filter0_d" x="95" y="45" width="210" height="210" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+      <feOffset/>
+      <feGaussianBlur stdDeviation="2"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.90 0 0 0 0.5 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>

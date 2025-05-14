@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Link, useLocation } from "react-router-dom";
 import { IoWalletSharp } from "react-icons/io5";
 import { HiMenuAlt3 } from "react-icons/hi";
@@ -7,6 +6,9 @@ import { LuPlus } from "react-icons/lu";
 import { usePrivy } from "@privy-io/react-auth";
 import toast from "react-hot-toast";
 import ChainSelector from "../ChainSelector";
+import { motion, AnimatePresence } from "framer-motion";
+import { SiSolana } from "react-icons/si";
+import { FaRocket, FaSpaceShuttle, FaSatellite } from "react-icons/fa";
 
 function Navbar() {
   const [show, setShow] = React.useState(false);
@@ -15,40 +17,40 @@ function Navbar() {
   // const { connect, isConnecting, error } = useConnect();
   const links = [
     {
-      title: "Launchpad",
+      title: "Cosmic Launchpad",
       link: "/",
     },
     {
-      title: "Deals",
+      title: "Galactic Deals",
       children: [
         {
-          title: "IDO",
+          title: "Token Genesis",
           link: "/explore/ido",
         },
         {
-          title: "Giveaways",
+          title: "Airdrop Nexus",
           link: "/deals/giveaways",
         },
         {
-          title: "Bonds",
+          title: "Bond Protocol",
           link: "/deals/bonds",
         },
       ],
     },
     {
-      title: "Staking & Farming",
+      title: "Stellar Yield",
       link: "/staking-pool",
     },
     {
-      title: "Governance",
+      title: "Orbital Governance",
       link: "/governance",
     },
     {
-      title: "Dashboard",
+      title: "Astro Dashboard",
       link: "/dashboard",
     },
     {
-      title: "Lock & Stake",
+      title: "Quantum Vault",
       link: "/lock-stake",
     },
   ];
@@ -71,11 +73,11 @@ function Navbar() {
   }
 
   return (
-    <div className="flex items-center font-space relative justify-between p-0  xl:p-[20px_40px] text-white">
+    <div className="flex items-center font-orbitron relative justify-between p-0  xl:p-[20px_40px] text-white">
       <div className="pl-[20px] py-[15px] xl:p-0">
         <Link to="/">
-          <img src="/derhex-logo-sm.svg" className="hidden lg:block" alt="" />
-          <img src="/der-mob.svg" className="block lg:hidden" alt="" />
+          <img src="/aethereon-logo.svg" className="hidden lg:block" alt="Aethereon" />
+          <img src="/aethereon-logo-sm.svg" className="block lg:hidden" alt="Aethereon" />
         </Link>
       </div>
       <div className="hidden xl:flex items-center text-[#848895] space-x-[20px]">
@@ -115,7 +117,7 @@ function Navbar() {
                     <Link
                       key={i}
                       to={child.link}
-                      className="flex items-center space-x-3 p-4 hover:bg-white/5 transition-colors"
+                      className="flex text-sm items-center space-x-3 p-4 hover:bg-white/5 transition-colors"
                     >
                       {child.title === "Giveaways" && (
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 16q-.825 0-1.412-.587T10 14t.588-1.412T12 12t1.413.588T14 14t-.587 1.413T12 16M7.375 7h9.25L17.9 4.45q.25-.5-.038-.975T17 3H7q-.575 0-.862.475T6.1 4.45zM8.4 21h7.2q2.25 0 3.825-1.562T21 15.6q0-.95-.325-1.85t-.925-1.625L17.15 9H6.85l-2.6 3.125q-.6.725-.925 1.625T3 15.6q0 2.275 1.563 3.838T8.4 21" /></svg>
@@ -129,11 +131,11 @@ function Navbar() {
                       <div>
                         <p className="font-medium text-white">{child.title}</p>
                         <p className="text-sm text-gray-400">
-                          {child.title === "Giveaways"
-                            ? "Join campaigns and earn free tokens"
-                            : child.title === "IDO"
-                            ? "Participate in token launches with exclusive early access"
-                            : "Get exchange-listed tokens at a discount"}
+                          {child.title === "Token Genesis"
+                            ? "Be among the first to support groundbreaking token launches"
+                            : child.title === "Airdrop Nexus"
+                              ? "Claim exclusive rewards and participate in community distributions"
+                              : "Secure premium tokens at below-market rates with flexible terms"}
                         </p>
                       </div>
                     </Link>
@@ -143,8 +145,8 @@ function Navbar() {
             ) : (
               <Link
                 to={link.link}
-                className={`relative hover:text-white transition-colors duration-200 ${isActive(link.link)
-                  ? "text-white after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-[2px] after:bg-primary after:shadow-[0_0_8px_2px_rgba(83,37,169,0.8)]"
+                className={`relative text-sm hover:text-white transition-colors duration-200 ${isActive(link.link)
+                  ? "text-white after:absolute after:left-0 after:bottom-[-2px] after:w-full after:h-[2px] after:bg-cosmic after:shadow-[0_0_8px_2px_rgba(83,37,169,0.8)]"
                   : ""
                   }`}
               >
@@ -156,84 +158,129 @@ function Navbar() {
       </div>
       <div className="flex items-center space-x-[10px] lg:space-x-[20px] pr-[20px] py-[15px] lg:p-0">
         {/* Chain Selector */}
-        <div className="hidden xl:block">
+        {/* <div className="hidden xl:block">
           <ChainSelector />
-        </div>
+        </div> */}
 
-        <button
+        <motion.button
           className="relative px-6 py-2 font-[500] text-white flex items-center space-x-[5px] overflow-hidden group"
           onClick={handleWalletConnect}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-          <span className="absolute inset-[2px] bg-black transition-all duration-300 clip-path-polygon"></span>
-          <span className="relative flex items-center space-x-[5px]">
-            <IoWalletSharp className="text-[12px] lg:text-[16px]" />
+          <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+          <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+          <span className="relative flex items-center space-x-[5px] font-orbitron">
             {authenticated ? (
-              <span className="truncate max-w-[100px]">
-                {user?.wallet?.address}
-              </span>
+              <>
+                <IoWalletSharp className="text-[12px] lg:text-[16px] mr-2 text-skyblue" />
+                <span className="truncate max-w-[100px]">
+                  {user?.wallet?.address}
+                </span>
+              </>
             ) : (
-              <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
+              <>
+                <SiSolana className="text-[12px] lg:text-[16px] mr-2 text-skyblue animate-pulse" />
+                <p className="text-[12px] lg:text-[16px]">Connect Solana Wallet</p>
+              </>
             )}
           </span>
-        </button>
+        </motion.button>
 
         <button onClick={() => setShow(!show)} className="xl:hidden">
           <HiMenuAlt3 className="text-[30px]" />
         </button>
       </div>
-      <div
-        className={`${show ? "left-0" : "left-[-100%]"
-          } fixed top-0 min-h-screen h-screen z-30 bg-black text-primary w-full p-[20px] transition-all duration-300`}
-      >
-        <div className="flex items-center justify-end">
-          <button
-            className="h-[40px] w-[40px] flex items-center justify-center"
-            onClick={() => setShow(!show)}
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            className="fixed top-0 min-h-screen h-screen z-30 bg-deepspace text-cosmic w-full p-[20px]"
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
-            <LuPlus className="text-[30px] rotate-45" />
-          </button>
-        </div>
-        <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895] ">
-          {/* Chain Selector for Mobile */}
-          <div className="w-full mb-4">
-            <p className="text-[20px] font-[600] text-white mb-3">Select Chain</p>
-            <ChainSelector />
-          </div>
+            <motion.div
+              className="flex items-center justify-between"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <img src="/aethereon-logo.svg" alt="Aethereon" className="h-8" />
+              <motion.button
+                className="h-[40px] w-[40px] flex items-center justify-center"
+                onClick={() => setShow(!show)}
+                whileHover={{ rotate: 90, scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <LuPlus className="text-[30px] rotate-45 text-skyblue" />
+              </motion.button>
+            </motion.div>
+            <div className="flex flex-col mt-[20px] items-start space-y-[20px] text-[#848895]">
+              {/* Chain Selector for Mobile */}
+              <motion.div
+                className="w-full mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <p className="text-[20px] font-[600] text-white mb-3 font-orbitron sci-fi-text-glow">Select Network</p>
+                <ChainSelector />
+              </motion.div>
 
-          {links.map((link, index) => (
-            <div key={index} className="w-full">
-              {link.children ? (
-                <div className="flex flex-col space-y-[10px]">
-                  <p className="text-[20px] font-[600] text-white">
-                    {link.title}
-                  </p>
-                  {link.children.map((child, i) => (
-                    <Link
-                      onClick={() => setShow(false)}
-                      className={`ml-4 text-[18px] font-[500] ${isActive(child.link) ? "text-white" : "text-primary"
-                        }`}
-                      to={child.link}
-                      key={i}
-                    >
-                      {child.title}
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <Link
-                  onClick={() => setShow(false)}
-                  className={`text-[20px] font-[500] ${isActive(link.link) ? "text-white" : "text-primary"
-                    }`}
-                  to={link.link}
+              {links.map((link, index) => (
+                <motion.div
+                  key={index}
+                  className="w-full"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * (index + 3) }}
                 >
-                  {link.title}
-                </Link>
-              )}
+                  {link.children ? (
+                    <div className="flex flex-col space-y-[10px]">
+                      <p className="text-[20px] font-[600] text-white font-orbitron sci-fi-text-glow">
+                        {link.title}
+                      </p>
+                      {link.children.map((child, i) => (
+                        <motion.div
+                          key={i}
+                          whileHover={{ x: 5, color: "#3498db" }}
+                        >
+                          <Link
+                            onClick={() => setShow(false)}
+                            className={`ml-4 text-[18px] font-[500] ${isActive(child.link) ? "text-skyblue" : "text-cosmic"
+                              } flex items-center`}
+                            to={child.link}
+                          >
+                            {child.title === "Giveaways" && <FaRocket className="mr-2" />}
+                            {child.title === "Bonds" && <FaSatellite className="mr-2" />}
+                            {child.title === "IDO" && <FaSpaceShuttle className="mr-2" />}
+                            {child.title}
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <motion.div whileHover={{ x: 5, color: "#3498db" }}>
+                      <Link
+                        onClick={() => setShow(false)}
+                        className={`text-[20px] font-[500] ${isActive(link.link) ? "text-skyblue" : "text-cosmic"
+                          } font-orbitron`}
+                        to={link.link}
+                      >
+                        {link.title}
+                      </Link>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

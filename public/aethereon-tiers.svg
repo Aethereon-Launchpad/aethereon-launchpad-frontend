@@ -1,0 +1,125 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#12092B" />
+  
+  <!-- Grid lines -->
+  <g opacity="0.2">
+    <line x1="0" y1="50" x2="400" y2="50" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="100" x2="400" y2="100" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="150" x2="400" y2="150" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="200" x2="400" y2="200" stroke="#3498db" stroke-width="1" />
+    <line x1="0" y1="250" x2="400" y2="250" stroke="#3498db" stroke-width="1" />
+    
+    <line x1="50" y1="0" x2="50" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="100" y1="0" x2="100" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="150" y1="0" x2="150" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="200" y1="0" x2="200" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="250" y1="0" x2="250" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="300" y1="0" x2="300" y2="300" stroke="#3498db" stroke-width="1" />
+    <line x1="350" y1="0" x2="350" y2="300" stroke="#3498db" stroke-width="1" />
+  </g>
+  
+  <!-- Tier System Visualization -->
+  <g filter="url(#filter0_d)">
+    <!-- Central Hub -->
+    <circle cx="200" cy="150" r="60" fill="#2c3e50" stroke="#6c5ce7" stroke-width="2"/>
+    
+    <!-- Tier Levels -->
+    <g>
+      <!-- Tier 1: Orbital Scout -->
+      <circle cx="200" cy="150" r="20" fill="#B1B1B1" opacity="0.7" stroke="#FFFFFF" stroke-width="1">
+        <animate attributeName="opacity" values="0.7;0.9;0.7" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <text x="200" y="154" font-family="Arial" font-size="10" fill="white" text-anchor="middle">T1</text>
+    </g>
+    
+    <g>
+      <!-- Tier 2: Cosmic Voyager -->
+      <circle cx="200" cy="150" r="30" fill="none" stroke="#87ceeb" stroke-width="1" stroke-dasharray="3 2">
+        <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="230" cy="150" r="5" fill="#87ceeb" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text x="230" y="154" font-family="Arial" font-size="6" fill="white" text-anchor="middle">T2</text>
+    </g>
+    
+    <g>
+      <!-- Tier 3: Stellar Guardian -->
+      <circle cx="200" cy="150" r="40" fill="none" stroke="#9575cd" stroke-width="1" stroke-dasharray="5 3">
+        <animate attributeName="stroke-dashoffset" values="0;16" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="110" r="6" fill="#9575cd" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <text x="200" y="113" font-family="Arial" font-size="6" fill="white" text-anchor="middle">T3</text>
+    </g>
+    
+    <g>
+      <!-- Tier 4: Quantum Guardian -->
+      <circle cx="200" cy="150" r="50" fill="none" stroke="#6c5ce7" stroke-width="1" stroke-dasharray="7 4">
+        <animate attributeName="stroke-dashoffset" values="0;22" dur="6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="170" cy="110" r="7" fill="#6c5ce7" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <text x="170" y="113" font-family="Arial" font-size="6" fill="white" text-anchor="middle">T4</text>
+    </g>
+  </g>
+  
+  <!-- Allocation Indicators -->
+  <g>
+    <!-- Tier 1 Allocation -->
+    <rect x="100" y="200" width="20" height="10" rx="2" fill="#B1B1B1" opacity="0.7"/>
+    <text x="130" y="208" font-family="Arial" font-size="8" fill="white">1x Allocation</text>
+    
+    <!-- Tier 2 Allocation -->
+    <rect x="100" y="220" width="30" height="10" rx="2" fill="#87ceeb" opacity="0.7"/>
+    <text x="140" y="228" font-family="Arial" font-size="8" fill="white">2x Allocation</text>
+    
+    <!-- Tier 3 Allocation -->
+    <rect x="100" y="240" width="40" height="10" rx="2" fill="#9575cd" opacity="0.7"/>
+    <text x="150" y="248" font-family="Arial" font-size="8" fill="white">3x Allocation</text>
+    
+    <!-- Tier 4 Allocation -->
+    <rect x="100" y="260" width="50" height="10" rx="2" fill="#6c5ce7" opacity="0.7"/>
+    <text x="160" y="268" font-family="Arial" font-size="8" fill="white">5x Allocation</text>
+  </g>
+  
+  <!-- Staking Amounts -->
+  <g>
+    <text x="300" y="208" font-family="Arial" font-size="8" fill="#B1B1B1" text-anchor="middle">1,000 $ATH</text>
+    <text x="300" y="228" font-family="Arial" font-size="8" fill="#87ceeb" text-anchor="middle">5,000 $ATH</text>
+    <text x="300" y="248" font-family="Arial" font-size="8" fill="#9575cd" text-anchor="middle">10,000 $ATH</text>
+    <text x="300" y="268" font-family="Arial" font-size="8" fill="#6c5ce7" text-anchor="middle">25,000 $ATH</text>
+  </g>
+  
+  <!-- Title -->
+  <text x="200" y="40" font-family="Arial" font-size="16" font-weight="bold" fill="white" text-anchor="middle">AETHEREON TIER SYSTEM</text>
+  
+  <!-- Solana Logo -->
+  <g transform="translate(320, 40)">
+    <circle cx="0" cy="0" r="15" fill="#2c3e50" stroke="#6c5ce7" stroke-width="1"/>
+    <text x="0" y="4" font-family="Arial" font-size="10" font-weight="bold" fill="white" text-anchor="middle">SOL</text>
+  </g>
+  
+  <!-- Aethereon logo -->
+  <g transform="translate(50, 30) scale(0.3)">
+    <path d="M17.6501 35.0833L13.0368 37.6971L12.499 38.0018L9.2502 36.1612L7.92927 35.4131L5.10751 33.8142L0 30.9209V15.8309L0.21622 15.7083L5.10751 12.9376V27.979L7.92927 29.5779L9.2502 30.326L13.0368 32.4694L14.3995 33.2427L17.6501 35.0833Z" fill="#6c5ce7"/>
+    <path d="M25.8101 4.6148L22.8067 2.9149L17.6574 0L12.5062 2.9149L9.49733 4.62021L7.92747 5.50712L5.10571 7.10607V12.9395L7.92747 11.3423L9.49552 10.4554L13.035 8.44905L14.6466 7.5351L17.6574 5.83159L20.659 7.5315L22.1471 8.37334V11.7822L17.6501 9.23681L13.0368 11.8489L12.4972 12.1553L7.92929 14.7421V25.9132L12.4863 28.4946L13.0368 28.8065L17.6374 31.4113L22.1471 28.8587L22.7867 28.4964L27.2528 25.9673V11.2666L30.2617 12.9701V7.13672L25.8101 4.6148ZM22.1471 23.0235L17.6374 25.5761L13.0368 22.9694V17.6841L17.6501 15.0702L22.1471 17.6156V23.0199V23.0235Z" fill="#3498db"/>
+    <path d="M35.3691 15.8616V25.0498L35.3183 25.0786L35.3691 25.1074V30.885L30.2616 33.7782L27.2527 35.4817L26.0372 36.1703L22.7993 38.0036L22.147 37.6341L17.65 35.0869L20.8861 33.2536L22.147 32.5416L26.0372 30.3387L27.2527 29.6483L30.2616 27.9448V12.9738L35.0802 15.703L35.3691 15.867V15.8616Z" fill="#6c5ce7"/>
+  </g>
+  
+  <!-- Glow effects -->
+  <defs>
+    <filter id="filter0_d" x="135" y="85" width="130" height="130" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+      <feOffset/>
+      <feGaussianBlur stdDeviation="2"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.90 0 0 0 0.5 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>
