@@ -1,14 +1,13 @@
-// import React from 'react'
 import { useState, useEffect } from "react";
 import { IoWalletSharp } from "react-icons/io5";
 import { GoAlert } from "react-icons/go";
+import { FaCoins, FaChartLine } from "react-icons/fa";
+import { SiSolana } from "react-icons/si";
+import { GiCrystalGrowth } from "react-icons/gi";
+import { motion } from "framer-motion";
 import { useParams } from 'react-router-dom';
 import { getTokenData } from "../../services";
-import { GET_STAKING_POOL_BY_ID } from "../../graphql/queries";
-import { useQuery } from "@apollo/client";
-import {
-  toast
-} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { usePrivy } from "@privy-io/react-auth";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { noOfDays } from "../../utils/tools";
@@ -17,7 +16,6 @@ import ConfirmStakingModal from "../Modal/ConfirmStaking";
 import ConfirmUnstaking from "../Modal/ConfirmUnstaking";
 import { createWalletClient, custom } from "viem";
 import { useChain } from "../../context/ChainContext";
-import { publicClient } from "../../config";
 import stakingPoolABI from "../../abis/StakingPool.json";
 import erc20Abi from "../../abis/ERC20.json";
 import { ethers } from "ethers";
@@ -272,27 +270,137 @@ function SingleStake() {
 
   if (!authenticated) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center">
-        <div className="bg-[#291254] rounded-[20px] p-8 max-w-[500px] w-full">
-          <img
-            src="/icons/staking/money.svg"
-            alt=""
-            className="w-[80px] h-[80px] mx-auto mb-6"
-          />
-          <h2 className="text-[25px] font-[700] text-white mb-4">
-            Start Earning Rewards
-          </h2>
-          <p className="text-[16px] text-gray-300 mb-8">
-            Join our staking pool to earn rewards and increase your IDO Power. Link your wallet to get started.
-          </p>
-          <button
-            onClick={login}
-            className="bg-primary p-[8px_20px] font-[500] text-[20px] text-white rounded-full flex items-center justify-center space-x-[5px] w-full hover:bg-primary/90 transition-all"
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center bg-gradient-to-b from-deepspace/10 to-deepspace/30 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-20 left-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-20 right-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
+
+        {/* Decorative grid line */}
+        <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 top-[120px]"></div>
+        <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 bottom-[120px]"></div>
+
+        <motion.div
+          className="sci-fi-panel p-8 max-w-[500px] w-full border border-cosmic/30 relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Decorative corner accent */}
+          <div className="absolute top-0 right-0 w-[30px] h-[30px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+          <div className="absolute bottom-0 left-0 w-[30px] h-[30px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+          <motion.div
+            className="bg-cosmic/20 p-5 rounded-full mx-auto mb-6 w-[80px] h-[80px] flex items-center justify-center"
+            animate={{
+              boxShadow: ['0 0 10px rgba(108, 92, 231, 0.3)', '0 0 20px rgba(108, 92, 231, 0.5)', '0 0 10px rgba(108, 92, 231, 0.3)']
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
-            <IoWalletSharp className="text-[20px] mr-2" />
-            <span>Connect Wallet</span>
-          </button>
-        </div>
+            <motion.div
+              animate={{
+                rotate: [0, 360],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{
+                rotate: {
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                },
+                scale: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }
+              }}
+            >
+              <GiCrystalGrowth className="text-5xl text-cosmic" />
+            </motion.div>
+          </motion.div>
+
+          <motion.h2
+            className="text-[28px] font-bold text-white mb-4 sci-fi-text-glow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Start Earning <span className="text-cosmic">Solana Rewards</span>
+          </motion.h2>
+
+          <motion.div
+            className="w-[100px] h-[3px] bg-gradient-to-r from-transparent via-cosmic to-transparent mx-auto mb-6"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "100px", opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          ></motion.div>
+
+          <motion.p
+            className="text-[16px] text-gray-300 mb-8 font-space"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Join our Solana staking pool to earn up to 25% APY rewards and increase your IDO allocation power.
+            Connect your wallet to start earning passive income with lightning-fast rewards distribution.
+          </motion.p>
+
+          <motion.button
+            onClick={login}
+            className="relative px-8 py-3 font-medium text-white flex items-center justify-center overflow-hidden w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+            <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+            <motion.span
+              className="relative flex items-center"
+              whileHover={{
+                textShadow: "0 0 8px rgba(135, 206, 235, 0.8)"
+              }}
+            >
+              <IoWalletSharp className="text-xl mr-2" />
+              <span>Connect Wallet</span>
+            </motion.span>
+          </motion.button>
+
+          {/* Floating elements */}
+          <motion.div
+            className="absolute top-10 right-10 text-skyblue"
+            animate={{
+              y: [0, 10, 0],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <SiSolana className="text-xl" />
+          </motion.div>
+
+          <motion.div
+            className="absolute bottom-10 left-10 text-cosmic"
+            animate={{
+              y: [0, -10, 0],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <SiSolana className="text-xl" />
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
@@ -300,21 +408,53 @@ function SingleStake() {
 
   if (startUpLoading || loadingStakingPool) {
     return (
-      <div className="flex justify-center items-center h-[200px]">
-        <Preloader
-          use={ThreeDots}
-          size={60}
-          strokeWidth={6}
-          strokeColor="#5325A9"
-          duration={2000}
-        />
+      <div className="flex justify-center items-center h-[300px] bg-gradient-to-b from-deepspace/10 to-deepspace/30">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            animate={{
+              rotate: 360,
+              boxShadow: ['0 0 10px rgba(108, 92, 231, 0.3)', '0 0 20px rgba(108, 92, 231, 0.5)', '0 0 10px rgba(108, 92, 231, 0.3)']
+            }}
+            transition={{
+              rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+              boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="p-4 rounded-full bg-deepspace border border-cosmic/30"
+          >
+            <SiSolana className="text-4xl text-cosmic" />
+          </motion.div>
+          <p className="text-cosmic mt-4 text-center font-orbitron">Loading Staking Data...</p>
+        </motion.div>
       </div>
     );
   }
 
 
   if (stakingPoolError.message) {
-    return <div className="text-red-500 text-center">Error loading staking pool: {stakingPoolError.message}</div>;
+    return (
+      <motion.div
+        className="text-red-400 text-center p-10 bg-deepspace/50 rounded-lg border border-red-500/30 max-w-2xl mx-auto my-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <FaChartLine className="text-4xl text-red-400 mx-auto mb-4" />
+        <h3 className="text-xl font-bold mb-2 font-orbitron">Error Loading Staking Pool</h3>
+        <p className="font-space">{stakingPoolError.message}</p>
+        <motion.button
+          className="mt-4 px-4 py-2 bg-cosmic/20 hover:bg-cosmic/30 border border-cosmic/50 rounded-lg text-white transition-colors"
+          onClick={() => loadUpData()}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Try Again
+        </motion.button>
+      </motion.div>
+    );
   }
 
 
@@ -387,7 +527,15 @@ function SingleStake() {
 
 
   return (
-    <div className="text-white font-space flex items-center justify-center p-[40px_20px] lg:py-[80px] w-full">
+    <div className="text-white font-orbitron p-[60px_20px] lg:p-[80px_40px] bg-gradient-to-b from-deepspace/10 to-deepspace/30 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-20 left-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
+      <div className="absolute bottom-20 right-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
+
+      {/* Decorative grid line */}
+      <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 top-[120px]"></div>
+      <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 bottom-[120px]"></div>
+
       <TxReceipt
         visible={showTxModal}
         onClose={() => setShowTxModal(false)}
@@ -432,130 +580,295 @@ function SingleStake() {
           lastStakeTime={lastStakeTime}
         />
       )}
-      <div className="relative w-full lg:w-[60%] p-[20px] lg:p-[40px] overflow-hidden group border border-primary/50">
-        {/* <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-        <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300 border border-primary"></span> */}
+
+      <motion.div
+        className="w-full max-w-3xl mx-auto sci-fi-panel rounded-lg border border-cosmic/30 p-[40px] relative"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Decorative corner accent */}
+        <div className="absolute top-0 right-0 w-[30px] h-[30px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+        <div className="absolute bottom-0 left-0 w-[30px] h-[30px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
 
         <div className="relative">
-          <div className="flex items-center justify-center relative">
-            <div className="items-center flex justify-center space-x-[10px]">
+          <motion.div
+            className="flex items-center justify-center relative mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="items-center flex justify-center space-x-[15px]">
               {coinGeckoData?.image?.thumb ? (
-                <img src={coinGeckoData.image.thumb} className="h-[50px] w-[50px] rounded-full border" alt="" />
+                <motion.img
+                  src={coinGeckoData.image.thumb}
+                  className="h-[60px] w-[60px] rounded-full border border-cosmic/50 p-1 bg-deepspace/50"
+                  alt=""
+                  whileHover={{ scale: 1.1, rotate: 10 }}
+                  transition={{ duration: 0.3 }}
+                />
               ) : (
-                <div className="h-[50px] w-[50px] rounded-full border flex items-center justify-center">?</div>
+                <motion.div
+                  className="h-[60px] w-[60px] rounded-full border border-cosmic/50 flex items-center justify-center bg-deepspace/50"
+                  animate={{
+                    boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 10px rgba(108, 92, 231, 0.5)', '0 0 0px rgba(108, 92, 231, 0.3)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <SiSolana className="text-2xl text-cosmic" />
+                </motion.div>
               )}
-              <p className="text-[24px] font-[700]">{data.stakingPool.stakeToken.name}</p>
+              <div>
+                <h2 className="text-[28px] font-bold sci-fi-text-glow">{data.stakingPool.stakeToken.name}</h2>
+                <div className="flex items-center space-x-[10px] mt-1">
+                  <p className="text-gray-400 text-sm">Status:</p>
+                  {!paused ? (
+                    <motion.p
+                      className="bg-cosmic/15 text-cosmic text-[14px] rounded-lg px-3 py-1 text-center"
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Live
+                    </motion.p>
+                  ) : (
+                    <p className="bg-red-500/15 text-red-500 text-[14px] rounded-lg px-3 py-1 text-center">
+                      Paused
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-[5px] absolute right-0 top-0">
-              <p className="text-[#D4D4D4]">Status</p>
-              {!paused ? (
-                <p className="bg-[#02C35B]/15 text-[#23E33E] text-[14px] rounded-[5px] p-[2px_8px] text-center">
-                  Live
-                </p>
-              ) : (
-                <p className="bg-red-500/15 text-red-500 text-[14px] rounded-[5px] p-[2px_8px] text-center">
-                  Paused
-                </p>
-              )}
-            </div>
-          </div>
+          </motion.div>
 
-          <form className="my-[20px] flex items-center w-full justify-center">
-            <input
-              className="text-primary text-[63px] text-center bg-transparent outline-none border-none"
-              type="number"
-              step={0.01}
-              value={stakeAmount.toFixed(2)}
-              onChange={(e) => setStakeAmount(Number(e.target.value))}
-              min={0}
-            />
-          </form>
-
-          <div className="">
-            <div className="flex items-center justify-between">
-              <p className="text-white text-[16px] mb-[5px]">Lock Amount: {staked}</p>
-              <p className="text-white text-[14px] mb-[5px]">Balance {balance}</p>
+          <motion.form
+            className="my-[30px] flex flex-col items-center w-full justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <label className="text-gray-400 mb-2 font-space">Amount to Stake</label>
+            <div className="relative w-full max-w-xs">
+              <input
+                className="text-cosmic text-[48px] text-center bg-deepspace/30 outline-none border border-cosmic/30 rounded-lg w-full py-4 px-6 font-bold"
+                type="number"
+                step={0.01}
+                value={stakeAmount.toFixed(2)}
+                onChange={(e) => setStakeAmount(Number(e.target.value))}
+                min={0}
+              />
+              <motion.div
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-cosmic/20 px-2 py-1 rounded text-sm font-space"
+                animate={{
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                {data.stakingPool.stakeToken.symbol}
+              </motion.div>
             </div>
-            <div className="bg-[#291254] mt-[20px] rounded-[8px] space-x-[10px] text-white p-[8px] flex items-center hover:cursor-pointer">
-              <GoAlert className="text-[25px] lg:text-[20px]" />
-              <p className="text-[12px] lg:text-[14px] leading-[16px] truncate" title={coinGeckoData?.description?.en || "..."}>
-                {coinGeckoData?.description?.en || "..."}
-              </p>
-            </div>
+          </motion.form>
 
-            <div className="mt-[40px]">
-              <p className="uppercase text-[14px] text-[#A1A1AA]">Staking Summary</p>
-              <div className="mt-[20px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
-                <p>Current Price</p>
-                <p>Currently priced at {coinGeckoData?.market_data?.current_price?.usd ? `**$${coinGeckoData.market_data.current_price.usd}**` : "**$???**"}.</p>
-                <p>Market Cap</p>
-                <p>Market Cap {coinGeckoData?.market_data?.market_cap?.usd ? `**$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}**` : "$???"} </p>
-                <p>Total Supply</p>
-                <p>{totalSupply ? new Intl.NumberFormat('en-US').format(Number(totalSupply)) : 0} (${data.stakingPool.stakeToken.symbol})</p>
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div className="flex items-center justify-between bg-deepspace/30 p-4 rounded-lg border border-cosmic/20">
+              <div className="flex items-center gap-2">
+                <FaCoins className="text-cosmic" />
+                <p className="text-white text-[16px] font-space">Locked Amount:</p>
+              </div>
+              <p className="text-cosmic font-bold">{staked} {data.stakingPool.stakeToken.symbol}</p>
+            </div>
+            <div className="flex items-center justify-between bg-deepspace/30 p-4 rounded-lg border border-cosmic/20 mt-2">
+              <div className="flex items-center gap-2">
+                <SiSolana className="text-cosmic" />
+                <p className="text-white text-[16px] font-space">Available Balance:</p>
+              </div>
+              <p className="text-cosmic font-bold">{balance} {data.stakingPool.stakeToken.symbol}</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="bg-deepspace/30 rounded-lg border border-cosmic/20 p-4 space-x-[10px] text-white flex items-center hover:border-cosmic/40 transition-colors mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            whileHover={{ scale: 1.01 }}
+          >
+            <GoAlert className="text-[25px] lg:text-[20px] text-cosmic" />
+            <p className="text-[14px] lg:text-[16px] leading-[20px] truncate font-space" title={coinGeckoData?.description?.en || "..."}>
+              {coinGeckoData?.description?.en || "..."}
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <div className="bg-deepspace/30 rounded-lg border border-cosmic/20 p-6">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <FaChartLine className="text-cosmic" /> Staking Summary
+              </h3>
+              <div className="space-y-3 font-space">
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">Current Price:</p>
+                  <p className="text-white font-bold">
+                    {coinGeckoData?.market_data?.current_price?.usd
+                      ? `$${coinGeckoData.market_data.current_price.usd}`
+                      : "$???"}
+                  </p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">Market Cap:</p>
+                  <p className="text-white font-bold">
+                    {coinGeckoData?.market_data?.market_cap?.usd
+                      ? `$${new Intl.NumberFormat('en-US').format(coinGeckoData.market_data.market_cap.usd)}`
+                      : "$???"}
+                  </p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">Total Supply:</p>
+                  <p className="text-white font-bold">
+                    {totalSupply
+                      ? new Intl.NumberFormat('en-US').format(Number(totalSupply))
+                      : 0} {data.stakingPool.stakeToken.symbol}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="mt-[40px] text-[12px] lg:text-[16px] grid grid-cols-2 gap-[10px]">
-              <p>Total Staked</p>
-              <p>{data.stakingPool.totalStaked} {data.stakingPool.stakeToken.symbol}</p>
-              <p>APY Rates</p>
-              <p>{data.stakingPool.apyRate}%**</p>
-              <p>Vesting Period </p>
-              <p> {noOfDays(data.stakingPool.withdrawalIntervals)} days</p>
+            <div className="bg-deepspace/30 rounded-lg border border-cosmic/20 p-6">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <SiSolana className="text-cosmic" /> Pool Details
+              </h3>
+              <div className="space-y-3 font-space">
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">Total Staked:</p>
+                  <p className="text-white font-bold">
+                    {data.stakingPool.totalStaked} {data.stakingPool.stakeToken.symbol}
+                  </p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">APY Rate:</p>
+                  <motion.p
+                    className="text-cosmic font-bold"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {data.stakingPool.apyRate}%
+                  </motion.p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-400">Vesting Period:</p>
+                  <p className="text-white font-bold">
+                    {noOfDays(data.stakingPool.withdrawalIntervals)} days
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
 
-          {!authenticated ? (
-            <button
-              className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
-              onClick={login}
-            >
-              <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-              <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
-              <span className="relative flex items-center justify-center gap-2">
-                <IoWalletSharp className="text-[14px] lg:text-[16px]" />
-                <span>Connect Wallet to Join</span>
-              </span>
-            </button>
-          ) : (
-            <div className="space-y-5">
-              {/* Secondary Button - Manage Staking Pool */}
-              {stakingPoolOwner.toLowerCase() === user?.wallet?.address?.toLowerCase() && (
-                <button
-                  className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
-                  onClick={() => setManageStakingModal(true)}
-                >
-                  <span className="absolute inset-0 w-full h-full bg-secondary clip-path-polygon"></span>
-                  <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
-                  <span className="relative">Manage Staking Pool</span>
-                </button>
-              )}
-
-              {/* Primary Button - Withdraw */}
-              {(staked > 0 || rewardAmount > 0) && (
-                <button
-                  className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
-                  onClick={unstakeConfirm}
-                >
-                  <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                  <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
-                  <span className="relative">Withdraw</span>
-                </button>
-              )}
-
-              {/* Primary Button - Confirm Stake */}
-              <button
-                className="relative w-full py-3 mt-10 text-center overflow-hidden group-button"
-                onClick={confirmStake}
+          <motion.div
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            {!authenticated ? (
+              <motion.button
+                className="relative w-full py-3 text-center overflow-hidden"
+                onClick={login}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
-                <span className="relative">Confirm Stake</span>
-              </button>
-            </div>
-          )}
+                <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+                <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+                <motion.span
+                  className="relative flex items-center justify-center gap-2"
+                  whileHover={{
+                    textShadow: "0 0 8px rgba(135, 206, 235, 0.8)"
+                  }}
+                >
+                  <IoWalletSharp className="text-xl" />
+                  <span>Connect Wallet to Join</span>
+                </motion.span>
+              </motion.button>
+            ) : (
+              <div className="space-y-4">
+                {/* Secondary Button - Manage Staking Pool */}
+                {stakingPoolOwner.toLowerCase() === user?.wallet?.address?.toLowerCase() && (
+                  <motion.button
+                    className="relative w-full py-3 text-center overflow-hidden"
+                    onClick={() => setManageStakingModal(true)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+                    <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+                    <motion.span
+                      className="relative flex items-center justify-center gap-2"
+                      whileHover={{
+                        textShadow: "0 0 8px rgba(135, 206, 235, 0.8)"
+                      }}
+                    >
+                      <SiSolana className="mr-2" /> Manage Staking Pool
+                    </motion.span>
+                  </motion.button>
+                )}
+
+                {/* Primary Button - Withdraw */}
+                {(staked > 0 || rewardAmount > 0) && (
+                  <motion.button
+                    className="relative w-full py-3 text-center overflow-hidden"
+                    onClick={unstakeConfirm}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+                    <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+                    <motion.span
+                      className="relative flex items-center justify-center gap-2"
+                      whileHover={{
+                        textShadow: "0 0 8px rgba(135, 206, 235, 0.8)"
+                      }}
+                    >
+                      <FaCoins className="mr-2" /> Withdraw Rewards
+                    </motion.span>
+                  </motion.button>
+                )}
+
+                {/* Primary Button - Confirm Stake */}
+                <motion.button
+                  className="relative w-full py-3 text-center overflow-hidden"
+                  onClick={confirmStake}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={stakeAmount === 0}
+                >
+                  <span className="absolute inset-0 w-full h-full bg-cosmic clip-path-polygon"></span>
+                  <span className="absolute inset-[2px] bg-deepspace transition-all duration-300 clip-path-polygon"></span>
+                  <motion.span
+                    className="relative flex items-center justify-center gap-2"
+                    whileHover={{
+                      textShadow: "0 0 8px rgba(135, 206, 235, 0.8)"
+                    }}
+                  >
+                    <SiSolana className="mr-2" /> Confirm Stake
+                  </motion.span>
+                </motion.button>
+              </div>
+            )}
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

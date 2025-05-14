@@ -30,6 +30,9 @@ export const service = {
         airdropFactory: "0xD018b00cd91Cf0dDb83DF4CA01711dE831Fb95B6",
         bondFactory: "0x54d224E87d0DbA4600A5381845f556aDfAd25900",
         owner: "0xd92CEB7B20D7fe095D4f1f6D373FeC6A934034FC"
+    },
+    "245022926":{
+        owner: "0xd92CEB7B20D7fe095D4f1f6D373FeC6A934034FC"
     }
 } as const;
 

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import React from 'react'
 import { useState, useEffect } from 'react';
 import { differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { useWallets } from '@privy-io/react-auth';
@@ -10,6 +9,9 @@ import { publicClient } from '../../config';
 import { useChain } from '../../context/ChainContext';
 import ConfirmVoteModal from '../Modal/ConfirmVoteOption';
 import { isAfter, isBefore } from 'date-fns';
+import { motion } from "framer-motion";
+import { FaVoteYea, FaCheck, FaTimes, FaClock } from "react-icons/fa";
+import { SiSolana } from "react-icons/si";
 
 function CountdownTimer({ endDate }: { endDate: string }) {
   const calculateTimeLeft = () => {
@@ -19,14 +21,6 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 
     // Ensure endTime is in the future
     if (endTime <= now) {
-      // console.error('End time is in the past:', {
-      //   endTime: new Date(endTime).toISOString(),
-      //   now: new Date(now).toISOString()
-      // });
-      // console.error('End time is in the past:', {
-      //   endTime: new Date(endTime).toISOString(),
-      //   now: new Date(now).toISOString()
-      // });
       return { days: 0, hours: 0, minutes: 0 };
     }
 
@@ -50,13 +44,29 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 
   // Check if voting is closed
   if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0) {
-    return <p>Voting Closed</p>;
+    return (
+      <motion.div
+        className="flex items-center gap-2 text-red-400"
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <FaClock />
+        <span className="font-orbitron">Voting Closed</span>
+      </motion.div>
+    );
   }
 
   return (
-    <p>
-      {timeLeft.days}D {timeLeft.hours}H {timeLeft.minutes}M
-    </p>
+    <motion.div
+      className="flex items-center gap-2 text-cosmic"
+      animate={{ opacity: [0.7, 1, 0.7] }}
+      transition={{ duration: 2, repeat: Infinity }}
+    >
+      <FaClock />
+      <span className="font-orbitron">
+        {timeLeft.days}D {timeLeft.hours}H {timeLeft.minutes}M
+      </span>
+    </motion.div>
   );
 }
 
@@ -152,52 +162,147 @@ function ProposalCard({ item, refetch }: any) {
 
 
   return (
-    <div className="p-[30px_20px] border border-primary rounded-[10px] col-span-1 relative">
-      {
-        showConfirmModal && <ConfirmVoteModal
-          voteSelection={voteOption} onConfirm={handleVote} onClose={handleCloseConfirm} loading={voting} voteTitle={item.name} />
+    <motion.div
+      className="sci-fi-panel border border-cosmic/30 p-6 rounded-lg relative"
+      whileHover={{ scale: 1.02, borderColor: "rgba(108, 92, 231, 0.5)" }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+    >
+      {/* Decorative corner accent */}
+      <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+      <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+      {showConfirmModal &&
+        <ConfirmVoteModal
+          voteSelection={voteOption}
+          onConfirm={handleVote}
+          onClose={handleCloseConfirm}
+          loading={voting}
+          voteTitle={item.name}
+        />
       }
-      <div className="flex items-center justify-between">
-        <img src={item.image} className='
-        h-[60px] w-[60px] border rounded-full border-white' alt="" />
-        <p className="bg-primary p-[3px_8px] runded-[5px] w-fit text-[12px] rounded-[5px]">
-          Submit Vote
-        </p>
+
+      <div className="flex items-center justify-between mb-4">
+        <motion.div
+          className="flex items-center gap-3"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Replace image with icon */}
+          <motion.div
+            className="bg-cosmic/20 p-3 rounded-full"
+            animate={{
+              boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 10px rgba(108, 92, 231, 0.5)', '0 0 0px rgba(108, 92, 231, 0.3)']
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <SiSolana className="text-2xl text-cosmic" />
+          </motion.div>
+
+          <motion.div
+            className="relative px-3 py-1 overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className="absolute inset-0 w-full h-full bg-cosmic/20 rounded-md"></span>
+            <span className="relative text-sm font-orbitron text-cosmic">Active Proposal</span>
+          </motion.div>
+        </motion.div>
       </div>
-      <p className="font-[500] text-[30px] leading-[35px] mt-[15px]">
+
+      <motion.h3
+        className="text-2xl font-bold font-orbitron mb-3"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
         {item.name}
-      </p>
-      <p className="text-[16px] mt-[10px]">
+      </motion.h3>
+
+      <motion.p
+        className="text-gray-300 font-space mb-4 text-sm"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         {item.description}
-      </p>
-      <div className="mt-[10px] flex items-center space-x-[5px]">
-        <p>Voting closes</p>
-        <hr className="w-[100px] bg-white" />
+      </motion.p>
+
+      <motion.div
+        className="flex items-center justify-between mb-4 bg-deepspace/30 p-3 rounded-lg border border-cosmic/20"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <span className="text-gray-300 font-space text-sm">Voting closes:</span>
         <CountdownTimer endDate={item.voteEndDate} />
-      </div>
+      </motion.div>
 
-      <div className="mt-[10px] flex items-center space-x-[10px]">
-        <button
-          className="bg-primary p-[4px_8px] rounded-[5px]"
+      <motion.div
+        className="grid grid-cols-2 gap-3 mb-4"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <motion.button
           onClick={() => handleVoteOption('yes')}
+          className="bg-gradient-to-r from-green-500/80 to-green-600 h-[45px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md"
+          whileHover={{
+            boxShadow: "0 0 15px rgba(74, 222, 128, 0.5)",
+            y: -1
+          }}
+          whileTap={{ y: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 15 }}
         >
-          YES
-        </button>
-        <button
-          className="border p-[4px_10px] rounded-[5px]"
-          onClick={() => handleVoteOption('no')}
-        >
-          NO
-        </button>
-      </div>
+          <motion.div
+            animate={{ rotate: [0, 5, 0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <FaCheck className="text-white" />
+          </motion.div>
+          <span>YES</span>
+        </motion.button>
 
-      <div className="mt-[15px] flex flex-col items-start space-y-[3px]">
-        <p>Progress (Yes: {yesVotesPercentage}%)</p>
-        <div className="h-[10px] w-full rounded-full bg-white">
-          <div style={{ width: `${yesVotesPercentage}%` }} className="h-full bg-primary rounded-full"></div>
+        <motion.button
+          onClick={() => handleVoteOption('no')}
+          className="bg-gradient-to-r from-red-500/80 to-red-600 h-[45px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md"
+          whileHover={{
+            boxShadow: "0 0 15px rgba(239, 68, 68, 0.5)",
+            y: -1
+          }}
+          whileTap={{ y: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+        >
+          <motion.div
+            animate={{ rotate: [0, 5, 0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <FaTimes className="text-white" />
+          </motion.div>
+          <span>NO</span>
+        </motion.button>
+      </motion.div>
+
+      <motion.div
+        className="mt-4"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-gray-300 font-space text-sm">Current Results:</span>
+          <span className="text-cosmic font-orbitron">Yes: {yesVotesPercentage}%</span>
         </div>
-      </div>
-    </div>
+
+        <div className="h-2 w-full rounded-full bg-deepspace/50 overflow-hidden border border-cosmic/20">
+          <motion.div
+            className="h-full bg-cosmic rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${yesVotesPercentage}%` }}
+            transition={{ duration: 1, delay: 0.6 }}
+          ></motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

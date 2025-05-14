@@ -5,6 +5,10 @@ import { Preloader, ThreeDots } from 'react-preloader-icon';
 import { useWallets } from "@privy-io/react-auth";
 import { usePrivy } from "@privy-io/react-auth";
 import CurrentChain from "../Presale/CurrentChain";
+import { motion } from "framer-motion";
+import { SiSolana } from "react-icons/si";
+import { FaCheckCircle, FaExternalLinkAlt, FaHistory } from "react-icons/fa";
+import { GiStarFormation } from "react-icons/gi";
 
 function SaleCardCompleted({ presale }: any) {
   const navigation = useNavigate();
@@ -26,15 +30,32 @@ function SaleCardCompleted({ presale }: any) {
 
   if (!presale) {
     return (
-      <div className="flex justify-center items-center h-[200px]">
-        <Preloader
-          use={ThreeDots}
-          size={60}
-          strokeWidth={6}
-          strokeColor="#5325A9"
-          duration={2000}
-        />
-      </div>
+      <motion.div
+        className="overflow-hidden relative bg-deepspace/30 border border-cosmic/20 h-[400px] flex items-center justify-center"
+        animate={{
+          boxShadow: ['0 0 0px rgba(108, 92, 231, 0.1)', '0 0 15px rgba(108, 92, 231, 0.2)', '0 0 0px rgba(108, 92, 231, 0.1)'],
+          borderColor: ['rgba(108, 92, 231, 0.2)', 'rgba(108, 92, 231, 0.4)', 'rgba(108, 92, 231, 0.2)']
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+        <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          className="relative"
+        >
+          <FaHistory className="text-4xl text-cosmic" />
+          <motion.div
+            className="absolute -top-1 -right-1 text-xs text-skyblue"
+            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <GiStarFormation />
+          </motion.div>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -43,29 +64,90 @@ function SaleCardCompleted({ presale }: any) {
   const progress = (totalRaised / hardCap) * 100;
 
   return (
-    <div className="overflow-hidden relative bg-[#111115] border border-primary/20 transition-all hover:scale-[1.01] duration-300 hover:cursor-pointer shadow-[0_0_15px_2px_rgba(83,37,169,0.3)] hover:shadow-[0_0_25px_5px_rgba(83,37,169,0.5)]">
-      <div className="h-[150px] w-full border-b relative">
-        <img
+    <motion.div
+      className="overflow-hidden relative bg-deepspace/30 border-t border-l border-r border-cosmic/20"
+      whileHover={{
+        scale: 1.02,
+        boxShadow: "0 0 25px rgba(108, 92, 231, 0.4)",
+        borderColor: "rgba(108, 92, 231, 0.5)"
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      onClick={() => navigation(`/launchpad/${presale.presaleInfo.projectName.toLowerCase()}`)}
+    >
+      {/* Decorative corner accents */}
+      <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+      <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+      {/* Background image with overlay */}
+      <div className="h-[150px] w-full relative overflow-hidden">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-b from-cosmic/20 to-deepspace/80 z-10"
+          whileHover={{ opacity: 0.7 }}
+        ></motion.div>
+
+        <motion.img
           src={presale?.presaleInfo?.images?.bg}
           className="h-full w-full object-cover"
           alt={presale?.presaleInfo?.projectName}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.5 }}
         />
-        <div className="absolute top-0 right-0 bg-[#291254] px-4 py-1 text-white">
-          {presale.isPrivateSale ? "Standard IDO" : "Public IDO"}
-        </div>
+
+        <motion.div
+          className="absolute top-0 right-0 bg-cosmic/80 px-4 py-1 text-white z-20 clip-path-polygon"
+          whileHover={{ backgroundColor: "rgba(108, 92, 231, 1)" }}
+        >
+          <motion.span
+            animate={{ textShadow: ['0 0 0px rgba(255, 255, 255, 0)', '0 0 10px rgba(255, 255, 255, 0.5)', '0 0 0px rgba(255, 255, 255, 0)'] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="font-orbitron text-sm"
+          >
+            {presale.isPrivateSale ? "Standard IDO" : "Public IDO"}
+          </motion.span>
+        </motion.div>
       </div>
 
-      {/* <div className="absolute top-[8.8rem] w-[80px] left-0 h-[25px] bg-[#291254] z-0" /> */}
-      <div className="h-[80px] w-[80px] absolute top-[110px] left-[20px] z-20 border-[#291254] border-[7px] bg-black p-3">
-        <img src={presale?.presaleInfo?.images?.logo} className="h-full w-full object-contain" alt="" />
+      {/* Project logo with animation */}
+      <div className="relative">
+        <motion.div
+          className="h-[80px] w-[80px] absolute -top-10 left-4 z-20 border-cosmic border-[3px] bg-deepspace/90 p-2 rounded-full overflow-hidden"
+          whileHover={{ scale: 1.05, borderColor: "rgba(108, 92, 231, 1)" }}
+          animate={{
+            boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 15px rgba(108, 92, 231, 0.5)', '0 0 0px rgba(108, 92, 231, 0.3)']
+          }}
+          transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+        >
+          <img src={presale?.presaleInfo?.images?.logo} className="h-full w-full object-contain" alt="" />
+
+          {/* Orbiting element */}
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            style={{ transformOrigin: "center center" }}
+          >
+            <motion.div
+              className="absolute -top-1 left-1/2 -translate-x-1/2 bg-cosmic/10 p-1 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <SiSolana className="text-xs text-cosmic" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Chain indicator */}
+        <div className="flex justify-end">
+          <motion.div
+            className="bg-cosmic/80 clip-path-polygon px-3 py-1"
+            whileHover={{ scale: 1.05 }}
+          >
+            <CurrentChain chainId={currentChain} />
+          </motion.div>
+        </div>
       </div>
 
       <div className="w-full">
-        <div className="text-white w-full items-center flex justify-end">
-          <div className="bg-[#291254] uppercase p-2">
-            <CurrentChain chainId={currentChain} />
-          </div>
-        </div>
 
         <div className="p-[20px] mt-[10px]">
           <div className="flex items-center justify-between">
@@ -195,14 +277,27 @@ function SaleCardCompleted({ presale }: any) {
           </div>
         </div>
 
-        <button
+        {/* View Sale button - Updated with non-angled design */}
+        <motion.button
           onClick={() => navigation(`/launchpad/${presale.presaleInfo.projectName.toLowerCase()}`)}
-          className="w-full bg-primary hover:bg-primary/90 transition-all mt-6 text-white py-3 uppercase flex items-center justify-center cursor-pointer max-h-[35px]"
+          className="w-full bg-gradient-to-r from-cosmic/80 to-cosmic h-[50px] flex items-center justify-center gap-2 font-orbitron text-white border-t border-cosmic/30 mt-6"
+          whileHover={{
+            boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)",
+            y: -1
+          }}
+          whileTap={{ y: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 15 }}
         >
-          View Sale
-        </button>
+          <motion.div
+            animate={{ rotate: [0, 10, 0, -10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <FaHistory className="text-white" />
+          </motion.div>
+          <span>View Sale</span>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

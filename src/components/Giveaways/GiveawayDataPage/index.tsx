@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGiveaway } from '../../../hooks/web3/useGiveaway';
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import {
-    isBefore,
-    isAfter,
-    format
-} from 'date-fns';
+import { isBefore, isAfter, format } from 'date-fns';
 import {
     FaTwitter,
     FaTelegramPlane,
     FaDiscord,
-    FaCopy
+    FaCopy,
+    FaRocket,
+    FaGift,
+    FaExternalLinkAlt,
+    FaGlobe,
+    FaShieldAlt,
+    FaUndo,
+    FaCoins
 } from 'react-icons/fa';
 import { PresaleCountdownTimer } from '../../Countdown';
 import { toast } from 'react-hot-toast';
@@ -20,8 +23,6 @@ import AirdropABI from "../../../abis/Airdrop.json";
 import { publicClient } from "../../../config";
 import { createWalletClient, custom } from "viem";
 import { useChain } from "../../../context/ChainContext";
-// import ConfirmClaim from '../../Modal/ConfirmClaim';
-import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
 import { getClaimableTokens } from '../../../utils/web3/giveaway';
 import { IoWalletSharp } from "react-icons/io5";
@@ -29,6 +30,9 @@ import { useLockStake } from '../../../hooks/web3/useLockStake';
 import { usePageTitleGiveaway } from '../../../hooks/utils';
 import { isWhitelisted } from '../../../utils/web3/giveaway';
 import { useGiveawayPeriods } from '../../../hooks/web3/useGiveawayPeriods';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SiSolana } from 'react-icons/si';
+import { GiStarFormation, GiMoonOrbit } from 'react-icons/gi';
 
 // The createViemWalletClient function will be defined inside the component
 
@@ -120,32 +124,75 @@ export default function GiveawaySelected() {
 
         if (isAfter(new Date(), new Date(whitelistEndTimeUnix)) && isBefore(new Date(), new Date(delayPeriod))) {
             return (
-                <div className="bg-yellow-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-yellow-300'>Claim Period</p>
-                </div>)
+                <motion.div
+                    className="bg-gradient-to-r from-yellow-600/80 to-yellow-500 px-4 py-1 rounded-md"
+                    whileHover={{ scale: 1.05 }}
+                    animate={{
+                        boxShadow: ['0 0 0px rgba(234, 179, 8, 0.3)', '0 0 10px rgba(234, 179, 8, 0.5)', '0 0 0px rgba(234, 179, 8, 0.3)']
+                    }}
+                    transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+                >
+                    <motion.div className="flex items-center gap-2">
+                        <FaUndo className="text-white" />
+                        <span className="font-orbitron text-white text-sm">Claim Period</span>
+                    </motion.div>
+                </motion.div>
+            )
         }
 
         if (isAfter(new Date(), new Date(whitelistEndTimeUnix))) {
             return (
-                <div className="bg-green-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-green-300'>Claim Period Started</p>
-                </div>)
+                <motion.div
+                    className="bg-gradient-to-r from-green-600/80 to-green-500 px-4 py-1 rounded-md"
+                    whileHover={{ scale: 1.05 }}
+                    animate={{
+                        boxShadow: ['0 0 0px rgba(34, 197, 94, 0.3)', '0 0 10px rgba(34, 197, 94, 0.5)', '0 0 0px rgba(34, 197, 94, 0.3)']
+                    }}
+                    transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+                >
+                    <motion.div className="flex items-center gap-2">
+                        <FaShieldAlt className="text-white" />
+                        <span className="font-orbitron text-white text-sm">Claim Period Started</span>
+                    </motion.div>
+                </motion.div>
+            )
         }
 
         if (isAfter(new Date(), new Date(whitelistStartTimeUnix)) && isBefore(new Date(), new Date(whitelistEndTimeUnix))) {
             return (
-                <div className="bg-green-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-green-300'>Whitelist in Progress</p>
-                </div>)
+                <motion.div
+                    className="bg-gradient-to-r from-green-600/80 to-green-500 px-4 py-1 rounded-md"
+                    whileHover={{ scale: 1.05 }}
+                    animate={{
+                        boxShadow: ['0 0 0px rgba(34, 197, 94, 0.3)', '0 0 10px rgba(34, 197, 94, 0.5)', '0 0 0px rgba(34, 197, 94, 0.3)']
+                    }}
+                    transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+                >
+                    <motion.div className="flex items-center gap-2">
+                        <FaRocket className="text-white" />
+                        <span className="font-orbitron text-white text-sm">Whitelist in Progress</span>
+                    </motion.div>
+                </motion.div>
+            )
         }
 
         if (isBefore(new Date(), new Date(whitelistStartTimeUnix))) {
             return (
-                <div className="bg-blue-700/80 p-[3px_8px] w-fit text-[12px]">
-                    <p className='text-blue-300'>Upcoming Giveaway</p>
-                </div>)
+                <motion.div
+                    className="bg-gradient-to-r from-cosmic/80 to-cosmic px-4 py-1 rounded-md"
+                    whileHover={{ scale: 1.05 }}
+                    animate={{
+                        boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 10px rgba(108, 92, 231, 0.5)', '0 0 0px rgba(108, 92, 231, 0.3)']
+                    }}
+                    transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+                >
+                    <motion.div className="flex items-center gap-2">
+                        <FaCoins className="text-white" />
+                        <span className="font-orbitron text-white text-sm">Upcoming Giveaway</span>
+                    </motion.div>
+                </motion.div>
+            )
         }
-
 
         return null
     }
@@ -188,23 +235,131 @@ export default function GiveawaySelected() {
 
     if (loading || lockStakeLoading) {
         return (
-            <div className="flex justify-center items-center h-[200px]">
-                <Preloader
-                    use={ThreeDots}
-                    size={60}
-                    strokeWidth={6}
-                    strokeColor="#5325A9"
-                    duration={2000}
-                />
-            </div>
+            <motion.div
+                className="flex flex-col justify-center items-center h-[400px] bg-deepspace/30 border border-cosmic/20 rounded-lg p-8 relative"
+                animate={{
+                    boxShadow: ['0 0 0px rgba(108, 92, 231, 0.1)', '0 0 15px rgba(108, 92, 231, 0.2)', '0 0 0px rgba(108, 92, 231, 0.1)'],
+                    borderColor: ['rgba(108, 92, 231, 0.2)', 'rgba(108, 92, 231, 0.4)', 'rgba(108, 92, 231, 0.2)']
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+            >
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+                <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    className="mb-6"
+                >
+                    <SiSolana className="text-5xl text-cosmic" />
+                </motion.div>
+
+                <motion.h3
+                    className="text-xl font-orbitron text-white mb-2"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                >
+                    Loading Airdrop Details
+                </motion.h3>
+
+                <motion.div className="flex space-x-2">
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="w-3 h-3 rounded-full bg-cosmic"
+                            animate={{
+                                y: [0, -10, 0],
+                                opacity: [0.5, 1, 0.5]
+                            }}
+                            transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    ))}
+                </motion.div>
+
+                <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(10)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute text-skyblue/30"
+                            style={{
+                                top: `${Math.random() * 100}%`,
+                                left: `${Math.random() * 100}%`,
+                                fontSize: `${Math.random() * 10 + 5}px`
+                            }}
+                            animate={{
+                                opacity: [0.3, 1, 0.3],
+                                scale: [1, 1.2, 1]
+                            }}
+                            transition={{
+                                duration: Math.random() * 3 + 2,
+                                repeat: Infinity,
+                                delay: Math.random() * 5
+                            }}
+                        >
+                            <GiStarFormation />
+                        </motion.div>
+                    ))}
+                </div>
+            </motion.div>
         );
     }
 
     if (error.message || lockStakeError.message) {
         return (
-            <div className="flex items-center justify-center">
-                <h3 className="text-red-600 text-xl">{error.message || lockStakeError.message}</h3>
-            </div>
+            <motion.div
+                className="flex flex-col items-center justify-center space-y-6 p-8 text-center bg-deepspace/30 border border-red-500/30 rounded-lg relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-red-500/50 rounded-tr-lg"></div>
+                <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-red-500/50 rounded-bl-lg"></div>
+
+                <motion.div
+                    animate={{
+                        rotate: [0, 10, 0, -10, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="text-red-500 text-5xl"
+                >
+                    <FaRocket />
+                </motion.div>
+
+                <div className="space-y-2">
+                    <motion.h3
+                        className="text-2xl font-orbitron text-white"
+                        animate={{ textShadow: ['0 0 0px rgba(255, 255, 255, 0)', '0 0 10px rgba(255, 255, 255, 0.5)', '0 0 0px rgba(255, 255, 255, 0)'] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                    >
+                        Houston, We Have a Problem
+                    </motion.h3>
+
+                    <p className="text-white/80 font-space">
+                        {error.message || lockStakeError.message || "Failed to load airdrop details. Please try again later."}
+                    </p>
+                </div>
+
+                <motion.button
+                    className="bg-gradient-to-r from-cosmic/80 to-cosmic px-6 py-3 rounded-md text-white font-orbitron flex items-center gap-2"
+                    whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => window.location.reload()}
+                >
+                    <FaRocket className="text-white" />
+                    <span>Retry Launch</span>
+                </motion.button>
+            </motion.div>
         )
     }
 
@@ -365,9 +520,16 @@ export default function GiveawaySelected() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 p-[40px_20px] lg:p-[40px] text-white mobile-order">
             {/* Right Column - will appear first on mobile */}
-            <div className="relative p-8 overflow-hidden group h-fit order-first lg:order-last">
-                <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+            <motion.div
+                className="relative p-8 overflow-hidden h-fit order-first lg:order-last bg-deepspace/30 border border-cosmic/20 rounded-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+                <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
                 <div className="relative space-y-6">
                     {/* Presale Status */}
                     <div className="flex items-center justify-between">
@@ -380,142 +542,183 @@ export default function GiveawaySelected() {
 
                     {/* Countdown Timer */}
                     <div className="flex justify-between items-center flex-wrap">
-                        <div className="mt-[10px] items-start flex flex-col space-x-[5px]">
+                        <div className="flex flex-col gap-1">
                             {isBeforeWhitelist ? (
                                 <>
-                                    <p className='text-primary text-[12px]'>Whitelist starts in</p>
+                                    <span className='text-skyblue font-space text-sm'>Whitelist starts in</span>
                                     <PresaleCountdownTimer time={data.whitelistStartTime} />
                                 </>
                             ) : isClaimPeriod ? (
                                 <>
-                                    <p className='text-primary text-[12px]'>Claim Period Starts</p>
+                                    <span className='text-skyblue font-space text-sm'>Claim Period Starts</span>
                                     <PresaleCountdownTimer time={Number(data.whitelistEndTime) + Number(data.withdrawDelay)} />
                                 </>
                             ) : (
                                 <>
-                                    <p className='text-primary text-[12px]'>Whitelist ends in</p>
+                                    <span className='text-skyblue font-space text-sm'>Whitelist ends in</span>
                                     <PresaleCountdownTimer time={data.whitelistEndTime} />
                                 </>
                             )}
                         </div>
 
-                        <div>
+                        <motion.div
+                            whileHover={{ scale: 1.05, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                        >
                             <img
                                 src={data?.giveawayInfo?.images?.logo}
-                                className="h-[30px] w-full object-contain"
-                                alt=""
+                                className="h-[50px] w-full object-contain"
+                                alt={data?.giveawayInfo?.projectName}
                             />
-                        </div>
+                        </motion.div>
                     </div>
-
-                    {/* Progress Bar */}
-                    {/* <PresaleProgress
-                        totalPaymentReceived={data.totalPaymentReceived}
-                        hardCap={data.hardCap}
-                        softCap={data.softCap}
-                    /> */}
 
                     {/* Stats */}
-                    <div className="w-full">
-                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
-                            <p>Badge</p>
-                            <div className="bg-primary w-[20%] h-[2px]" />
-                            <p>{badgeInfo.name}</p>
+                    <motion.div
+                        className="bg-deepspace/50 p-4 rounded-lg border border-cosmic/20 space-y-3"
+                        whileHover={{ borderColor: "rgba(108, 92, 231, 0.5)" }}
+                    >
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="space-y-1">
+                                <p className="text-gray-400 font-space">Badge</p>
+                                <p className="text-white font-orbitron">{badgeInfo.name}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-gray-400 font-space">Multiplier</p>
+                                <p className="text-white font-orbitron">{returnMultiplier(lockStake?.userData?.amountStaked)}</p>
+                            </div>
+                            <div className="space-y-1 col-span-2">
+                                <p className="text-gray-400 font-space">Claimable</p>
+                                <p className="text-white font-orbitron">{claimableAmount} {data.airdropToken.symbol}</p>
+                            </div>
                         </div>
-                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
-                            <p>Multiplier</p>
-                            <div className="bg-primary w-[20%] h-[2px]" />
-                            <p>{returnMultiplier(lockStake?.userData?.amountStaked)}</p>
-                        </div>
-                        <div className='flex items-center justify-between gap-x-3 w-full text-[14px]'>
-                            <p>Claimable</p>
-                            <div className="bg-primary w-[20%] h-[2px]" />
-                            <p>{claimableAmount} {data.airdropToken.symbol}</p>
-                        </div>
-                    </div>
+                    </motion.div>
 
                     {/* Action Buttons */}
                     {authenticated ? (
                         <>
                             {isClaimPeriod && (
-                                <button
-                                    className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                <motion.button
+                                    className="w-full bg-gradient-to-r from-cosmic/80 to-cosmic h-[50px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md mt-4"
+                                    whileHover={{
+                                        boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)",
+                                        y: -1
+                                    }}
+                                    whileTap={{ y: 1 }}
                                     onClick={handleClaim}
                                     disabled={claimableAmount === 0}
                                 >
-                                    <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
-                                    <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
-                                    <span className="relative">
+                                    {refunding ? (
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        >
+                                            <FaCoins className="text-white" />
+                                        </motion.div>
+                                    ) : (
+                                        <FaCoins className="text-white" />
+                                    )}
+                                    <span>
                                         {claimableAmount === 0
                                             ? "You have no tokens to claim"
                                             : `Claim Tokens ${Number(claimableAmount).toLocaleString()} ${data.airdropToken.symbol}`
                                         }
                                     </span>
-                                </button>
+                                </motion.button>
                             )}
 
                             {
                                 isWhitelistPeriod && !isUserWhitelisted && (
-                                    <button
-                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                    <motion.button
+                                        className="w-full bg-gradient-to-r from-cosmic/80 to-cosmic h-[50px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md mt-4"
+                                        whileHover={{
+                                            boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)",
+                                            y: -1
+                                        }}
+                                        whileTap={{ y: 1 }}
                                         onClick={handleWhitelist}
+                                        disabled={refunding}
                                     >
-                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
-                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
-                                        <span className="relative">
-                                            Whitelist
-                                        </span>
-                                    </button>
+                                        {refunding ? (
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                            >
+                                                <FaRocket className="text-white" />
+                                            </motion.div>
+                                        ) : (
+                                            <FaRocket className="text-white" />
+                                        )}
+                                        <span>Whitelist</span>
+                                    </motion.button>
                                 ) ||
                                 isWhitelistPeriod && isUserWhitelisted && (
-                                    <button
-                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                    <motion.button
+                                        className="w-full bg-gradient-to-r from-green-600/80 to-green-500 h-[50px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md mt-4"
+                                        whileHover={{
+                                            boxShadow: "0 0 15px rgba(34, 197, 94, 0.5)",
+                                            y: -1
+                                        }}
+                                        disabled={true}
                                     >
-                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
-                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
-                                        <span className="relative">
-                                            Whitelisted
-                                        </span>
-                                    </button>
+                                        <FaShieldAlt className="text-white" />
+                                        <span>Whitelisted</span>
+                                    </motion.button>
                                 )
                             }
                             {
                                 isBeforeWhitelist && (
-                                    <button
-                                        className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                                    <motion.button
+                                        className="w-full bg-gradient-to-r from-cosmic/80 to-cosmic h-[50px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md mt-4"
+                                        whileHover={{
+                                            boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)",
+                                            y: -1
+                                        }}
+                                        whileTap={{ y: 1 }}
                                         onClick={() => toast("Whitelist is upcoming")}
                                     >
-                                        <span className="absolute inset-0 w-full h-fit bg-primary clip-path-polygon"></span>
-                                        <span className="absolute inset-[2px] bg-primary transition-all duration-300 clip-path-polygon"></span>
-                                        <span className="relative">
-                                            Whitelist Upcoming
-                                        </span>
-                                    </button>
+                                        <FaCoins className="text-white" />
+                                        <span>Whitelist Upcoming</span>
+                                    </motion.button>
                                 )
                             }
                         </>
                     ) : (
-                        <button
-                            className="relative w-full py-3 mt-6 text-center overflow-hidden group-button"
+                        <motion.button
+                            className="w-full bg-gradient-to-r from-cosmic/80 to-cosmic h-[50px] flex items-center justify-center gap-2 font-orbitron text-white rounded-md mt-4"
+                            whileHover={{
+                                boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)",
+                                y: -1
+                            }}
+                            whileTap={{ y: 1 }}
                             onClick={login}
                         >
-                            <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon"></span>
-                            <span className="absolute inset-[2px] bg-[#000027] transition-all duration-300 clip-path-polygon"></span>
-                            <span className="relative flex items-center justify-center gap-2">
-                                <IoWalletSharp className="w-5 h-5" />
-                                <span>Connect Wallet</span>
-                            </span>
-                        </button>
+                            <IoWalletSharp className="text-white" />
+                            <span>Connect Wallet</span>
+                        </motion.button>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             {/* Left Column - will appear second on mobile */}
-            <div className="space-y-8 order-last lg:order-first">
+            <motion.div
+                className="space-y-8 order-last lg:order-first"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+            >
                 {/* Project Details */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-3"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                <motion.div
+                    className="bg-deepspace/30 border border-cosmic/20 rounded-lg p-8 space-y-4 relative"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    whileHover={{ borderColor: "rgba(108, 92, 231, 0.5)" }}
+                >
+                    {/* Decorative corner accents */}
+                    <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+                    <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
                     <div className="relative space-y-6">
                         <div>
                             <p className='text-5xl lg:text-6xl uppercase font-bold tracking-tighter bg-gradient-to-r from-primary to-purple-300 bg-clip-text text-transparent'>
@@ -564,12 +767,20 @@ export default function GiveawaySelected() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* About Section */}
-                <div className="relative p-8 overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-primary clip-path-polygon opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute inset-[2px] bg-[#000027] clip-path-polygon transition-all duration-300"></span>
+                <motion.div
+                    className="bg-deepspace/30 border border-cosmic/20 rounded-lg p-8 space-y-4 relative"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                    whileHover={{ borderColor: "rgba(108, 92, 231, 0.5)" }}
+                >
+                    {/* Decorative corner accents */}
+                    <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+                    <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
                     <div className="relative space-y-3">
                         <p className="text-primary text-[18px] uppercase font-normal tracking-[3px]">
                             About {data?.giveawayInfo?.projectName}
@@ -631,15 +842,17 @@ export default function GiveawaySelected() {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            <TxReceipt
-                visible={showTxModal}
-                onClose={() => setShowTxModal(false)}
-                title={txReceiptTitle}
-                txHash={txHash}
-            />
+            <AnimatePresence>
+                <TxReceipt
+                    visible={showTxModal}
+                    onClose={() => setShowTxModal(false)}
+                    title={txReceiptTitle}
+                    txHash={txHash}
+                />
+            </AnimatePresence>
         </div>
     );
 }
