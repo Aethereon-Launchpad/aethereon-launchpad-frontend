@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBond } from "../../hooks/web3/useBond";
 import { Preloader, ThreeDots } from 'react-preloader-icon';
-import { isBefore } from "date-fns";
+import { isBefore, isAfter } from "date-fns";
 import { format } from "date-fns";
 import CurrentChain from "../Presale/CurrentChain";
 import { getClient } from "../../utils/web3/client";
+import { motion } from 'framer-motion';
+import { SiSolana } from 'react-icons/si';
+import { FaExclamationCircle, FaHistory, FaArchive } from 'react-icons/fa';
+import { IoTime } from 'react-icons/io5';
+import { GiStarFormation } from 'react-icons/gi';
+import BondCard from './BondCard';
 
 function PastBonds() {
   const { data, error, loading } = useBond(null, { polling: false });
@@ -14,35 +20,14 @@ function PastBonds() {
   const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
 
-
-
   useEffect(() => {
-    try {
-      if (data && Array.isArray(data)) {
-        const currentTime = Date.now();
-        // Add validation to ensure we only process valid bond objects
-        const filtered = data.filter((bond: any) => {
-          // Check if bond is a valid object with required properties
-          if (!bond || typeof bond !== 'object' || bond.saleEndTime === undefined) {
-            return false;
-          }
-
-          try {
-            const endTime = Number(bond.saleEndTime) * 1000;
-            return !isBefore(currentTime, endTime);
-          } catch (err) {
-            console.error('Error processing bond end time:', err);
-            return false;
-          }
-        });
-        setFilteredBonds(filtered);
-      } else {
-        // If data is not an array, set filtered bonds to empty array
-        setFilteredBonds([]);
-      }
-    } catch (error) {
-      console.error('Error filtering bonds:', error);
-      setFilteredBonds([]);
+    if (data) {
+      const currentTime = Date.now();
+      const filtered = data.filter((bond: any) => {
+        const endTime = Number(bond.saleEndTime) * 1000;
+        return isAfter(currentTime, endTime);
+      });
+      setFilteredBonds(filtered);
     }
   }, [data]);
 
@@ -114,156 +99,280 @@ function PastBonds() {
     );
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100 }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[200px] p-[40px_20px] lg:p-[40px]">
-        <Preloader
-          use={ThreeDots}
-          size={60}
-          strokeWidth={6}
-          strokeColor="#5325A9"
-          duration={2000}
-        />
-      </div>
+      <motion.div
+        className="flex flex-col justify-center items-center h-[400px] bg-deepspace/30 border border-cosmic/20 rounded-lg p-8 relative m-[40px_20px] lg:m-[40px]"
+        animate={{
+          boxShadow: ['0 0 0px rgba(108, 92, 231, 0.1)', '0 0 15px rgba(108, 92, 231, 0.2)', '0 0 0px rgba(108, 92, 231, 0.1)'],
+          borderColor: ['rgba(108, 92, 231, 0.2)', 'rgba(108, 92, 231, 0.4)', 'rgba(108, 92, 231, 0.2)']
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        {/* Decorative corner accents */}
+        <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+        <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          className="mb-6"
+        >
+          <IoTime className="text-5xl text-cosmic" />
+        </motion.div>
+
+        <motion.h3
+          className="text-xl font-orbitron text-white mb-2"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          Loading Past Campaigns
+        </motion.h3>
+
+        <motion.div className="flex space-x-2">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="w-3 h-3 rounded-full bg-cosmic"
+              animate={{
+                y: [0, -10, 0],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                delay: i * 0.2,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </motion.div>
+
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(10)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-skyblue/30"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                fontSize: `${Math.random() * 10 + 5}px`
+              }}
+              animate={{
+                opacity: [0.3, 1, 0.3],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: Math.random() * 3 + 2,
+                repeat: Infinity,
+                delay: Math.random() * 5
+              }}
+            >
+              <GiStarFormation />
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     );
   }
 
   if (error.message) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 text-center p-[40px_20px] lg:p-[40px]">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h3 className="text-red-500 text-xl font-medium">Oops! Something went wrong</h3>
-        <p className="text-gray-400 max-w-md">
-          We're having trouble loading the past bonds. Please try refreshing the page or check back later.
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-6 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+      <motion.div
+        className="flex flex-col items-center justify-center space-y-6 p-8 text-center bg-deepspace/30 border border-red-500/30 rounded-lg relative m-[40px_20px] lg:m-[40px]"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Decorative corner accents */}
+        <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-red-500/50 rounded-tr-lg"></div>
+        <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-red-500/50 rounded-bl-lg"></div>
+
+        <motion.div
+          animate={{
+            rotate: [0, 10, 0, -10, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="text-red-500 text-5xl"
         >
-          Refresh Page
-        </button>
-      </div>
+          <FaExclamationCircle />
+        </motion.div>
+
+        <div className="space-y-2">
+          <motion.h3
+            className="text-2xl font-orbitron text-white"
+            animate={{ textShadow: ['0 0 0px rgba(255, 255, 255, 0)', '0 0 10px rgba(255, 255, 255, 0.5)', '0 0 0px rgba(255, 255, 255, 0)'] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Historical Records Unavailable
+          </motion.h3>
+
+          <p className="text-white/80 font-space">
+            {error.message || "Failed to retrieve past bond campaigns. Please try again later."}
+          </p>
+        </div>
+
+        <motion.button
+          className="bg-gradient-to-r from-cosmic/80 to-cosmic px-6 py-3 rounded-md text-white font-orbitron flex items-center gap-2"
+          whileHover={{
+            scale: 1.05,
+            boxShadow: "0 0 15px rgba(108, 92, 231, 0.5)"
+          }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => window.location.reload()}
+        >
+          <FaHistory className="text-white" />
+          <span>Reload History</span>
+        </motion.button>
+      </motion.div>
     );
   }
 
   return (
-    <div className="font-space flex flex-col p-[40px_20px] lg:p-[40px]">
-      <div className="flex flex-col items-start text-white mb-8">
-        <h1 className="text-[32px] lg:text-[56px] font-[700] leading-[36px] lg:leading-[60px]">
-          Past Bonds
-        </h1>
-      </div>
+    <div className="font-space p-[40px_20px] lg:p-[40px] bg-gradient-to-b from-deepspace/0 to-deepspace/10 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-40 right-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
+      <div className="absolute bottom-40 left-20 w-[300px] h-[300px] bg-cosmic/5 rounded-full blur-[100px] -z-10"></div>
 
-      <div className="w-full bg-[#0D0D0D] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left border-b border-gray-800">
-                <th className="p-4 text-gray-400 font-normal">Project</th>
-                <th className="p-4 text-gray-400 font-normal">Raised</th>
-                <th className="p-4 text-gray-400 font-normal">Discount</th>
-                <th className="p-4 text-gray-400 font-normal">Ended</th>
-                <th className="p-4 text-gray-400 font-normal">Chain</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((bond: any, index: number) => {
-                  // Safely navigate properties with optional chaining and fallbacks
-                  const projectName = bond?.bondInfo?.projectName || 'Unknown Project';
-                  const projectUrl = bond?.bondInfo?.projectName?.toLowerCase() || 'unknown';
-                  const tokenSymbol = bond?.saleToken?.symbol || 'N/A';
-                  const logoUrl = bond?.bondInfo?.images?.logo || '';
+      {/* Decorative grid lines */}
+      <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 top-[120px]"></div>
+      <div className="absolute left-0 right-0 h-[1px] bg-cosmic/10 bottom-[120px]"></div>
 
-                  // Safely format numbers with fallbacks
-                  let totalSoldFormatted = 'N/A';
-                  if (bond?.totalSold !== undefined) {
-                    try {
-                      totalSoldFormatted = `${parseFloat(bond.totalSold).toLocaleString()} ${tokenSymbol}`;
-                    } catch (err) {
-                      console.error('Error formatting totalSold:', err);
-                    }
-                  }
+      <motion.div
+        className="flex flex-col items-center gap-3 mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          animate={{
+            rotate: [0, 5, 0, -5, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="relative"
+        >
+          <FaArchive className="text-cosmic text-4xl mb-2" />
+          <motion.div
+            className="absolute inset-0 bg-cosmic rounded-full blur-md -z-10"
+            animate={{
+              opacity: [0.1, 0.3, 0.1]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          ></motion.div>
+        </motion.div>
 
-                  // Safely format discount percentages
-                  let discountFormatted = 'N/A';
-                  if (bond?.initialDiscountPercentage !== undefined && bond?.finalDiscountPercentage !== undefined) {
-                    try {
-                      discountFormatted = `${(bond.initialDiscountPercentage).toFixed()}% to ${(bond.finalDiscountPercentage).toFixed()}%`;
-                    } catch (err) {
-                      console.error('Error formatting discount percentages:', err);
-                    }
-                  }
+        <motion.h1
+          className="text-[32px] lg:text-[56px] text-primary font-bold leading-[36px] lg:leading-[60px] font-orbitron text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          Past <span className="text-cosmic">Bond Campaigns</span>
+        </motion.h1>
 
-                  // Safely format end date
-                  let endDateFormatted = 'N/A';
-                  if (bond?.saleEndTime) {
-                    try {
-                      endDateFormatted = format(new Date(bond.saleEndTime * 1000), "dd MMM, HH:mm");
-                    } catch (err) {
-                      console.error('Error formatting end date:', err);
-                    }
-                  }
+        <motion.div
+          className="w-[100px] h-[3px] bg-gradient-to-r from-transparent via-cosmic to-transparent mb-6"
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: "100px", opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        ></motion.div>
 
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => navigate(`/deals/bonds/${projectUrl}`)}
-                      className="border-b border-gray-800 hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <td className="p-4">
-                        <div className="flex items-center space-x-3">
-                          {logoUrl ? (
-                            <img
-                              src={logoUrl}
-                              alt={projectName}
-                              className="w-8 h-8 rounded-full"
-                              onError={(e) => {
-                                // Fallback for broken images
-                                (e.target as HTMLImageElement).src = 'https://placehold.co/32x32?text=?';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white">?</div>
-                          )}
-                          <div>
-                            <p className="font-medium text-[#FAFAFA]">
-                              {projectName}
-                            </p>
-                            <p className="text-sm text-[#ACBBCC]">
-                              {tokenSymbol}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4 text-[#FAFAFA]">
-                        {totalSoldFormatted}
-                      </td>
-                      <td className="p-4 text-[#ACBBCC]">
-                        {discountFormatted}
-                      </td>
-                      <td className="p-4 text-[#FAFAFA]">
-                        {endDateFormatted}
-                      </td>
-                      <td className="p-4">
-                        <CurrentChain chainId={bond?.chainId || "11155931"} />
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={5} className="text-center p-8 text-[#ACBBCC]">
-                    No completed bonds at the moment
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <motion.p
+          className="text-lg text-white/80 max-w-2xl text-center font-space"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          Explore historical bond campaigns that have successfully concluded. These represent projects that have completed their fundraising phases.
+        </motion.p>
+      </motion.div>
+
+      <motion.div
+        className="w-full mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
+        <div className="grid gap-[40px] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-[40px]">
+          {filteredBonds.length > 0 ? (
+            filteredBonds.map((bond: any, index: number) => (
+              <motion.div
+                key={`${bond.id}-${index}`}
+                variants={itemVariants}
+                whileHover={{
+                  scale: 1.02,
+                  transition: { duration: 0.3 }
+                }}
+              >
+                <BondCard bond={bond} />
+              </motion.div>
+            ))
+          ) : (
+            <motion.div
+              className="col-span-full text-center py-12 bg-deepspace/30 border border-cosmic/20 rounded-lg relative p-8"
+              variants={itemVariants}
+            >
+              {/* Decorative corner accents */}
+              <div className="absolute top-0 right-0 w-[20px] h-[20px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
+              <div className="absolute bottom-0 left-0 w-[20px] h-[20px] border-b-2 border-l-2 border-cosmic/50 rounded-bl-lg"></div>
+
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="relative inline-block mb-4"
+              >
+                <FaArchive className="text-6xl text-cosmic" />
+              </motion.div>
+
+              <motion.h3
+                className="text-2xl font-orbitron text-white mb-4"
+                animate={{ textShadow: ['0 0 0px rgba(108, 92, 231, 0)', '0 0 10px rgba(108, 92, 231, 0.5)', '0 0 0px rgba(108, 92, 231, 0)'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                No Past Bond Campaigns
+              </motion.h3>
+
+              <motion.p
+                className="text-white/70 max-w-md mx-auto font-space"
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                There are no completed bond campaigns in our records. Check back after our current campaigns have concluded.
+              </motion.p>
+            </motion.div>
+          )}
         </div>
-      </div>
+      </motion.div>
 
       {filteredBonds.length > itemsPerPage && <Pagination />}
     </div>

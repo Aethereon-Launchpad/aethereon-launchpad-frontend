@@ -41,11 +41,6 @@ export default function TxReceipt({ visible, onClose, title, txHash }: TxReceipt
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            transition={{
-                                type: "spring",
-                                damping: 15,
-                                stiffness: 300
-                            }}
                         >
                             {/* Decorative corner accents - all four corners */}
                             <div className="absolute top-0 right-0 w-[30px] h-[30px] border-t-2 border-r-2 border-cosmic/50 rounded-tr-lg"></div>
@@ -98,18 +93,16 @@ export default function TxReceipt({ visible, onClose, title, txHash }: TxReceipt
                                 <div className="relative">
                                     <motion.div
                                         className="bg-cosmic/20 p-4 rounded-full relative z-10"
-                                        animate={{
-                                            boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 20px rgba(108, 92, 231, 0.6)', '0 0 0px rgba(108, 92, 231, 0.3)']
-                                        }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                         initial={{ scale: 0 }}
-                                        animate={{ scale: 1, rotate: [0, 5, 0, -5, 0] }}
-                                        transition={{
-                                            scale: { type: "spring", stiffness: 300, damping: 15 },
-                                            rotate: { duration: 2, ease: "easeInOut", repeat: Infinity }
-                                        }}
+                                        animate={{ scale: 1, boxShadow: ['0 0 0px rgba(108, 92, 231, 0.3)', '0 0 20px rgba(108, 92, 231, 0.6)', '0 0 0px rgba(108, 92, 231, 0.3)'] }}
                                     >
-                                        <FaCheckCircle className="h-12 w-12 text-cosmic" />
+                                        <motion.div
+                                            animate={{ rotate: [0, 5, 0, -5, 0] }}
+                                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
+                                        >
+                                            <FaCheckCircle className="h-12 w-12 text-cosmic" />
+                                        </motion.div>
                                     </motion.div>
 
                                     {/* Orbiting Solana icon */}

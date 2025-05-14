@@ -10,6 +10,7 @@ export const chainMapping = {
   "84532": baseSepolia,
   "57054": sonic_testnet,
   "11155931": rise_testnet,
+  "245022926": rise_testnet, // Adding the missing chain ID, defaulting to rise_testnet
 };
 
 export const config = createConfig({

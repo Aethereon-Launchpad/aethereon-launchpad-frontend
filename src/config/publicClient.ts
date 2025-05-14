@@ -1,6 +1,7 @@
 import { createPublicClient, http, HttpTransport } from 'viem';
 import { chainMapping } from './index';
 import { CHAIN_ID } from '../utils/source';
+import { baseSepolia } from 'viem/chains';
 
 /**
  * Creates a public client for the current chain
@@ -36,7 +37,10 @@ export function getPublicClient() {
 
       // Create a new client and cache it
       clientCache[currentChainId] = createPublicClient({
-        chain: chainMapping[currentChainId],
+        // Fix the chain typing by checking if the currentChainId exists in the mapping
+        chain: currentChainId in chainMapping
+          ? chainMapping[currentChainId as keyof typeof chainMapping]
+          : baseSepolia, // Fallback to baseSepolia if chain not found
         transport: customHttpTransport,
         batch: {
           multicall: true

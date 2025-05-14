@@ -12,7 +12,6 @@ function Bonds() {
   usePageTitleBonds("Explore & Invest in Bonds")
   return (
     <Layout>
-      {/* <Hero/> */}
       <FeaturedBonds />
       <LiveAndUpcoming />
       <PastBonds />

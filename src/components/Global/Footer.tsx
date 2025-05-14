@@ -120,7 +120,11 @@ function Footer() {
         >
           {/* About Section */}
           <motion.div variants={itemVariants}>
-            <img src="/aethereon-logo.svg" className="h-[26px] lg:h-[38px] mb-4" alt="Aethereon Logo" />
+            <div className="mb-4">
+              <h1 className="text-2xl font-orbitron font-bold bg-gradient-to-r from-primary via-cosmic to-skyblue bg-clip-text text-transparent">
+                Aethereon
+              </h1>
+            </div>
             <p className="text-gray-300 text-sm font-space">
               Aethereon is a premier decentralized launchpad built on Solana, empowering the next generation of blockchain innovators with lightning-fast, low-cost token launches powered by $ATH
             </p>

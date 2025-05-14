@@ -67,18 +67,18 @@ input[type="number"] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5325a9;
+  background: #3498db;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b3bbf;
+  background: #3498db;
 }
 
 /* Firefox Scrollbar Styling */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #5325a9 #17043b;
+  scrollbar-color: #3498db #17043b;
 }
 
 .clip-path-polygon {

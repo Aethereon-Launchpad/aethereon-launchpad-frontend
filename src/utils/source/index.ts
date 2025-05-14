@@ -32,6 +32,13 @@ export const service = {
         owner: "0xd92CEB7B20D7fe095D4f1f6D373FeC6A934034FC"
     },
     "245022926":{
+        stakingPoolFactory: "0x9B44F55A3e9ae8f6415Ee96083E1193F6f7A2998",
+        drxToken: "0xc9762e2bc5f9A398b52e70B65c4620a85a2081DE",
+        usdToken: "0xFA64E2FDbf9ba4880043c16311C7b5A425c1c52F",
+        stakeLock: "0xBaB33cC1E26ADa9be8E0a00b581bd3951EC94200",
+        presaleFactory: "0xb054d93eB2ac18C5D4761198670AEaf8c2c03df0",
+        airdropFactory: "0xD018b00cd91Cf0dDb83DF4CA01711dE831Fb95B6",
+        bondFactory: "0x54d224E87d0DbA4600A5381845f556aDfAd25900",
         owner: "0xd92CEB7B20D7fe095D4f1f6D373FeC6A934034FC"
     }
 } as const;

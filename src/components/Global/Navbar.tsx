@@ -75,9 +75,17 @@ function Navbar() {
   return (
     <div className="flex items-center font-orbitron relative justify-between p-0  xl:p-[20px_40px] text-white">
       <div className="pl-[20px] py-[15px] xl:p-0">
-        <Link to="/">
-          <img src="/aethereon-logo.svg" className="hidden lg:block" alt="Aethereon" />
-          <img src="/aethereon-logo-sm.svg" className="block lg:hidden" alt="Aethereon" />
+        <Link to="/" className="flex items-center">
+          <div className="hidden lg:block">
+            <h1 className="text-3xl font-orbitron font-bold bg-gradient-to-r from-primary via-cosmic to-skyblue bg-clip-text text-transparent">
+              Aethereon
+            </h1>
+          </div>
+          <div className="block lg:hidden">
+            <h1 className="text-xl font-orbitron font-bold bg-gradient-to-r from-primary via-cosmic to-skyblue bg-clip-text text-transparent">
+              Aethereon
+            </h1>
+          </div>
         </Link>
       </div>
       <div className="hidden xl:flex items-center text-[#848895] space-x-[20px]">
