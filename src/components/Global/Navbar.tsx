@@ -77,14 +77,10 @@ function Navbar() {
       <div className="pl-[20px] py-[15px] xl:p-0">
         <Link to="/" className="flex items-center">
           <div className="hidden lg:block">
-            <h1 className="text-3xl font-orbitron font-bold bg-gradient-to-r from-primary via-cosmic to-skyblue bg-clip-text text-transparent">
-              Aethereon
-            </h1>
+            <img src="/aethereon-logo.png" alt="Aethereon" className="h-12" />
           </div>
           <div className="block lg:hidden">
-            <h1 className="text-xl font-orbitron font-bold bg-gradient-to-r from-primary via-cosmic to-skyblue bg-clip-text text-transparent">
-              Aethereon
-            </h1>
+            <img src="/aethereon-logo.png" alt="Aethereon" className="h-8" />
           </div>
         </Link>
       </div>
