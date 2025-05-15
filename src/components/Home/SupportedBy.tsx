@@ -31,7 +31,7 @@ const SupportedBy = () => {
     return (
         <section className="py-12 bg-gradient-to-b from-deepspace/10 to-deepspace/30 p-[60px]">
             <motion.div
-                className="flex items-center justify-center gap-2 mb-8"
+                className="flex items-center justify-center gap-2 mb-8 text-center"
                 initial={{ opacity: 0, y: -20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}

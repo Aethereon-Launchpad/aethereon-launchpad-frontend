@@ -103,7 +103,7 @@ export default function Navbar() {
                                 whileTap="tap"
                             >
                                 <SiSolana className="w-5 h-5 mr-2" />
-                                <span className="font-orbitron">Connect Solana Wallet</span>
+                                <span className="font-orbitron">Connect Wallet</span>
                             </motion.button>
                         )}
                     </motion.div>

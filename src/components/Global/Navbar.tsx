@@ -192,7 +192,7 @@ function Navbar() {
             ) : (
               <>
                 <SiSolana className="text-[12px] lg:text-[16px] mr-2 text-skyblue animate-pulse" />
-                <p className="text-[12px] lg:text-[16px]">Connect Solana Wallet</p>
+                <p className="text-[12px] lg:text-[16px]">Connect Wallet</p>
               </>
             )}
           </span>
